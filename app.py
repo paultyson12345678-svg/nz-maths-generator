@@ -16,7 +16,7 @@ st.markdown("Generate rich, context-aligned mathematical tasks for Phase 1 to Ph
 # --- SIDEBAR CONFIGURATION ---
 st.sidebar.header("Task Settings")
 
-# API Key input (checks secrets first, otherwise sidebar input)
+# API Key input
 api_key = st.sidebar.text_input("Gemini API Key", type="password", help="Enter your Google AI Studio API key to generate tasks.")
 
 # 1. Phase Selection
@@ -53,11 +53,9 @@ else:
 st.sidebar.markdown("---")
 generate_btn = st.sidebar.button("✨ Generate 3 Tasks", type="primary", use_container_width=True)
 
-# Initialize Session State for generated tasks
+# Initialize Session State
 if "generated_tasks" not in st.session_state:
     st.session_state.generated_tasks = None
-if "selected_task_index" not in st.session_state:
-    st.session_state.selected_task_index = 0
 
 
 # --- AI GENERATION LOGIC ---
@@ -89,8 +87,9 @@ if generate_btn:
                 - "ans2": Teacher solution/guidance for Question 2
                 """
 
+                # Using valid flash model
                 response = client.models.generate_content(
-                    model='gemini-3.5-flash',
+                    model='gemini-2.0-flash',
                     contents=prompt,
                 )
                 
@@ -102,96 +101,89 @@ if generate_btn:
                     raw_text = raw_text.split("```")[1].split("```")[0].strip()
                     
                 st.session_state.generated_tasks = json.loads(raw_text)
-                st.session_state.selected_task_index = 0
                 st.success("Generated 3 tasks successfully!")
 
             except Exception as e:
                 st.error(f"Error generating tasks: {e}")
 
 
-# --- TASK DISPLAY & SELECTION ---
+# --- 3-COLUMN SIDE-BY-SIDE DISPLAY ---
 if st.session_state.generated_tasks:
-    st.subheader("Select one of the generated options:")
-    
-    t_cols = st.columns(3)
+    st.markdown("---")
+    st.header("Generated Task Options")
+
+    # Create 3 columns for side-by-side display
+    cols = st.columns(3)
+
     for idx, task in enumerate(st.session_state.generated_tasks):
-        with t_cols[idx]:
-            if st.button(f"Option {idx + 1}: {task.get('title', 'Task ' + str(idx + 1))}", key=f"select_t_{idx}", use_container_width=True):
-                st.session_state.selected_task_index = idx
+        with cols[idx]:
+            st.subheader(f"Option {idx + 1}")
+            
+            # Editable Task Fields
+            t_title = st.text_input("Task Title", task.get("title", f"Task {idx + 1}"), key=f"title_{idx}")
+            t_scenario = st.text_area("Context & Scenario", task.get("scenario", ""), height=120, key=f"scenario_{idx}")
+            t_q1 = st.text_area("Question 1", task.get("q1", ""), height=70, key=f"q1_{idx}")
+            t_q2 = st.text_area("Question 2", task.get("q2", ""), height=70, key=f"q2_{idx}")
+            t_ext = st.text_area("Extension Challenge", task.get("extension", ""), height=70, key=f"ext_{idx}")
+            
+            with st.expander("Teacher Notes & Solutions"):
+                t_ans1 = st.text_area("Q1 Guidance", task.get("ans1", ""), height=80, key=f"ans1_{idx}")
+                t_ans2 = st.text_area("Q2 Guidance", task.get("ans2", ""), height=80, key=f"ans2_{idx}")
 
-    current_task = st.session_state.generated_tasks[st.session_state.selected_task_index]
+            questions_list = [t_q1, t_q2]
+            answers_list = [t_ans1, t_ans2]
 
-    st.markdown("---")
-    st.header(f"Editing Option {st.session_state.selected_task_index + 1}")
+            st.markdown("#### 📥 Exports")
+            
+            # PPTX Export
+            try:
+                pptx_data = generate_powerpoint_slide(
+                    title=t_title, scenario=t_scenario, questions=questions_list,
+                    extension=t_ext, phase=phase, theme=active_theme, answers=answers_list
+                )
+                st.download_button(
+                    label="📊 PowerPoint (.pptx)",
+                    data=pptx_data,
+                    file_name=f"{t_title.replace(' ', '_')}.pptx",
+                    mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                    key=f"pptx_btn_{idx}",
+                    use_container_width=True
+                )
+            except Exception as e:
+                st.error(f"PPTX Error: {e}")
 
-    col1, col2 = st.columns([2, 1])
+            # PDF Export
+            try:
+                pdf_data = generate_task_pdf(
+                    title=t_title, scenario=t_scenario, questions=questions_list,
+                    extension=t_ext, phase=phase, theme=active_theme, answers=answers_list
+                )
+                st.download_button(
+                    label="📄 Worksheet (.pdf)",
+                    data=pdf_data,
+                    file_name=f"{t_title.replace(' ', '_')}.pdf",
+                    mime="application/pdf",
+                    key=f"pdf_btn_{idx}",
+                    use_container_width=True
+                )
+            except Exception as e:
+                st.error(f"PDF Error: {e}")
 
-    with col1:
-        task_title = st.text_input("Task Title", current_task.get("title", ""))
-        scenario_text = st.text_area("Context & Scenario", current_task.get("scenario", ""), height=120)
-        q1_input = st.text_area("Question 1 (Main Task)", current_task.get("q1", ""), height=70)
-        q2_input = st.text_area("Question 2 (Follow-up)", current_task.get("q2", ""), height=70)
-        ext_input = st.text_area("Extension Challenge", current_task.get("extension", ""), height=70)
-
-    with col2:
-        st.subheader("Teacher Notes & Guidance")
-        ans1_input = st.text_area("Question 1 Solution & Tip", current_task.get("ans1", ""), height=100)
-        ans2_input = st.text_area("Question 2 Solution & Tip", current_task.get("ans2", ""), height=100)
-
-    questions_list = [q1_input, q2_input]
-    answers_list = [ans1_input, ans2_input]
-
-    st.markdown("---")
-    st.subheader("📥 Export & Download Deliverables")
-
-    exp_col1, exp_col2, exp_col3 = st.columns(3)
-
-    # PPTX Export
-    with exp_col1:
-        try:
-            pptx_data = generate_powerpoint_slide(
-                title=task_title, scenario=scenario_text, questions=questions_list,
-                extension=ext_input, phase=phase, theme=active_theme, answers=answers_list
-            )
-            st.download_button(
-                label="📊 Download PowerPoint (.pptx)",
-                data=pptx_data,
-                file_name=f"{task_title.replace(' ', '_')}.pptx",
-                mime="application/vnd.openxmlformats-officedocument.presentationml.presentation"
-            )
-        except Exception as e:
-            st.error(f"PowerPoint Export Error: {e}")
-
-    # PDF Export
-    with exp_col2:
-        try:
-            pdf_data = generate_task_pdf(
-                title=task_title, scenario=scenario_text, questions=questions_list,
-                extension=ext_input, phase=phase, theme=active_theme, answers=answers_list
-            )
-            st.download_button(
-                label="📄 Download Worksheet (.pdf)",
-                data=pdf_data,
-                file_name=f"{task_title.replace(' ', '_')}.pdf",
-                mime="application/pdf"
-            )
-        except Exception as e:
-            st.error(f"PDF Export Error: {e}")
-
-    # Task Card PNG Export
-    with exp_col3:
-        try:
-            card_data = generate_task_card_image(
-                title=task_title, scenario=scenario_text, questions=questions_list, extension=ext_input
-            )
-            st.download_button(
-                label="🖼️ Download Task Card (.png)",
-                data=card_data,
-                file_name=f"{task_title.replace(' ', '_')}.png",
-                mime="image/png"
-            )
-        except Exception as e:
-            st.error(f"Task Card Export Error: {e}")
+            # PNG Export
+            try:
+                card_data = generate_task_card_image(
+                    title=t_title, scenario=t_scenario, questions=questions_list, extension=t_ext
+                )
+                st.download_button(
+                    label="🖼️ Task Card (.png)",
+                    data=card_data,
+                    file_name=f"{t_title.replace(' ', '_')}.png",
+                    mime="image/png",
+                    key=f"png_btn_{idx}",
+                    use_container_width=True
+                )
+            except Exception as e:
+                st.error(f"PNG Error: {e}")
 
 else:
     st.info("👈 Select your parameters in the sidebar and click **'✨ Generate 3 Tasks'** to generate options!")
