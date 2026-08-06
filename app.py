@@ -1,10 +1,10 @@
-# app.py
 import streamlit as st
-import json
+import random
 import os
-from google import genai
+import io
+
 from curriculum import CURRICULUM_DATA, NZ_THEMES
-from exporters import generate_powerpoint_slide, generate_task_card_image, generate_task_pdf
+from exporters import generate_powerpoint_slide, generate_task_pdf, generate_task_card_image
 
 st.set_page_config(page_title="NZ Maths Rich Task Generator", page_icon="🇳🇿", layout="wide")
 
