@@ -1,5 +1,5 @@
 streamlit
-google-genai
 python-pptx
-pillow
 reportlab
+Pillow
+google-genai
