@@ -6,20 +6,23 @@ import io
 from curriculum import CURRICULUM_DATA, NZ_THEMES
 from exporters import generate_powerpoint_slide, generate_task_pdf, generate_task_card_image
 
-st.set_page_config(page_title="NZ Maths Rich Task Generator", page_icon="🇳🇿", layout="wide")
+st.set_page_config(page_title="NZ Primary Maths Task Generator", page_icon="🇳🇿", layout="wide")
 
-st.title("🇳🇿 Aotearoa NZ Maths Rich Task Generator")
-st.caption("Aligned with the Refreshed NZC Mathematics & Statistics Learning Sequences")
+st.title("🇳🇿 New Zealand Primary Maths Task Generator")
+st.markdown("Generate rich, context-aligned rich mathematical tasks for Phase 1 to Phase 3 (Years 1–8).")
 
-# --- SIDEBAR CONTROLS ---
-st.sidebar.header("1. Curriculum Parameters")
+# --- SIDEBAR CONFIGURATION ---
+st.sidebar.header("Task Settings")
 
+# 1. Phase Selection
 phase = st.sidebar.selectbox("Select Curriculum Phase", list(CURRICULUM_DATA.keys()))
+
+# 2. Year Level Selection based on Phase
 year_levels = list(CURRICULUM_DATA[phase].keys())
 year_level = st.sidebar.selectbox("Select Year Level", year_levels)
-# Safely pull available strands specifically defined for this phase and year level
-strands = list(CURRICULUM_DATA.get(phase, {}).get(year_level, {}).keys())
 
+# 3. Strand Selection
+strands = list(CURRICULUM_DATA[phase][year_level].keys())
 if strands:
     strand = st.sidebar.selectbox("Select Area / Strand", strands)
     available_skills = CURRICULUM_DATA[phase][year_level].get(strand, [])
@@ -28,140 +31,107 @@ else:
     strand = None
     available_skills = []
 
-st.sidebar.header("2. Context & Theme")
-selected_theme = st.sidebar.selectbox("Choose a Theme / Event", NZ_THEMES)
-
-if selected_theme == "Custom Context (Enter your own below)":
-    custom_theme = st.sidebar.text_input("Custom Context", value="School Bus Schedules & Timetables")
-    final_theme = custom_theme
+# 4. Specific Skill / Objective Selection
+if available_skills:
+    selected_skill = st.sidebar.selectbox("Select Learning Focus / Skill", available_skills)
 else:
-    final_theme = selected_theme
+    selected_skill = st.sidebar.text_input("Custom Learning Focus", "Solving real-world problem")
 
-additional_keywords = st.sidebar.text_input("Additional Directives (optional)", placeholder="e.g., multi-step word problem, include chart data")
+# 5. Theme / Context
+selected_theme = st.sidebar.selectbox("Select Cultural / NZ Context", NZ_THEMES)
+if selected_theme == "Custom Context (Enter your own below)":
+    custom_theme = st.sidebar.text_input("Enter Custom Theme", "School Gala")
+    active_theme = custom_theme if custom_theme else "School Gala"
+else:
+    active_theme = selected_theme
 
-api_key = os.environ.get("GEMINI_API_KEY") or st.sidebar.text_input("Enter Gemini API Key", type="password")
+# --- TASK GENERATOR DISPLAY ---
+st.header("Generated Learning Task")
 
-# --- GENERATION LOGIC ---
-if st.sidebar.button("✨ Generate 3 Rich Task Options", type="primary"):
-    if not skills:
-        st.warning("Please select at least one skill keyword from the sidebar.")
-    elif not api_key:
-        st.error("Please enter a valid Gemini API Key.")
-    else:
-        prompt = f"""
-You are an expert Aotearoa New Zealand mathematics educator.
-Target Phase: {phase}
-Target Year Level: {year_level}
-Strand/Area: {strand}
-Target Skills: {', '.join(skills)}
-Context/Theme: {final_theme}
-Extra Directives: {additional_keywords}
+col1, col2 = st.columns([2, 1])
 
-Generate 3 distinct rich math tasks appropriate specifically for {year_level} students using NZ English, Te Ao Māori concepts where natural, and local cultural contexts. Include step-by-step answers and teacher notes for each question.
+with col1:
+    task_title = st.text_input("Task Title", f"{active_theme}: {selected_skill if selected_skill else 'Maths Challenge'}")
+    scenario_text = st.text_area(
+        "Context & Scenario",
+        f"At the {active_theme}, students are exploring concepts related to {selected_skill.lower() if selected_skill else 'maths'}. "
+        f"They need to work together to solve challenges using their problem-solving strategies.",
+        height=100
+    )
 
-CRITICAL INSTRUCTIONS FOR JSON OUTPUT:
-- Return ONLY a valid, raw JSON object.
-- Do NOT use double quotes inside strings; use single quotes (') for any quotes or conversation inside scenarios or questions.
-- Match this exact JSON structure:
+    q1_input = st.text_area("Question 1 (Main Task)", "How many total items were used, and how did you work it out?", height=70)
+    q2_input = st.text_area("Question 2 (Follow-up)", "If the quantity doubled, what would the new total be?", height=70)
+    ext_input = st.text_area("Extension Challenge", "Can you write a rule or pattern to explain your findings to another group?", height=70)
 
-{{
-    "tasks": [
-        {{
-            "title": "Task Title",
-            "scenario": "Rich scenario paragraph introducing the problem",
-            "questions": ["Question 1", "Question 2"],
-            "extension": "Extension question for fast finishers",
-            "answers": ["Solution & explanation for Q1", "Solution & explanation for Q2"]
-        }}
-    ]
-}}
-"""
+with col2:
+    st.subheader("Teacher Notes & Guidance")
+    ans1_input = st.text_area("Question 1 Solution & Tip", "Encourage students to use visual representations or place value blocks.", height=80)
+    ans2_input = st.text_area("Question 2 Solution & Tip", "Look for multiplicative thinking vs repeated addition.", height=80)
 
-        try:
-            client = genai.Client(api_key=api_key)
-            response = client.models.generate_content(
-                model="gemini-3.5-flash",
-                contents=prompt,
-                config={"response_mime_type": "application/json"}
-            )
-            
-            # Clean up potential markdown formatting code blocks if returned
-            clean_text = response.text.strip()
-            if clean_text.startswith("```json"):
-                clean_text = clean_text[7:]
-            if clean_text.startswith("```"):
-                clean_text = clean_text[3:]
-            if clean_text.endswith("```"):
-                clean_text = clean_text[:-3]
-            clean_text = clean_text.strip()
+questions_list = [q1_input, q2_input]
+answers_list = [ans1_input, ans2_input]
 
-            parsed = json.loads(clean_text)
-            tasks = parsed.get("tasks", [])
-            st.session_state["tasks"] = tasks
-            st.session_state["generated_phase"] = phase
-            st.session_state["generated_theme"] = final_theme
-            
-        except Exception as e:
-            st.error(f"Error generating tasks: {e}")
+st.markdown("---")
+st.subheader("📥 Export & Download Deliverables")
 
-# --- DISPLAY OPTIONS & EXPORT ---
-if "tasks" in st.session_state and st.session_state["tasks"]:
-    st.subheader("Generated Tasks")
-    
-    tasks = st.session_state["tasks"]
-    cols = st.columns(len(tasks))
-    
-    for idx, (col, task) in enumerate(zip(cols, tasks)):
-        with col:
-            st.markdown(f"### Option {idx + 1}: {task['title']}")
-            st.info(task['scenario'])
-            
-            st.write("**Questions:**")
-            for q_idx, q in enumerate(task['questions'], 1):
-                st.write(f"{q_idx}. {q}")
-                
-            st.success(f"**Extension:** {task['extension']}")
-            
-            # Show Answer Key Accordion
-            if "answers" in task:
-                with st.expander("📝 View Teacher Answer Key & Guidance"):
-                    for q_idx, ans in enumerate(task['answers'], 1):
-                        st.write(f"**Q{q_idx}:** {ans}")
-            
-            st.markdown("---")
-            
-            # Printable PDF Worksheet Download (Includes Working Boxes & Teacher Answer Page)
-            pdf_bytes = generate_task_pdf(
-                task['title'], 
-                task['scenario'], 
-                task['questions'], 
-                task['extension'], 
-                st.session_state["generated_phase"], 
-                st.session_state["generated_theme"],
-                task.get("answers")
-            )
-            st.download_button(
-                label="📄 Download Student Worksheet PDF",
-                data=pdf_bytes,
-                file_name=f"Maths_Worksheet_Task_{idx + 1}.pdf",
-                mime="application/pdf",
-                key=f"pdf_{idx}"
-            )
-            
-            # Google Slides (.pptx) Download (Includes Lesson Presentation + Answer Slide)
-            pptx_bytes = generate_powerpoint_slide(
-                task['title'], 
-                task['scenario'], 
-                task['questions'], 
-                task['extension'], 
-                st.session_state["generated_phase"], 
-                st.session_state["generated_theme"],
-                task.get("answers")
-            )
-            st.download_button(
-                label="📥 Download Lesson Slide (.pptx)",
-                data=pptx_bytes,
-                file_name=f"Maths_Lesson_Slide_{idx + 1}.pptx",
-                mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                key=f"pptx_{idx}"
-            )
+exp_col1, exp_col2, exp_col3 = st.columns(3)
+
+# PPTX Export
+with exp_col1:
+    try:
+        pptx_data = generate_powerpoint_slide(
+            title=task_title,
+            scenario=scenario_text,
+            questions=questions_list,
+            extension=ext_input,
+            phase=phase,
+            theme=active_theme,
+            answers=answers_list
+        )
+        st.download_button(
+            label="📊 Download PowerPoint (.pptx)",
+            data=pptx_data,
+            file_name=f"{task_title.replace(' ', '_')}.pptx",
+            mime="application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        )
+    except Exception as e:
+        st.error(f"Error generating PowerPoint: {e}")
+
+# PDF Export
+with exp_col2:
+    try:
+        pdf_data = generate_task_pdf(
+            title=task_title,
+            scenario=scenario_text,
+            questions=questions_list,
+            extension=ext_input,
+            phase=phase,
+            theme=active_theme,
+            answers=answers_list
+        )
+        st.download_button(
+            label="📄 Download Worksheet (.pdf)",
+            data=pdf_data,
+            file_name=f"{task_title.replace(' ', '_')}.pdf",
+            mime="application/pdf"
+        )
+    except Exception as e:
+        st.error(f"Error generating PDF: {e}")
+
+# Task Card PNG Export
+with exp_col3:
+    try:
+        card_data = generate_task_card_image(
+            title=task_title,
+            scenario=scenario_text,
+            questions=questions_list,
+            extension=ext_input
+        )
+        st.download_button(
+            label="🖼️ Download Task Card (.png)",
+            data=card_data,
+            file_name=f"{task_title.replace(' ', '_')}.png",
+            mime="image/png"
+        )
+    except Exception as e:
+        st.error(f"Error generating Task Card: {e}")
