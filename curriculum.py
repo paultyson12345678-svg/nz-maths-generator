@@ -129,9 +129,9 @@ CURRICULUM_DATA = {
     "Geometry": [...],
     "Statistics": [...],
     "Probability": [...]
-}
     }
 }
+
 NZ_THEMES = [
     "Super Rugby / Netball / Local Sports Day",
     "School Hāngī / Matariki Celebration",
