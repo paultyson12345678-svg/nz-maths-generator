@@ -90,27 +90,47 @@ CURRICULUM_DATA = {
     },
     "Phase 2": {
         "Year 4": {
-            "Number": ["Place value to 10,000", "Multiplication facts for 2s, 5s, and 10s"],
-            "Measurement": ["Calculating perimeter of simple 2D shapes"]
+    "Number": [...],
+    "Algebra": [...],
+    "Measurement": [...],
+    "Geometry": [...],
+    "Statistics": [...]
         },
         "Year 5": {
-            "Number": ["Place value to 100,000", "Multiplication facts up to 10 x 10"],
-            "Measurement": ["Area of grid-based rectilinear shapes"]
+            "Number": [...],
+    "Algebra": [...],
+    "Measurement": [...],
+    "Geometry": [...],
+    "Statistics": [...],
+    "Probability": [...]  # Introduce Probability here if applicable
+},
         },
         "Year 6": {
-            "Number": ["Fractions, decimals, and percentage equivalents (10%, 25%, 50%)"],
-            "Measurement": ["Perimeter and area formulas for compound shapes"]
+            "Number": [...],
+    "Algebra": [...],
+    "Measurement": [...],
+    "Geometry": [...],
+    "Statistics": [...],
+    "Probability": [...]
         }
     },
     "Phase 3": {
         "Year 7": {
-            "Number": ["Positive and negative integers", "Order of operations (BEDMAS)"],
-            "Algebra": ["Simplifying linear expressions"]
+    "Number": [...],
+    "Algebra": [...],
+    "Measurement": [...],
+    "Geometry": [...],
+    "Statistics": [...],
+    "Probability": [...]
         },
-        "Year 8": {
-            "Number": ["Powers of 10 and exponents", "Converting fractions, decimals, percentages"],
-            "Algebra": ["Solving 2-step linear equations and graphing y = mx + c"]
-        }
+       "Year 8": {
+    "Number": [...],
+    "Algebra": [...],
+    "Measurement": [...],
+    "Geometry": [...],
+    "Statistics": [...],
+    "Probability": [...]
+}
     }
 }
 
