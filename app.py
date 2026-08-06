@@ -14,9 +14,20 @@ st.caption("Aligned with the Refreshed NZC Mathematics & Statistics Learning Seq
 # --- SIDEBAR CONTROLS ---
 st.sidebar.header("1. Curriculum Parameters")
 
-phase = st.sidebar.selectbox("Select Phase / Year Level", list(CURRICULUM_DATA.keys()))
-strand = st.sidebar.selectbox("Select Area / Strand", list(CURRICULUM_DATA[phase].keys()))
-skills = st.sidebar.multiselect("Select Specific Skills / Objectives", CURRICULUM_DATA[phase][strand])
+# 1. Phase Dropdown
+phase = st.sidebar.selectbox("Select Curriculum Phase", list(CURRICULUM_DATA.keys()))
+
+# 2. Year Level Dropdown (Filtered by selected Phase)
+year_levels = list(CURRICULUM_DATA[phase].keys())
+year_level = st.sidebar.selectbox("Select Year Level", year_levels)
+
+# 3. Strand Dropdown (Filtered by Year Level)
+strands = list(CURRICULUM_DATA[phase][year_level].keys())
+strand = st.sidebar.selectbox("Select Area / Strand", strands)
+
+# 4. Specific Skills Multiselect (Filtered by Strand)
+available_skills = CURRICULUM_DATA[phase][year_level][strand]
+skills = st.sidebar.multiselect("Select Specific Skills / Objectives", available_skills)
 
 st.sidebar.header("2. Context & Theme")
 selected_theme = st.sidebar.selectbox("Choose a Theme / Event", NZ_THEMES)
