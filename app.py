@@ -42,7 +42,7 @@ if st.sidebar.button("✨ Generate 3 Rich Task Options", type="primary"):
     elif not api_key:
         st.error("Please enter a valid Gemini API Key.")
     else:
-prompt = f"""
+        prompt = f"""
 You are an expert Aotearoa New Zealand mathematics educator.
 Target Phase: {phase}
 Target Year Level: {year_level}
@@ -71,7 +71,7 @@ CRITICAL INSTRUCTIONS FOR JSON OUTPUT:
 }}
 """
 
-      try:
+        try:
             client = genai.Client(api_key=api_key)
             response = client.models.generate_content(
                 model="gemini-3.5-flash",
