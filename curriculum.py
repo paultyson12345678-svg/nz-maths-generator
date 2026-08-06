@@ -1,5 +1,4 @@
 # curriculum.py
-
 CURRICULUM_DATA = {
     "Phase 1": {
         "Year 0-1": {
@@ -133,7 +132,6 @@ CURRICULUM_DATA = {
 }
     }
 }
-
 NZ_THEMES = [
     "Super Rugby / Netball / Local Sports Day",
     "School Hāngī / Matariki Celebration",
