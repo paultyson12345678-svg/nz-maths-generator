@@ -2,7 +2,7 @@
 import streamlit as st
 import json
 import os
-from openai import OpenAI
+from google import genai
 from curriculum import CURRICULUM_DATA, NZ_THEMES
 from exporters import generate_powerpoint_slide, generate_task_card_image
 
@@ -30,14 +30,14 @@ else:
 additional_keywords = st.sidebar.text_input("Additional Directives (optional)", placeholder="e.g., multi-step word problem, include chart data")
 
 # API Key Check
-api_key = os.environ.get("OPENAI_API_KEY") or st.sidebar.text_input("Enter OpenAI API Key", type="password")
+api_key = os.environ.get("GEMINI_API_KEY") or st.sidebar.text_input("Enter Gemini API Key", type="password")
 
 # --- GENERATION LOGIC ---
 if st.sidebar.button("✨ Generate 3 Rich Task Options", type="primary"):
     if not skills:
         st.warning("Please select at least one skill keyword from the sidebar.")
     elif not api_key:
-        st.error("Please add your OPENAI_API_KEY to secrets or enter it in the sidebar.")
+        st.error("Please enter a valid Gemini API Key.")
     else:
         prompt = f"""
         You are an expert Aotearoa New Zealand mathematics educator.
@@ -48,7 +48,7 @@ if st.sidebar.button("✨ Generate 3 Rich Task Options", type="primary"):
         Extra Directives: {additional_keywords}
 
         Generate 3 distinct rich math tasks using NZ English, Te Ao Māori concepts where natural, and local cultural/practical contexts.
-        Return ONLY valid JSON with this structure:
+        Return ONLY valid JSON matching this exact structure:
         {{
             "tasks": [
                 {{
@@ -62,14 +62,14 @@ if st.sidebar.button("✨ Generate 3 Rich Task Options", type="primary"):
         """
 
         try:
-            client = OpenAI(api_key=api_key)
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                response_format={"type": "json_object"}
+            client = genai.Client(api_key=api_key)
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt,
+                config={"response_mime_type": "application/json"}
             )
             
-            parsed = json.loads(response.choices[0].message.content)
+            parsed = json.loads(response.text)
             tasks = parsed.get("tasks", [])
             st.session_state["tasks"] = tasks
             st.session_state["generated_phase"] = phase
