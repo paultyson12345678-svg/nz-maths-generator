@@ -50,15 +50,16 @@ if st.sidebar.button("✨ Generate 3 Rich Task Options", type="primary"):
     elif not api_key:
         st.error("Please enter a valid Gemini API Key.")
     else:
-        prompt = f"""
+   prompt = f"""
         You are an expert Aotearoa New Zealand mathematics educator.
         Target Phase: {phase}
+        Target Year Level: {year_level}
         Strand/Area: {strand}
         Target Skills: {', '.join(skills)}
         Context/Theme: {final_theme}
         Extra Directives: {additional_keywords}
 
-        Generate 3 distinct rich math tasks using NZ English, Te Ao Māori concepts where natural, and local cultural/practical contexts.
+        Generate 3 distinct rich math tasks appropriate specifically for {year_level} students using NZ English, Te Ao Māori concepts where natural, and local cultural/practical contexts.
         Return ONLY valid JSON matching this exact structure:
         {{
             "tasks": [
