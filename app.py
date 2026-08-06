@@ -4,7 +4,7 @@ import json
 import os
 from google import genai
 from curriculum import CURRICULUM_DATA, NZ_THEMES
-from exporters import generate_powerpoint_slide, generate_task_card_image
+from exporters import generate_powerpoint_slide, generate_task_card_image, generate_task_pdf
 
 st.set_page_config(page_title="NZ Maths Rich Task Generator", page_icon="🇳🇿", layout="wide")
 
@@ -14,18 +14,11 @@ st.caption("Aligned with the Refreshed NZC Mathematics & Statistics Learning Seq
 # --- SIDEBAR CONTROLS ---
 st.sidebar.header("1. Curriculum Parameters")
 
-# 1. Phase Dropdown
 phase = st.sidebar.selectbox("Select Curriculum Phase", list(CURRICULUM_DATA.keys()))
-
-# 2. Year Level Dropdown (Filtered by selected Phase)
 year_levels = list(CURRICULUM_DATA[phase].keys())
 year_level = st.sidebar.selectbox("Select Year Level", year_levels)
-
-# 3. Strand Dropdown (Filtered by Year Level)
 strands = list(CURRICULUM_DATA[phase][year_level].keys())
 strand = st.sidebar.selectbox("Select Area / Strand", strands)
-
-# 4. Specific Skills Multiselect (Filtered by Strand)
 available_skills = CURRICULUM_DATA[phase][year_level][strand]
 skills = st.sidebar.multiselect("Select Specific Skills / Objectives", available_skills)
 
@@ -40,7 +33,6 @@ else:
 
 additional_keywords = st.sidebar.text_input("Additional Directives (optional)", placeholder="e.g., multi-step word problem, include chart data")
 
-# API Key Check
 api_key = os.environ.get("GEMINI_API_KEY") or st.sidebar.text_input("Enter Gemini API Key", type="password")
 
 # --- GENERATION LOGIC ---
@@ -59,7 +51,8 @@ Target Skills: {', '.join(skills)}
 Context/Theme: {final_theme}
 Extra Directives: {additional_keywords}
 
-Generate 3 distinct rich math tasks appropriate specifically for {year_level} students using NZ English, Te Ao Māori concepts where natural, and local cultural/practical contexts.
+Generate 3 distinct rich math tasks appropriate specifically for {year_level} students using NZ English, Te Ao Māori concepts where natural, and local cultural contexts. Include step-by-step answers and teacher notes for each question.
+
 Return ONLY valid JSON matching this exact structure:
 {{
     "tasks": [
@@ -67,7 +60,8 @@ Return ONLY valid JSON matching this exact structure:
             "title": "Task Title",
             "scenario": "Rich scenario paragraph introducing the problem",
             "questions": ["Question 1", "Question 2"],
-            "extension": "Extension question for fast finishers"
+            "extension": "Extension question for fast finishers",
+            "answers": ["Solution & explanation for Q1", "Solution & explanation for Q2"]
         }}
     ]
 }}
@@ -107,36 +101,47 @@ if "tasks" in st.session_state and st.session_state["tasks"]:
                 st.write(f"{q_idx}. {q}")
                 
             st.success(f"**Extension:** {task['extension']}")
+            
+            # Show Answer Key Accordion
+            if "answers" in task:
+                with st.expander("📝 View Teacher Answer Key & Guidance"):
+                    for q_idx, ans in enumerate(task['answers'], 1):
+                        st.write(f"**Q{q_idx}:** {ans}")
+            
             st.markdown("---")
             
-            # Google Slides (.pptx) Download
+            # Printable PDF Worksheet Download (Includes Working Boxes & Teacher Answer Page)
+            pdf_bytes = generate_task_pdf(
+                task['title'], 
+                task['scenario'], 
+                task['questions'], 
+                task['extension'], 
+                st.session_state["generated_phase"], 
+                st.session_state["generated_theme"],
+                task.get("answers")
+            )
+            st.download_button(
+                label="📄 Download Student Worksheet PDF",
+                data=pdf_bytes,
+                file_name=f"Maths_Worksheet_Task_{idx + 1}.pdf",
+                mime="application/pdf",
+                key=f"pdf_{idx}"
+            )
+            
+            # Google Slides (.pptx) Download (Includes Lesson Presentation + Answer Slide)
             pptx_bytes = generate_powerpoint_slide(
                 task['title'], 
                 task['scenario'], 
                 task['questions'], 
                 task['extension'], 
                 st.session_state["generated_phase"], 
-                st.session_state["generated_theme"]
+                st.session_state["generated_theme"],
+                task.get("answers")
             )
             st.download_button(
-                label="📥 Download Google Slide (.pptx)",
+                label="📥 Download Lesson Slide (.pptx)",
                 data=pptx_bytes,
-                file_name=f"Maths_Task_{idx + 1}.pptx",
+                file_name=f"Maths_Lesson_Slide_{idx + 1}.pptx",
                 mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
                 key=f"pptx_{idx}"
-            )
-            
-            # PNG Image Download
-            img_bytes = generate_task_card_image(
-                task['title'], 
-                task['scenario'], 
-                task['questions'], 
-                task['extension']
-            )
-            st.download_button(
-                label="🖼️ Download PNG Image",
-                data=img_bytes,
-                file_name=f"Maths_Task_{idx + 1}.png",
-                mime="image/png",
-                key=f"img_{idx}"
             )
