@@ -17,10 +17,16 @@ st.sidebar.header("1. Curriculum Parameters")
 phase = st.sidebar.selectbox("Select Curriculum Phase", list(CURRICULUM_DATA.keys()))
 year_levels = list(CURRICULUM_DATA[phase].keys())
 year_level = st.sidebar.selectbox("Select Year Level", year_levels)
-strands = list(CURRICULUM_DATA[phase][year_level].keys())
-strand = st.sidebar.selectbox("Select Area / Strand", strands)
-available_skills = CURRICULUM_DATA[phase][year_level][strand]
-skills = st.sidebar.multiselect("Select Specific Skills / Objectives", available_skills)
+# Safely pull available strands specifically defined for this phase and year level
+strands = list(CURRICULUM_DATA.get(phase, {}).get(year_level, {}).keys())
+
+if strands:
+    strand = st.sidebar.selectbox("Select Area / Strand", strands)
+    available_skills = CURRICULUM_DATA[phase][year_level].get(strand, [])
+else:
+    st.sidebar.warning(f"No strands configured for {year_level} yet.")
+    strand = None
+    available_skills = []
 
 st.sidebar.header("2. Context & Theme")
 selected_theme = st.sidebar.selectbox("Choose a Theme / Event", NZ_THEMES)
