@@ -85,11 +85,12 @@ if generate_btn:
                 - "extension": An extension challenge question for fast finishers
                 - "ans1": Teacher solution/guidance for Question 1
                 - "ans2": Teacher solution/guidance for Question 2
+                - "ans_ext": Teacher solution/guidance for Extension Challenge
                 """
 
-                # Using valid flash model
+                # Call model using current client
                 response = client.models.generate_content(
-                    model='gemini-3.5-flash',
+                    model='gemini-2.0-flash',
                     contents=prompt,
                 )
                 
@@ -112,27 +113,37 @@ if st.session_state.generated_tasks:
     st.markdown("---")
     st.header("Generated Task Options")
 
-    # Create 3 columns for side-by-side display
     cols = st.columns(3)
 
     for idx, task in enumerate(st.session_state.generated_tasks):
         with cols[idx]:
             st.subheader(f"Option {idx + 1}")
             
-            # Editable Task Fields
-            t_title = st.text_input("Task Title", task.get("title", f"Task {idx + 1}"), key=f"title_{idx}")
-            t_scenario = st.text_area("Context & Scenario", task.get("scenario", ""), height=120, key=f"scenario_{idx}")
-            t_q1 = st.text_area("Question 1", task.get("q1", ""), height=70, key=f"q1_{idx}")
-            t_q2 = st.text_area("Question 2", task.get("q2", ""), height=70, key=f"q2_{idx}")
-            t_ext = st.text_area("Extension Challenge", task.get("extension", ""), height=70, key=f"ext_{idx}")
+            t_title = task.get("title", f"Task {idx + 1}")
+            t_scenario = task.get("scenario", "")
+            t_q1 = task.get("q1", "")
+            t_q2 = task.get("q2", "")
+            t_ext = task.get("extension", "")
+            t_ans1 = task.get("ans1", "")
+            t_ans2 = task.get("ans2", "")
+            t_ans_ext = task.get("ans_ext", "")
+
+            # Static display boxes (no scrolling text areas)
+            st.markdown(f"### **{t_title}**")
+            st.markdown(f"**Context & Scenario:**\n\n{t_scenario}")
+            st.markdown(f"**Question 1:**\n\n{t_q1}")
+            st.markdown(f"**Question 2:**\n\n{t_q2}")
+            st.markdown(f"**Extension Challenge:**\n\n{t_ext}")
             
             with st.expander("Teacher Notes & Solutions"):
-                t_ans1 = st.text_area("Q1 Guidance", task.get("ans1", ""), height=80, key=f"ans1_{idx}")
-                t_ans2 = st.text_area("Q2 Guidance", task.get("ans2", ""), height=80, key=f"ans2_{idx}")
+                st.markdown(f"**Q1 Solution:**\n{t_ans1}")
+                st.markdown(f"**Q2 Solution:**\n{t_ans2}")
+                st.markdown(f"**Extension Solution:**\n{t_ans_ext}")
 
             questions_list = [t_q1, t_q2]
-            answers_list = [t_ans1, t_ans2]
+            answers_list = [t_ans1, t_ans2, t_ans_ext]
 
+            st.markdown("---")
             st.markdown("#### 📥 Exports")
             
             # PPTX Export
