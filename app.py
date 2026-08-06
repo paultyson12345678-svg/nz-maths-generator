@@ -97,16 +97,6 @@ CRITICAL INSTRUCTIONS FOR JSON OUTPUT:
             
         except Exception as e:
             st.error(f"Error generating tasks: {e}")
-            )
-            
-            parsed = json.loads(response.text)
-            tasks = parsed.get("tasks", [])
-            st.session_state["tasks"] = tasks
-            st.session_state["generated_phase"] = phase
-            st.session_state["generated_theme"] = final_theme
-            
-        except Exception as e:
-            st.error(f"Error generating tasks: {e}")
 
 # --- DISPLAY OPTIONS & EXPORT ---
 if "tasks" in st.session_state and st.session_state["tasks"]:
