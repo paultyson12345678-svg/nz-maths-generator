@@ -1,4 +1,3 @@
-# curriculum.py
 CURRICULUM_DATA = {
     "Phase 1": {
         "Year 0-1": {
