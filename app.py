@@ -42,7 +42,7 @@ if st.sidebar.button("✨ Generate 3 Rich Task Options", type="primary"):
     elif not api_key:
         st.error("Please enter a valid Gemini API Key.")
     else:
-        prompt = f"""
+prompt = f"""
 You are an expert Aotearoa New Zealand mathematics educator.
 Target Phase: {phase}
 Target Year Level: {year_level}
@@ -53,7 +53,11 @@ Extra Directives: {additional_keywords}
 
 Generate 3 distinct rich math tasks appropriate specifically for {year_level} students using NZ English, Te Ao Māori concepts where natural, and local cultural contexts. Include step-by-step answers and teacher notes for each question.
 
-Return ONLY valid JSON matching this exact structure:
+CRITICAL INSTRUCTIONS FOR JSON OUTPUT:
+- Return ONLY a valid, raw JSON object.
+- Do NOT use double quotes inside strings; use single quotes (') for any quotes or conversation inside scenarios or questions.
+- Match this exact JSON structure:
+
 {{
     "tasks": [
         {{
@@ -67,12 +71,32 @@ Return ONLY valid JSON matching this exact structure:
 }}
 """
 
-        try:
+      try:
             client = genai.Client(api_key=api_key)
             response = client.models.generate_content(
                 model="gemini-3.5-flash",
                 contents=prompt,
                 config={"response_mime_type": "application/json"}
+            )
+            
+            # Clean up potential markdown formatting code blocks if returned
+            clean_text = response.text.strip()
+            if clean_text.startswith("```json"):
+                clean_text = clean_text[7:]
+            if clean_text.startswith("```"):
+                clean_text = clean_text[3:]
+            if clean_text.endswith("```"):
+                clean_text = clean_text[:-3]
+            clean_text = clean_text.strip()
+
+            parsed = json.loads(clean_text)
+            tasks = parsed.get("tasks", [])
+            st.session_state["tasks"] = tasks
+            st.session_state["generated_phase"] = phase
+            st.session_state["generated_theme"] = final_theme
+            
+        except Exception as e:
+            st.error(f"Error generating tasks: {e}")
             )
             
             parsed = json.loads(response.text)
