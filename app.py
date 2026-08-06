@@ -50,33 +50,33 @@ if st.sidebar.button("✨ Generate 3 Rich Task Options", type="primary"):
     elif not api_key:
         st.error("Please enter a valid Gemini API Key.")
     else:
-   prompt = f"""
-        You are an expert Aotearoa New Zealand mathematics educator.
-        Target Phase: {phase}
-        Target Year Level: {year_level}
-        Strand/Area: {strand}
-        Target Skills: {', '.join(skills)}
-        Context/Theme: {final_theme}
-        Extra Directives: {additional_keywords}
+        prompt = f"""
+You are an expert Aotearoa New Zealand mathematics educator.
+Target Phase: {phase}
+Target Year Level: {year_level}
+Strand/Area: {strand}
+Target Skills: {', '.join(skills)}
+Context/Theme: {final_theme}
+Extra Directives: {additional_keywords}
 
-        Generate 3 distinct rich math tasks appropriate specifically for {year_level} students using NZ English, Te Ao Māori concepts where natural, and local cultural/practical contexts.
-        Return ONLY valid JSON matching this exact structure:
+Generate 3 distinct rich math tasks appropriate specifically for {year_level} students using NZ English, Te Ao Māori concepts where natural, and local cultural/practical contexts.
+Return ONLY valid JSON matching this exact structure:
+{{
+    "tasks": [
         {{
-            "tasks": [
-                {{
-                    "title": "Task Title",
-                    "scenario": "Rich scenario paragraph introducing the problem",
-                    "questions": ["Question 1", "Question 2"],
-                    "extension": "Extension question for fast finishers"
-                }}
-            ]
+            "title": "Task Title",
+            "scenario": "Rich scenario paragraph introducing the problem",
+            "questions": ["Question 1", "Question 2"],
+            "extension": "Extension question for fast finishers"
         }}
-        """
+    ]
+}}
+"""
 
         try:
             client = genai.Client(api_key=api_key)
             response = client.models.generate_content(
-                model="gemini-3.5-flash",
+                model="gemini-2.5-flash",
                 contents=prompt,
                 config={"response_mime_type": "application/json"}
             )
