@@ -1,143 +1,219 @@
 CURRICULUM_DATA = {
-    "Phase 1": {
-        "Year 0-1": {
+    "Phase 1 (Years 1-3)": {
+        "Year 1": {
             "Number": [
-                "Counting forwards and backwards to 20 from any given number",
-                "Subitising collections of up to 5 objects without counting",
-                "Counting collections up to 10 using one-to-one correspondence",
-                "Comparing collections of objects (greater than, less than, or same)",
-                "Memorising addition and subtraction facts up to 5",
-                "Halving and doubling small quantities up to 10"
+                "Counting up to 20 forward and backward",
+                "Recognising and writing numbers to 20",
+                "Addition and subtraction within 10 using objects"
             ],
             "Algebra": [
-                "Noticing, repeating, and continuing simple AB and ABC patterns",
-                "Creating simple repeating patterns with objects and colors"
+                "Continuing simple repeating patterns (shape, color, sound)",
+                "Identifying missing elements in simple visual patterns"
             ],
             "Measurement": [
-                "Comparing length and mass directly (longer/shorter, heavier/lighter)",
-                "Comparing capacity directly (holds more/holds less)",
-                "Sequencing daily events (morning, afternoon, night, days of the week)"
+                "Comparing and ordering objects by length, mass, and capacity using direct comparison",
+                "Days of the week and sequencing daily events"
             ],
             "Geometry": [
-                "Recognising, naming, and sorting basic 2D shapes (circle, square, triangle, rectangle)",
-                "Describing position using spatial language (in, on, under, beside, next to)"
+                "Identifying and naming common 2D shapes (circle, square, triangle, rectangle)",
+                "Describing position using spatial language (on, under, inside, beside)"
             ],
-            "Statistics & Probability": [
-                "Sorting physical objects into groups based on a single feature",
-                "Answering simple count questions about sorted groups",
-                "Describing likelihood using everyday terms (will happen, won't happen, might happen)"
+            "Statistics": [
+                "Sorting objects into categories based on one attribute",
+                "Answering simple questions about data displayed in picture graphs"
             ]
         },
         "Year 2": {
             "Number": [
-                "Reading, writing, and representing numbers up to 120 using base 10 structure",
-                "Skip counting forwards and backwards in 2s, 5s, and 10s up to 120",
-                "Identifying odd and even numbers up to 120",
-                "Place value of two-digit numbers (tens and ones)",
-                "Memorising addition/subtraction facts and doubles/halves to 10",
-                "Adding and subtracting one-digit numbers to/from a two-digit number (e.g. 32 + 5)"
+                "Counting to 100, skip counting in 2s, 5s, and 10s",
+                "Place value for 2-digit numbers (tens and ones)",
+                "Addition and subtraction facts up to 20"
             ],
             "Algebra": [
-                "Finding missing elements in repeating patterns",
-                "Completing open number sentences (e.g., 5 + __ = 9)"
+                "Creating and describing repeating and growing patterns",
+                "Solving simple equality problems (e.g., 5 + ? = 8)"
             ],
             "Measurement": [
-                "Telling time to the hour and half-hour on analog and digital clocks",
-                "Measuring and comparing lengths using non-standard units (e.g., hand spans, blocks)",
-                "Ordering duration of familiar events"
+                "Measuring length and height using non-standard units",
+                "Telling time to the hour and half-hour on analog and digital clocks"
             ],
             "Geometry": [
-                "Describing features of 2D shapes (sides, corners) and 3D objects (faces)",
-                "Giving and following simple directional movement instructions (turns, steps)"
+                "Describing properties of 2D shapes (sides and corners)",
+                "Recognising 3D objects in the environment (spheres, cubes, cylinders)"
             ],
-            "Statistics & Probability": [
-                "Gathering categorical data using tallies and making simple pictographs",
-                "Interpreting pictographs with 1-to-1 representation",
-                "Identifying possible outcomes of simple chance events"
+            "Statistics": [
+                "Collecting data using simple tally charts",
+                "Creating and reading simple pictographs and bar graphs"
             ]
         },
         "Year 3": {
             "Number": [
-                "Reading, writing, and place value of three-digit numbers up to 1,000",
-                "Comparing and ordering whole numbers up to 1,000",
-                "Memorising addition and subtraction facts to 20 and doubles/halves to 20",
-                "Solving 1-step and 2-step addition and subtraction problems up to 100",
-                "Multiplication and division via equal groups, arrays, and skip counting (2s, 5s, 10s)",
-                "Identifying 1/2, 1/3, and 1/4 of shapes, lengths, and sets"
+                "Place value up to 1,000",
+                "Basic recall of 2x, 5x, and 10x multiplication facts",
+                "Simple unit fractions (1/2, 1/4, 1/3) of shapes and quantities"
             ],
             "Algebra": [
-                "Creating and continuing growing numeric patterns (e.g., 2, 4, 6, 8...)",
-                "Checking truth value of number sentences (e.g., 7 - 5 = 6 - 4, true or false?)"
+                "Identifying rules in number patterns (e.g., add 3 each time)",
+                "Understanding the equal sign as balance in equations"
             ],
             "Measurement": [
-                "Telling time to 5-minute intervals on analog and digital clocks",
-                "Estimating and measuring length (cm, m), mass (g, kg), and capacity (mL, L) using standard tools",
-                "Comparing objects using whole-number metric units"
+                "Measuring length using standard units (cm, m)",
+                "Telling time to quarter past and quarter to",
+                "Comparing mass in grams and capacity in millilitres"
             ],
             "Geometry": [
-                "Classifying 2D polygons and 3D shapes by geometric properties",
-                "Identifying line symmetry in shapes and pictures",
-                "Describing position using simple grid references and half/quarter turns"
+                "Identifying line symmetry in 2D shapes and designs",
+                "Describing turns using right angles (quarter and half turns)"
             ],
-            "Statistics & Probability": [
-                "Posing statistical questions and collecting discrete numerical data",
-                "Creating and interpreting simple bar graphs and dot plots",
-                "Conducting chance experiments and recording frequencies"
+            "Statistics": [
+                "Gathering data to answer simple statistical investigation questions",
+                "Interpreting data from bar charts and dot plots"
             ]
         }
     },
-    "Phase 2": {
+    "Phase 2 (Years 4-6)": {
         "Year 4": {
-    "Number": [...],
-    "Algebra": [...],
-    "Measurement": [...],
-    "Geometry": [...],
-    "Statistics": [...]
+            "Number": [
+                "Place value to 10,000 and simple decimals (tenths)",
+                "Recall of 3x, 4x, and 6x multiplication and division facts",
+                "Adding and subtracting multi-digit numbers using strategies"
+            ],
+            "Algebra": [
+                "Finding missing numbers in equations involving basic facts",
+                "Describing rules for spatial and numerical patterns"
+            ],
+            "Measurement": [
+                "Measuring perimeter using standard units (mm, cm, m)",
+                "Reading analog and digital time to 1-minute intervals",
+                "Reading temperature and measuring liquid volume in litres"
+            ],
+            "Geometry": [
+                "Classifying 2D shapes by angles and side lengths",
+                "Mapping simple routes using grid references and compass directions"
+            ],
+            "Statistics": [
+                "Conducting statistical investigations: plan, collect, display, interpret",
+                "Reading line graphs, column graphs, and simple tables"
+            ]
         },
         "Year 5": {
-            "Number": [...],
-    "Algebra": [...],
-    "Measurement": [...],
-    "Geometry": [...],
-    "Statistics": [...],
-    "Probability": [...]  # Introduce Probability here if applicable
-},
+            "Number": [
+                "Place value beyond 100,000 and decimals to hundredths",
+                "Recall of all multiplication tables up to 10 x 10",
+                "Comparing and ordering proper fractions and mixed numbers"
+            ],
+            "Algebra": [
+                "Solving two-step word problems using inverse operations",
+                "Representing rules for growing patterns using tables"
+            ],
+            "Measurement": [
+                "Calculating area of rectangles using square units ($A = l \\times w$)",
+                "Converting between standard metric units (mm, cm, m, km; g, kg)"
+            ],
+            "Geometry": [
+                "Identifying acute, right, obtuse, and straight angles",
+                "Describing transformations: reflections, translations, and rotations"
+            ],
+            "Statistics": [
+                "Comparing two sets of data using dot plots or side-by-side bar charts",
+                "Calculating summary statistics (range, mode, median)"
+            ],
+            "Probability": [
+                "Classifying likelihood of events (impossible, unlikely, equal chance, likely, certain)",
+                "Conducting simple chance experiments and recording outcomes"
+            ]
         },
         "Year 6": {
-            "Number": [...],
-    "Algebra": [...],
-    "Measurement": [...],
-    "Geometry": [...],
-    "Statistics": [...],
-    "Probability": [...]
+            "Number": [
+                "Operations with multi-digit decimals and percentages",
+                "Solving problems involving equivalent fractions, decimals, and percentages",
+                "Using estimation strategies to check reasonableness of calculations"
+            ],
+            "Algebra": [
+                "Writing simple algebraic rules for patterns (e.g., $y = 2x + 1$)",
+                "Solving equations with one variable using balance models"
+            ],
+            "Measurement": [
+                "Finding volume of rectangular prisms using $V = l \\times w \\times h$",
+                "Solving problems involving timetables, elapsed time, and time zones"
+            ],
+            "Geometry": [
+                "Measuring and constructing angles using a protractor",
+                "Properties of 3D objects (nets, faces, edges, vertices)"
+            ],
+            "Statistics": [
+                "Conducting a full statistical inquiry cycle using multivariate data",
+                "Evaluating data representations and identifying misleading displays"
+            ],
+            "Probability": [
+                "Listing all possible outcomes for single-stage experiments",
+                "Comparing theoretical probability with experimental results"
+            ]
         }
     },
-    "Phase 3": {
+    "Phase 3 (Years 7-8)": {
         "Year 7": {
-    "Number": [...],
-    "Algebra": [...],
-    "Measurement": [...],
-    "Geometry": [...],
-    "Statistics": [...],
-    "Probability": [...]
+            "Number": [
+                "Operations with integers (positive and negative numbers)",
+                "Ratios, rates, and proportional reasoning",
+                "Expressing numbers in index form / powers of 10"
+            ],
+            "Algebra": [
+                "Simplifying algebraic expressions by combining like terms",
+                "Plotting linear relationships on the Cartesian coordinate plane"
+            ],
+            "Measurement": [
+                "Calculating area of triangles, parallelograms, and composite shapes",
+                "Calculating circumference and area of circles"
+            ],
+            "Geometry": [
+                "Using angle rules (angles on a line, vertically opposite, angles in a triangle)",
+                "Constructing 2D representations of 3D objects"
+            ],
+            "Statistics": [
+                "Comparing sample distributions using box plots and measures of center/spread",
+                "Identifying patterns, trends, and relationships in scatter graphs"
+            ],
+            "Probability": [
+                "Determining probabilities of two-stage events using tree diagrams or tables",
+                "Calculating theoretical probabilities as fractions, decimals, and percentages"
+            ]
         },
-       "Year 8": {
-    "Number": [...],
-    "Algebra": [...],
-    "Measurement": [...],
-    "Geometry": [...],
-    "Statistics": [...],
-    "Probability": [...]
+        "Year 8": {
+            "Number": [
+                "Solving complex problems with ratios, percentages (profit/loss/GST), and rates",
+                "Working with square roots and order of operations (BEDMAS)",
+                "Scientific notation for very large and small numbers"
+            ],
+            "Algebra": [
+                "Expanding single brackets and factorising algebraic expressions",
+                "Solving linear equations including variables on both sides"
+            ],
+            "Measurement": [
+                "Surface area and volume of prisms and cylinders",
+                "Applying scale factors to lengths, areas, and maps"
+            ],
+            "Geometry": [
+                "Applying Pythagoras' Theorem to solve right-angled triangle problems",
+                "Constructing geometric figures using compass and straightedge"
+            ],
+            "Statistics": [
+                "Critiquing data collection methods, sampling bias, and statistical claims",
+                "Using data to make predictions and draw informal inferences about populations"
+            ],
+            "Probability": [
+                "Conducting simulations for compound events",
+                "Understanding conditional probability concepts in real-world contexts"
+            ]
+        }
     }
 }
 
 NZ_THEMES = [
-    "Super Rugby / Netball / Local Sports Day",
-    "School Hāngī / Matariki Celebration",
-    "Camping Trip / Bush Walk & Hiking",
-    "Waka Ama / Beach & Marine Life",
-    "School Gala / Bake Sale & Fundraising",
-    "Building a Marae / Woodworking Project",
-    "Local Bus & Train Schedules",
+    "School Gala / Bake Sale & Fundraiser",
+    "Rugby / Sports Event",
+    "Matariki / Hāngī",
+    "Beach / Ocean / Waka",
+    "NZ Bush / Nature Walk",
     "Custom Context (Enter your own below)"
 ]
