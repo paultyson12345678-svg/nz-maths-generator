@@ -1,13 +1,33 @@
 NZ_THEMES = [
-    "Matariki & Star Navigation",
-    "Marae Building & Wharenui Patterns",
+    # --- Cultural & Multicultural Celebrations ---
+    "Matariki & Star Navigation (Māori)",
+    "Polyfest & Cultural Dance Festivals (Pasifika/Māori)",
+    "Lunar New Year & Lantern Celebrations (Asian)",
+    "Diwali Light Festival (South Asian)",
+    "Cultural Shared Lunch & Food Stalls (Multicultural)",
+    "Traditional Pattern Weaving & Crafts (Tivaevae, Harakeke, Origami)",
+    
+    # --- Yearly Events, Holidays & Commemorations ---
+    "ANZAC Day & Poppy Making",
+    "Christmas & Holiday Gift Giving",
+    "Easter Egg Hunt & Baking",
+    "Halloween & Trick-or-Treat Sorting",
+    "Guy Fawkes & Fire Safety Awareness",
+    "Waitangi Day & Treaty Commemorations",
+    
+    # --- Seasonal & Community Events ---
+    "School Gala & Fun Run",
+    "A&P Show & Pet Day",
+    "Camp Fireplace & Outdoor Education",
+    "Local Farmers Market & Fresh Produce",
+    "School Disco & Ticket Sales",
+    
+    # --- Sports, Outdoors & General Concepts ---
+    "Local Sports Tournament (Rugby, Netball, Kilikiti, Basketball)",
     "Waka Ama & Ocean Voyages",
-    "School Gala & Food Stalls",
-    "Kapa Haka Performance",
-    "Native Wildlife & Bird Counting",
-    "Conservation & Tree Planting",
-    "Local Sports Tournament (Rugby, Netball, Touch)",
-    "Farm & Agriculture in Aotearoa",
+    "Native Wildlife & Conservation (Bird Counting, Tree Planting)",
+    "Space Exploration & Solar System",
+    "Theme Park & Carnival Rides",
     "Custom Context (Enter your own below)"
 ]
 
