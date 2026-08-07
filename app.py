@@ -88,6 +88,7 @@ if generate_btn:
             - "ans_ext": Teacher solution/guidance for Extension Challenge
             """
 
+            # Supported model identifiers for the new GenAI SDK
             models_to_try = ['gemini-2.0-flash', 'gemini-1.5-flash']
             response = None
             last_error = None
@@ -102,7 +103,7 @@ if generate_btn:
                         break
                 except Exception as e:
                     last_error = e
-                    time.sleep(1)  # Brief delay before trying next model
+                    time.sleep(1)
 
             if response and response.text:
                 try:
@@ -117,7 +118,7 @@ if generate_btn:
                 except Exception as parse_err:
                     st.error(f"Failed to parse task format: {parse_err}")
             else:
-                st.error(f"Error generating tasks due to high server demand. Please try again in a few seconds. Details: {last_error}")
+                st.error(f"Error generating tasks: {last_error}")
 
 
 # --- 3-COLUMN SIDE-BY-SIDE DISPLAY ---
