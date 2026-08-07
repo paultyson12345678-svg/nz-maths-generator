@@ -1,6 +1,5 @@
 import io
 import os
-import urllib.request
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
@@ -15,41 +14,26 @@ from reportlab.pdfbase.ttfonts import TTFont
 
 def get_macron_font():
     """
-    Ensures a font supporting Māori macrons is registered.
-    Downloads DejaVuSans directly or returns fallback configuration.
+    Registers the DejaVuSans TTF font uploaded to the repository
+    to ensure proper rendering of Māori macrons (ā, ē, ī, ō, ū).
     """
     font_name = 'DejaVuSans'
     font_bold_name = 'DejaVuSans-Bold'
+    font_path = "DejaVuSans.ttf"  # Local file in repository root
 
-    # Check if already registered
+    # Check if font is already registered in ReportLab
     if 'DejaVuSans' in pdfmetrics.getRegisteredFontNames():
-        return font_name, font_bold_name
+        return font_name, font_name
 
-    font_path = "/tmp/DejaVuSans.ttf"
-    font_bold_path = "/tmp/DejaVuSans-Bold.ttf"
+    if os.path.exists(font_path):
+        try:
+            pdfmetrics.registerFont(TTFont('DejaVuSans', font_path))
+            return font_name, font_name
+        except Exception as e:
+            print(f"Error registering local font: {e}")
 
-    try:
-        # User-Agent header prevents GitHub raw request blocks
-        req_headers = {'User-Agent': 'Mozilla/5.0'}
-
-        if not os.path.exists(font_path):
-            req = urllib.request.Request("https://raw.githubusercontent.com/dejavu-fonts/dejavu-fonts/master/ttf/DejaVuSans.ttf", headers=req_headers)
-            with urllib.request.urlopen(req) as resp, open(font_path, 'wb') as f:
-                f.write(resp.read())
-
-        if not os.path.exists(font_bold_path):
-            req = urllib.request.Request("https://raw.githubusercontent.com/dejavu-fonts/dejavu-fonts/master/ttf/DejaVuSans-Bold.ttf", headers=req_headers)
-            with urllib.request.urlopen(req) as resp, open(font_bold_path, 'wb') as f:
-                f.write(resp.read())
-
-        pdfmetrics.registerFont(TTFont('DejaVuSans', font_path))
-        pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', font_bold_path))
-        return font_name, font_bold_name
-
-    except Exception as e:
-        print(f"Font download/registration warning: {e}")
-        # Fallback to standard Helvetica if font download is completely blocked
-        return 'Helvetica', 'Helvetica-Bold'
+    # Fallback to standard Helvetica if local file isn't found
+    return 'Helvetica', 'Helvetica-Bold'
 
 
 def generate_powerpoint_slide(title, scenario, questions, extension, phase, theme, answers):
