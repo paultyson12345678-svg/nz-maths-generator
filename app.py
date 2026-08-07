@@ -8,9 +8,9 @@ from google import genai
 from curriculum import CURRICULUM_DATA, NZ_THEMES
 from exporters import generate_powerpoint_slide, generate_task_pdf, generate_task_card_image
 
-st.set_page_config(page_title="NZ Primary Maths Task Generator", page_icon="🇳🇿", layout="wide")
+st.set_page_config(page_title="Aotearoa Rich Maths Task Generator", page_icon="🇳🇿", layout="wide")
 
-st.title("🇳🇿 New Zealand Primary Maths Task Generator")
+st.title("🇳🇿 Aotearoa Rich Maths Task Generator")
 st.markdown("Generate rich, context-aligned mathematical tasks for Phase 1 to Phase 3 (Years 1–8).")
 
 # --- SIDEBAR CONFIGURATION ---
@@ -88,6 +88,7 @@ if generate_btn:
                 - "ans_ext": Teacher solution/guidance for Extension Challenge
                 """
 
+                # Hardcoded to gemini-3.5-flash
                 response = client.models.generate_content(
                     model='gemini-3.5-flash',
                     contents=prompt,
@@ -127,7 +128,7 @@ if st.session_state.generated_tasks:
             t_ans2 = task.get("ans2", "")
             t_ans_ext = task.get("ans_ext", "")
 
-            # Static display boxes (no scrolling text areas)
+            # Static display boxes
             st.markdown(f"### **{t_title}**")
             st.markdown(f"**Context & Scenario:**\n\n{t_scenario}")
             st.markdown(f"**Question 1:**\n\n{t_q1}")
