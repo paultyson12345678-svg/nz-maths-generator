@@ -3,6 +3,7 @@ import random
 import os
 import io
 import json
+import time
 from google import genai
 
 from curriculum import CURRICULUM_DATA, NZ_THEMES
@@ -58,54 +59,65 @@ if "generated_tasks" not in st.session_state:
     st.session_state.generated_tasks = None
 
 
-# --- AI GENERATION LOGIC ---
+# --- AI GENERATION LOGIC WITH FALLBACK ---
 if generate_btn:
     if not api_key:
         st.error("Please enter a valid Gemini API Key in the sidebar to generate tasks.")
     else:
         with st.spinner("Creating 3 context-rich tasks with Gemini..."):
-            try:
-                client = genai.Client(api_key=api_key)
-                
-                prompt = f"""
-                You are an expert New Zealand primary school mathematics teacher.
-                Create 3 distinct, engaging, context-rich math learning tasks for:
-                - Curriculum Phase: {phase}
-                - Year Level: {year_level}
-                - Learning Area / Strand: {strand}
-                - Specific Skill/Focus: {selected_skill}
-                - NZ Context/Theme: {active_theme}
+            client = genai.Client(api_key=api_key)
+            
+            prompt = f"""
+            You are an expert New Zealand primary school mathematics teacher.
+            Create 3 distinct, engaging, context-rich math learning tasks for:
+            - Curriculum Phase: {phase}
+            - Year Level: {year_level}
+            - Learning Area / Strand: {strand}
+            - Specific Skill/Focus: {selected_skill}
+            - NZ Context/Theme: {active_theme}
 
-                Return ONLY a JSON array containing exactly 3 objects. Do not include markdown formatting or extra text outside JSON.
-                Each object must have these exact keys:
-                - "title": Short descriptive title
-                - "scenario": Realistic, culturally appropriate NZ scenario paragraph setting up the task
-                - "q1": Main discussion/problem-solving question
-                - "q2": Follow-up or next-step question
-                - "extension": An extension challenge question for fast finishers
-                - "ans1": Teacher solution/guidance for Question 1
-                - "ans2": Teacher solution/guidance for Question 2
-                - "ans_ext": Teacher solution/guidance for Extension Challenge
-                """
+            Return ONLY a JSON array containing exactly 3 objects. Do not include markdown formatting or extra text outside JSON.
+            Each object must have these exact keys:
+            - "title": Short descriptive title
+            - "scenario": Realistic, culturally appropriate NZ scenario paragraph setting up the task
+            - "q1": Main discussion/problem-solving question
+            - "q2": Follow-up or next-step question
+            - "extension": An extension challenge question for fast finishers
+            - "ans1": Teacher solution/guidance for Question 1
+            - "ans2": Teacher solution/guidance for Question 2
+            - "ans_ext": Teacher solution/guidance for Extension Challenge
+            """
 
-                # Hardcoded to gemini-3.5-flash
-                response = client.models.generate_content(
-                    model='gemini-3.5-flash',
-                    contents=prompt,
-                )
-                
-                # Parse JSON output
-                raw_text = response.text.strip()
-                if raw_text.startswith("```json"):
-                    raw_text = raw_text.split("```json")[1].split("```")[0].strip()
-                elif raw_text.startswith("```"):
-                    raw_text = raw_text.split("```")[1].split("```")[0].strip()
-                    
-                st.session_state.generated_tasks = json.loads(raw_text)
-                st.success("Generated 3 tasks successfully!")
+            models_to_try = ['gemini-2.0-flash', 'gemini-1.5-flash']
+            response = None
+            last_error = None
 
-            except Exception as e:
-                st.error(f"Error generating tasks: {e}")
+            for model_name in models_to_try:
+                try:
+                    response = client.models.generate_content(
+                        model=model_name,
+                        contents=prompt,
+                    )
+                    if response and response.text:
+                        break
+                except Exception as e:
+                    last_error = e
+                    time.sleep(1)  # Brief delay before trying next model
+
+            if response and response.text:
+                try:
+                    raw_text = response.text.strip()
+                    if raw_text.startswith("```json"):
+                        raw_text = raw_text.split("```json")[1].split("```")[0].strip()
+                    elif raw_text.startswith("```"):
+                        raw_text = raw_text.split("```")[1].split("```")[0].strip()
+                        
+                    st.session_state.generated_tasks = json.loads(raw_text)
+                    st.success("Generated 3 tasks successfully!")
+                except Exception as parse_err:
+                    st.error(f"Failed to parse task format: {parse_err}")
+            else:
+                st.error(f"Error generating tasks due to high server demand. Please try again in a few seconds. Details: {last_error}")
 
 
 # --- 3-COLUMN SIDE-BY-SIDE DISPLAY ---
