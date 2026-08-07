@@ -7,7 +7,7 @@ import time
 from google import genai
 
 from curriculum import CURRICULUM_DATA, NZ_THEMES
-from exporters import generate_powerpoint_slide, generate_task_pdf, generate_task_card_image
+from exporters import generate_powerpoint_slide, generate_task_pdf
 
 st.set_page_config(page_title="Aotearoa Rich Maths Task Generator", page_icon="🇳🇿", layout="wide")
 
@@ -59,7 +59,7 @@ if "generated_tasks" not in st.session_state:
     st.session_state.generated_tasks = None
 
 
-# --- AI GENERATION LOGIC WITH FALLBACK ---
+# --- AI GENERATION LOGIC ---
 if generate_btn:
     if not api_key:
         st.error("Please enter a valid Gemini API Key in the sidebar to generate tasks.")
@@ -88,8 +88,7 @@ if generate_btn:
             - "ans_ext": Teacher solution/guidance for Extension Challenge
             """
 
-            # Supported model identifiers for the new GenAI SDK
-            models_to_try = ['gemini-3.5-flash', 'gemini-1.5-flash']
+            models_to_try = ['gemini-3.5-flash', 'gemini-2.0-flash']
             response = None
             last_error = None
 
@@ -141,7 +140,7 @@ if st.session_state.generated_tasks:
             t_ans2 = task.get("ans2", "")
             t_ans_ext = task.get("ans_ext", "")
 
-            # Static display boxes
+            # Display card
             st.markdown(f"### **{t_title}**")
             st.markdown(f"**Context & Scenario:**\n\n{t_scenario}")
             st.markdown(f"**Question 1:**\n\n{t_q1}")
@@ -192,22 +191,6 @@ if st.session_state.generated_tasks:
                 )
             except Exception as e:
                 st.error(f"PDF Error: {e}")
-
-            # PNG Export
-            try:
-                card_data = generate_task_card_image(
-                    title=t_title, scenario=t_scenario, questions=questions_list, extension=t_ext
-                )
-                st.download_button(
-                    label="🖼️ Task Card (.png)",
-                    data=card_data,
-                    file_name=f"{t_title.replace(' ', '_')}.png",
-                    mime="image/png",
-                    key=f"png_btn_{idx}",
-                    use_container_width=True
-                )
-            except Exception as e:
-                st.error(f"PNG Error: {e}")
 
 else:
     st.info("👈 Select your parameters in the sidebar and click **'✨ Generate 3 Tasks'** to generate options!")
