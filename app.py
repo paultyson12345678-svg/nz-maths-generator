@@ -17,9 +17,24 @@ st.markdown("Generate rich, context-aligned mathematical tasks for Phase 1 to Ph
 # --- SIDEBAR CONFIGURATION ---
 st.sidebar.header("Task Settings")
 
-# API Key input
-api_key = st.sidebar.text_input("Gemini API Key", type="password", help="Enter your Google AI Studio API key to generate tasks.")
+# Check if secret exists in Streamlit Cloud
+default_api_key = st.secrets.get("GEMINI_API_KEY", "")
 
+# If a secret key exists, hide the text box or make it optional
+if default_api_key:
+    user_api_key = st.sidebar.text_input(
+        "Gemini API Key (Optional)", 
+        value="", 
+        type="password", 
+        help="Leave blank to use the pre-configured school API key."
+    )
+    api_key = user_api_key if user_api_key else default_api_key
+else:
+    api_key = st.sidebar.text_input(
+        "Gemini API Key", 
+        type="password", 
+        help="Enter your Google AI Studio API key."
+    )
 # 1. Phase Selection
 phase = st.sidebar.selectbox("Select Curriculum Phase", list(CURRICULUM_DATA.keys()))
 
