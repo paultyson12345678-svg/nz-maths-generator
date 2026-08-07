@@ -89,7 +89,7 @@ if generate_btn:
             """
 
             # Supported model identifiers for the new GenAI SDK
-            models_to_try = ['gemini-2.0-flash', 'gemini-1.5-flash']
+            models_to_try = ['gemini-3.5-flash', 'gemini-1.5-flash']
             response = None
             last_error = None
 
