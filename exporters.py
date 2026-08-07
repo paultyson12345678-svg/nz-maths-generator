@@ -1,149 +1,320 @@
 import io
+import textwrap
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
+
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+
 from PIL import Image, ImageDraw, ImageFont
 
 
-def generate_powerpoint_slide(title, scenario, questions, extension, phase, theme, answers):
+# ==========================================
+# 1. POWERPOINT EXPORT (3 SLIDES)
+# ==========================================
+def generate_powerpoint_slide(title, scenario, questions, extension, phase, theme, answers=None):
     prs = Presentation()
+    
+    # 16:9 Widescreen dimensions
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
+    blank_layout = prs.slide_layouts[6]
 
-    blank_slide_layout = prs.slide_layouts[6]
-    slide = prs.slides.add_slide(blank_slide_layout)
+    q1 = questions[0] if len(questions) > 0 else ""
+    q2 = questions[1] if len(questions) > 1 else ""
+    
+    ans1 = answers[0] if answers and len(answers) > 0 else ""
+    ans2 = answers[1] if answers and len(answers) > 1 else ""
+    ans_ext = answers[2] if answers and len(answers) > 2 else ""
 
-    # 1. Slide Title
-    title_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.7), Inches(0.8))
-    tf_title = title_box.text_frame
-    tf_title.word_wrap = True
-    p_title = tf_title.paragraphs[0]
-    p_title.text = title
-    p_title.font.size = Pt(32)
-    p_title.font.bold = True
-    p_title.font.color.rgb = RGBColor(15, 23, 42)
+    # Color Palette
+    TEAL = RGBColor(0, 102, 102)
+    DARK_GRAY = RGBColor(40, 40, 40)
+    LIGHT_GRAY = RGBColor(240, 242, 245)
+    BLUE_ACCENT = RGBColor(0, 51, 102)
 
-    # 2. Main Task / Content Box
-    task_box = slide.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(7.5), Inches(5.3))
-    tf_task = task_box.text_frame
-    tf_task.word_wrap = True
+    def add_header(slide, subtitle_text):
+        title_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.733), Inches(0.8))
+        tf = title_box.text_frame
+        tf.word_wrap = True
+        
+        p = tf.paragraphs[0]
+        p.text = title
+        p.font.size = Pt(28)
+        p.font.bold = True
+        p.font.color.rgb = TEAL
 
-    p_scen = tf_task.paragraphs[0]
-    p_scen.text = f"Context: {scenario}"
-    p_scen.font.size = Pt(18)
-    p_scen.font.color.rgb = RGBColor(51, 65, 85)
+        p2 = tf.add_paragraph()
+        p2.text = f"{phase} | Context: {theme} | {subtitle_text}"
+        p2.font.size = Pt(14)
+        p2.font.color.rgb = RGBColor(100, 100, 100)
 
-    for idx, q in enumerate(questions, start=1):
-        p_q = tf_task.add_paragraph()
-        p_q.text = f"\nQuestion {idx}: {q}"
-        p_q.font.size = Pt(18)
-        p_q.font.bold = True
-        p_q.font.color.rgb = RGBColor(30, 41, 59)
+    # --- SLIDE 1: Scenario & Question 1 ---
+    slide1 = prs.slides.add_slide(blank_layout)
+    add_header(slide1, "Part 1: The Scenario & Question 1")
 
-    if extension:
-        p_ext = tf_task.add_paragraph()
-        p_ext.text = f"\nExtension Challenge: {extension}"
-        p_ext.font.size = Pt(18)
-        p_ext.font.italic = True
-        p_ext.font.color.rgb = RGBColor(180, 83, 9)
+    # Scenario Box
+    scen_box = slide1.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(11.733), Inches(2.2))
+    tf_scen = scen_box.text_frame
+    tf_scen.word_wrap = True
+    p = tf_scen.paragraphs[0]
+    p.text = "Context & Scenario:"
+    p.font.bold = True
+    p.font.size = Pt(18)
+    p.font.color.rgb = BLUE_ACCENT
+    
+    p_body = tf_scen.add_paragraph()
+    p_body.text = scenario
+    p_body.font.size = Pt(18)
+    p_body.font.color.rgb = DARK_GRAY
 
-    # 3. Teacher Notes / Solutions Sidebar Box
-    notes_box = slide.shapes.add_textbox(Inches(8.7), Inches(1.5), Inches(3.8), Inches(5.3))
-    tf_notes = notes_box.text_frame
-    tf_notes.word_wrap = True
+    # Question 1 Box
+    q1_box = slide1.shapes.add_textbox(Inches(0.8), Inches(4.0), Inches(11.733), Inches(2.8))
+    tf_q1 = q1_box.text_frame
+    tf_q1.word_wrap = True
+    p = tf_q1.paragraphs[0]
+    p.text = "Question 1:"
+    p.font.bold = True
+    p.font.size = Pt(20)
+    p.font.color.rgb = TEAL
+    
+    p_q1 = tf_q1.add_paragraph()
+    p_q1.text = q1
+    p_q1.font.size = Pt(20)
+    p_q1.font.color.rgb = DARK_GRAY
 
-    p_ntitle = tf_notes.paragraphs[0]
-    p_ntitle.text = "Teacher Notes & Guidance"
-    p_ntitle.font.size = Pt(20)
-    p_ntitle.font.bold = True
-    p_ntitle.font.color.rgb = RGBColor(30, 58, 138)
+    # --- SLIDE 2: Question 2 & Extension ---
+    slide2 = prs.slides.add_slide(blank_layout)
+    add_header(slide2, "Part 2: Question 2 & Extension Challenge")
 
-    if len(answers) >= 1:
-        p_a1 = tf_notes.add_paragraph()
-        p_a1.text = f"\nQ1 Solution:\n{answers[0]}"
-        p_a1.font.size = Pt(14)
+    # Question 2 Box
+    q2_box = slide2.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(11.733), Inches(2.5))
+    tf_q2 = q2_box.text_frame
+    tf_q2.word_wrap = True
+    p = tf_q2.paragraphs[0]
+    p.text = "Question 2:"
+    p.font.bold = True
+    p.font.size = Pt(20)
+    p.font.color.rgb = TEAL
+    
+    p_q2 = tf_q2.add_paragraph()
+    p_q2.text = q2
+    p_q2.font.size = Pt(20)
+    p_q2.font.color.rgb = DARK_GRAY
 
-    if len(answers) >= 2:
-        p_a2 = tf_notes.add_paragraph()
-        p_a2.text = f"\nQ2 Solution:\n{answers[1]}"
-        p_a2.font.size = Pt(14)
+    # Extension Challenge Box
+    ext_box = slide2.shapes.add_textbox(Inches(0.8), Inches(4.3), Inches(11.733), Inches(2.5))
+    tf_ext = ext_box.text_frame
+    tf_ext.word_wrap = True
+    p = tf_ext.paragraphs[0]
+    p.text = "Extension Challenge:"
+    p.font.bold = True
+    p.font.size = Pt(20)
+    p.font.color.rgb = RGBColor(180, 80, 0)
+    
+    p_ext = tf_ext.add_paragraph()
+    p_ext.text = extension
+    p_ext.font.size = Pt(20)
+    p_ext.font.color.rgb = DARK_GRAY
 
-    if len(answers) >= 3 and answers[2]:
-        p_aext = tf_notes.add_paragraph()
-        p_aext.text = f"\nExtension Solution:\n{answers[2]}"
-        p_aext.font.size = Pt(14)
+    # --- SLIDE 3: Teacher Answers & Notes ---
+    slide3 = prs.slides.add_slide(blank_layout)
+    add_header(slide3, "Teacher Solutions & Answer Guide")
+
+    ans_box = slide3.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(11.733), Inches(5.3))
+    tf_ans = ans_box.text_frame
+    tf_ans.word_wrap = True
+
+    # Q1 Answer
+    p = tf_ans.paragraphs[0]
+    p.text = "Question 1 Solution:"
+    p.font.bold = True
+    p.font.size = Pt(16)
+    p.font.color.rgb = TEAL
+    p_body = tf_ans.add_paragraph()
+    p_body.text = ans1 + "\n"
+    p_body.font.size = Pt(15)
+    p_body.font.color.rgb = DARK_GRAY
+
+    # Q2 Answer
+    p = tf_ans.add_paragraph()
+    p.text = "Question 2 Solution:"
+    p.font.bold = True
+    p.font.size = Pt(16)
+    p.font.color.rgb = TEAL
+    p_body = tf_ans.add_paragraph()
+    p_body.text = ans2 + "\n"
+    p_body.font.size = Pt(15)
+    p_body.font.color.rgb = DARK_GRAY
+
+    # Extension Answer
+    p = tf_ans.add_paragraph()
+    p.text = "Extension Solution:"
+    p.font.bold = True
+    p.font.size = Pt(16)
+    p.font.color.rgb = RGBColor(180, 80, 0)
+    p_body = tf_ans.add_paragraph()
+    p_body.text = ans_ext
+    p_body.font.size = Pt(15)
+    p_body.font.color.rgb = DARK_GRAY
 
     output = io.BytesIO()
     prs.save(output)
     output.seek(0)
-    return output
+    return output.getvalue()
 
 
-def generate_task_pdf(title, scenario, questions, extension, phase, theme, answers):
+# ==========================================
+# 2. PDF WORKSHEET EXPORT (SEPARATE ANSWER PAGE)
+# ==========================================
+def generate_task_pdf(title, scenario, questions, extension, phase, theme, answers=None):
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
-    story = []
-
+    doc = SimpleDocTemplate(
+        buffer, pagesize=letter,
+        rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36
+    )
     styles = getSampleStyleSheet()
-    title_style = ParagraphStyle('TitleStyle', parent=styles['Heading1'], fontSize=20, textColor='#0F172A', spaceAfter=12)
-    body_style = ParagraphStyle('BodyStyle', parent=styles['Normal'], fontSize=11, leading=16, textColor='#334155', spaceAfter=10)
-    bold_style = ParagraphStyle('BoldStyle', parent=styles['Normal'], fontSize=12, leading=16, textColor='#1E293B', spaceAfter=8)
-    ext_style = ParagraphStyle('ExtStyle', parent=styles['Normal'], fontSize=11, leading=16, textColor='#B45309', spaceAfter=12)
+    
+    title_style = ParagraphStyle('TitleStyle', parent=styles['Heading1'], fontSize=18, textColor=colors.HexColor('#006666'), spaceAfter=4)
+    meta_style = ParagraphStyle('MetaStyle', parent=styles['Normal'], fontSize=10, textColor=colors.HexColor('#555555'), spaceAfter=12)
+    heading_style = ParagraphStyle('HeadingStyle', parent=styles['Heading2'], fontSize=12, textColor=colors.HexColor('#003366'), spaceBefore=8, spaceAfter=4)
+    body_style = ParagraphStyle('BodyStyle', parent=styles['Normal'], fontSize=11, leading=14, textColor=colors.black, spaceAfter=8)
 
-    story.append(Paragraph(title, title_style))
-    story.append(Paragraph(f"<b>Context & Scenario:</b> {scenario}", body_style))
-    story.append(Spacer(1, 10))
+    q1 = questions[0] if len(questions) > 0 else ""
+    q2 = questions[1] if len(questions) > 1 else ""
+    
+    ans1 = answers[0] if answers and len(answers) > 0 else ""
+    ans2 = answers[1] if answers and len(answers) > 1 else ""
+    ans_ext = answers[2] if answers and len(answers) > 2 else ""
 
-    for idx, q in enumerate(questions, start=1):
-        story.append(Paragraph(f"<b>Question {idx}:</b> {q}", bold_style))
-        story.append(Spacer(1, 8))
+    elements = []
 
-    if extension:
-        story.append(Paragraph(f"<b>Extension Challenge:</b> {extension}", ext_style))
-        story.append(Spacer(1, 10))
+    # Student Worksheet Header
+    elements.append(Paragraph(title, title_style))
+    elements.append(Paragraph(f"<b>Phase:</b> {phase} | <b>Context:</b> {theme} &nbsp;&nbsp;&nbsp;&nbsp; <b>Name:</b> ___________________________", meta_style))
+    
+    # Scenario
+    elements.append(Paragraph("<b>Context & Scenario:</b>", heading_style))
+    elements.append(Paragraph(scenario, body_style))
+    elements.append(Spacer(1, 8))
 
-    story.append(Paragraph("<b>Teacher Guidance & Solutions:</b>", bold_style))
-    for idx, ans in enumerate(answers, start=1):
-        if idx <= len(questions):
-            story.append(Paragraph(f"<b>Q{idx} Guidance:</b> {ans}", body_style))
-        elif idx == 3 and ans:
-            story.append(Paragraph(f"<b>Extension Guidance:</b> {ans}", body_style))
+    # Q1 + Working Space Box
+    elements.append(Paragraph("<b>Question 1:</b> " + q1, body_style))
+    box_q1 = Table([["Working / Answer:"]], colWidths=[540], rowHeights=[90])
+    box_q1.setStyle(TableStyle([
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#CCCCCC')),
+        ('TEXTCOLOR', (0,0), (-1,-1), colors.HexColor('#888888')),
+        ('VALIGN', (0,0), (-1,-1), 'TOP'),
+        ('PADDING', (0,0), (-1,-1), 6),
+        ('FONTSIZE', (0,0), (-1,-1), 9)
+    ]))
+    elements.append(box_q1)
+    elements.append(Spacer(1, 12))
 
-    doc.build(story)
+    # Q2 + Working Space Box
+    elements.append(Paragraph("<b>Question 2:</b> " + q2, body_style))
+    box_q2 = Table([["Working / Answer:"]], colWidths=[540], rowHeights=[90])
+    box_q2.setStyle(TableStyle([
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#CCCCCC')),
+        ('TEXTCOLOR', (0,0), (-1,-1), colors.HexColor('#888888')),
+        ('VALIGN', (0,0), (-1,-1), 'TOP'),
+        ('PADDING', (0,0), (-1,-1), 6),
+        ('FONTSIZE', (0,0), (-1,-1), 9)
+    ]))
+    elements.append(box_q2)
+    elements.append(Spacer(1, 12))
+
+    # Extension + Working Space Box
+    elements.append(Paragraph("<b>Extension Challenge:</b> " + extension, body_style))
+    box_ext = Table([["Working / Answer:"]], colWidths=[540], rowHeights=[100])
+    box_ext.setStyle(TableStyle([
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#B8860B')),
+        ('TEXTCOLOR', (0,0), (-1,-1), colors.HexColor('#888888')),
+        ('VALIGN', (0,0), (-1,-1), 'TOP'),
+        ('PADDING', (0,0), (-1,-1), 6),
+        ('FONTSIZE', (0,0), (-1,-1), 9)
+    ]))
+    elements.append(box_ext)
+
+    # --- SEPARATE PAGE FOR TEACHER ANSWERS ---
+    elements.append(PageBreak())
+
+    elements.append(Paragraph(f"{title} - Teacher Answer Key", title_style))
+    elements.append(Paragraph(f"<b>Phase:</b> {phase} | <b>Context:</b> {theme}", meta_style))
+    elements.append(Spacer(1, 10))
+
+    elements.append(Paragraph("<b>Question 1 Solution:</b>", heading_style))
+    elements.append(Paragraph(ans1, body_style))
+    elements.append(Spacer(1, 10))
+
+    elements.append(Paragraph("<b>Question 2 Solution:</b>", heading_style))
+    elements.append(Paragraph(ans2, body_style))
+    elements.append(Spacer(1, 10))
+
+    elements.append(Paragraph("<b>Extension Solution:</b>", heading_style))
+    elements.append(Paragraph(ans_ext, body_style))
+
+    doc.build(elements)
     buffer.seek(0)
-    return buffer
+    return buffer.getvalue()
 
 
+# ==========================================
+# 3. TASK CARD IMAGE EXPORT (NO TEXT CUTOFF)
+# ==========================================
 def generate_task_card_image(title, scenario, questions, extension):
-    width, height = 800, 600
-    img = Image.new('RGB', (width, height), color=(255, 255, 255))
+    # Generous dimensions to prevent text truncation
+    width, height = 1200, 1500
+    img = Image.new('RGB', (width, height), color='#F8F9FA')
     draw = ImageDraw.Draw(img)
 
-    # Border
-    draw.rectangle([(20, 20), (width - 20, height - 20)], outline=(15, 23, 42), width=4)
+    # Header Card Banner
+    draw.rectangle([(0, 0), (width, 140)], fill='#006666')
 
-    font_large = ImageFont.load_default()
+    try:
+        font_title = ImageFont.truetype("arial.ttf", 36)
+        font_header = ImageFont.truetype("arial.ttf", 26)
+        font_body = ImageFont.truetype("arial.ttf", 22)
+    except IOError:
+        font_title = ImageFont.load_default()
+        font_header = ImageFont.load_default()
+        font_body = ImageFont.load_default()
 
-    y = 40
-    draw.text((40, y), title, fill=(15, 23, 42), font=font_large)
-    y += 40
+    # Draw Title
+    draw.text((40, 45), title, fill='white', font=font_title)
 
-    # Draw scenario lines
-    draw.text((40, y), f"Scenario: {scenario[:120]}...", fill=(51, 65, 85), font=font_large)
-    y += 60
+    y = 180
+    q1 = questions[0] if len(questions) > 0 else ""
+    q2 = questions[1] if len(questions) > 1 else ""
 
-    for idx, q in enumerate(questions, start=1):
-        draw.text((40, y), f"Q{idx}: {q[:100]}...", fill=(30, 41, 59), font=font_large)
-        y += 50
+    sections = [
+        ("Context & Scenario", scenario, '#003366'),
+        ("Question 1", q1, '#006666'),
+        ("Question 2", q2, '#006666'),
+        ("Extension Challenge", extension, '#B8860B')
+    ]
 
-    if extension:
-        draw.text((40, y), f"Extension: {extension[:100]}...", fill=(180, 83, 9), font=font_large)
+    for header, content, color in sections:
+        # Header text
+        draw.text((50, y), header + ":", fill=color, font=font_header)
+        y += 40
+
+        # Wrap body text cleanly at ~68 chars/line
+        wrapped = textwrap.wrap(content, width=68)
+        for line in wrapped:
+            draw.text((50, y), line, fill='#222222', font=font_body)
+            y += 32
+        
+        y += 35  # Section spacing
+
+    # Decorative Border
+    draw.rectangle([(15, 15), (width - 15, height - 15)], outline='#006666', width=4)
 
     buffer = io.BytesIO()
-    img.save(buffer, format='PNG')
+    img.save(buffer, format="PNG")
     buffer.seek(0)
-    return buffer
+    return buffer.getvalue()
