@@ -20,16 +20,14 @@ st.sidebar.header("Task Settings")
 # Check if secret exists in Streamlit Cloud
 default_api_key = st.secrets.get("GEMINI_API_KEY", "")
 
-# If a secret key exists, hide the text box or make it optional
+# Check if secret exists in Streamlit Cloud Secrets
+default_api_key = st.secrets.get("GEMINI_API_KEY", "")
+
+# If a secret key exists, hide the text input box completely and use the secret key directly
 if default_api_key:
-    user_api_key = st.sidebar.text_input(
-        "Gemini API Key (Optional)", 
-        value="", 
-        type="password", 
-        help="Leave blank to use the pre-configured school API key."
-    )
-    api_key = user_api_key if user_api_key else default_api_key
+    api_key = default_api_key
 else:
+    # Only show input field if no secret key is set in Streamlit Cloud
     api_key = st.sidebar.text_input(
         "Gemini API Key", 
         type="password", 
