@@ -4,37 +4,52 @@ import urllib.request
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN
 
 from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
 
-def register_macron_fonts():
+def get_macron_font():
     """
-    Downloads and registers Unicode-compliant TrueType fonts (DejaVu Sans)
-    to support Māori macrons (ā, ē, ī, ō, ū) in ReportLab PDFs.
+    Ensures a font supporting Māori macrons is registered.
+    Downloads DejaVuSans directly or returns fallback configuration.
     """
+    font_name = 'DejaVuSans'
+    font_bold_name = 'DejaVuSans-Bold'
+
+    # Check if already registered
+    if 'DejaVuSans' in pdfmetrics.getRegisteredFontNames():
+        return font_name, font_bold_name
+
     font_path = "/tmp/DejaVuSans.ttf"
     font_bold_path = "/tmp/DejaVuSans-Bold.ttf"
 
-    if not os.path.exists(font_path):
-        urllib.request.urlretrieve(
-            "https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans.ttf", 
-            font_path
-        )
-    if not os.path.exists(font_bold_path):
-        urllib.request.urlretrieve(
-            "https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans-Bold.ttf", 
-            font_bold_path
-        )
+    try:
+        # User-Agent header prevents GitHub raw request blocks
+        req_headers = {'User-Agent': 'Mozilla/5.0'}
 
-    pdfmetrics.registerFont(TTFont('DejaVuSans', font_path))
-    pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', font_bold_path))
+        if not os.path.exists(font_path):
+            req = urllib.request.Request("https://raw.githubusercontent.com/dejavu-fonts/dejavu-fonts/master/ttf/DejaVuSans.ttf", headers=req_headers)
+            with urllib.request.urlopen(req) as resp, open(font_path, 'wb') as f:
+                f.write(resp.read())
+
+        if not os.path.exists(font_bold_path):
+            req = urllib.request.Request("https://raw.githubusercontent.com/dejavu-fonts/dejavu-fonts/master/ttf/DejaVuSans-Bold.ttf", headers=req_headers)
+            with urllib.request.urlopen(req) as resp, open(font_bold_path, 'wb') as f:
+                f.write(resp.read())
+
+        pdfmetrics.registerFont(TTFont('DejaVuSans', font_path))
+        pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', font_bold_path))
+        return font_name, font_bold_name
+
+    except Exception as e:
+        print(f"Font download/registration warning: {e}")
+        # Fallback to standard Helvetica if font download is completely blocked
+        return 'Helvetica', 'Helvetica-Bold'
 
 
 def generate_powerpoint_slide(title, scenario, questions, extension, phase, theme, answers):
@@ -139,14 +154,7 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     Generates a PDF worksheet containing both the student task section
     and teacher notes/solutions, formatted with macron-supporting fonts.
     """
-    # Ensure Unicode font supporting macrons is registered
-    try:
-        register_macron_fonts()
-        font_name = 'DejaVuSans'
-        font_bold_name = 'DejaVuSans-Bold'
-    except Exception:
-        font_name = 'Helvetica'
-        font_bold_name = 'Helvetica-Bold'
+    font_name, font_bold_name = get_macron_font()
 
     pdf_io = io.BytesIO()
     doc = SimpleDocTemplate(
@@ -160,7 +168,6 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
 
     styles = getSampleStyleSheet()
 
-    # Custom Paragraph Styles with Macron Font
     style_header = ParagraphStyle(
         'HeaderStyle',
         parent=styles['Normal'],
@@ -240,7 +247,7 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
 
     elements.append(Spacer(1, 14))
 
-    # Teacher Notes & Solutions Box
+    # Teacher Notes & Solutions
     if answers:
         elements.append(Paragraph("Teacher Notes & Solutions", style_teacher_hdr))
         for a_idx, a_text in enumerate(answers):
