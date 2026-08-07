@@ -9,9 +9,9 @@ from google import genai
 from curriculum import CURRICULUM_DATA, NZ_THEMES
 from exporters import generate_powerpoint_slide, generate_task_pdf
 
-st.set_page_config(page_title="Aotearoa Rich Maths Task Generator", page_icon="🇳🇿", layout="wide")
+st.set_page_config(page_title="Rich Maths Task Generator", page_icon="🇳🇿", layout="wide")
 
-st.title("🇳🇿 Aotearoa Rich Maths Task Generator")
+st.title("🇳🇿 Rich Maths Task Generator")
 st.markdown("Generate rich, context-aligned mathematical tasks for Phase 1 to Phase 3 (Years 1–8).")
 
 # --- SIDEBAR CONFIGURATION ---
