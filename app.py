@@ -94,18 +94,20 @@ if generate_btn:
                     contents=prompt,
                 )
                 
-                # Parse JSON output
-                raw_text = response.text.strip()
-                if raw_text.startswith("```json"):
-                    raw_text = raw_text.split("```json")[1].split("```")[0].strip()
-                elif raw_text.startswith("```"):
-                    raw_text = raw_text.split("```")[1].split("```")[0].strip()
-                    
-                st.session_state.generated_tasks = json.loads(raw_text)
-                st.success("Generated 3 tasks successfully!")
-
-            except Exception as e:
-                st.error(f"Error generating tasks: {e}")
+               # Attempt primary model, fallback if server is temporarily 503 unavailable
+                try:
+                    response = client.models.generate_content(
+                        model='gemini-2.0-flash',
+                        contents=prompt,
+                    )
+                except Exception as model_err:
+                    if "503" in str(model_err) or "UNAVAILABLE" in str(model_err):
+                        response = client.models.generate_content(
+                            model='gemini-1.5-flash',
+                            contents=prompt,
+                        )
+                    else:
+                        raise model_err
 
 
 # --- 3-COLUMN SIDE-BY-SIDE DISPLAY ---
