@@ -38,7 +38,7 @@ CURRICULUM_DATA = {
                     "Order objects by size or length."
                 ]
             },
-            "Space": {
+            "Geometry": {
                 "Shape and Spatial Reasoning": [
                     "Identify and name basic 2D shapes (circle, square, triangle, rectangle).",
                     "Describe position using spatial language (above, below, next to, inside)."
@@ -76,7 +76,7 @@ CURRICULUM_DATA = {
                     "Tell time to the hour and half-hour."
                 ]
             },
-            "Space": {
+            "Geometry": {
                 "Shape and Spatial Reasoning": [
                     "Describe features of 2D shapes and basic 3D objects.",
                     "Give and follow simple directions using movement words."
@@ -114,7 +114,7 @@ CURRICULUM_DATA = {
                     "Tell time to the quarter-hour."
                 ]
             },
-            "Space": {
+            "Geometry": {
                 "Shape and Spatial Reasoning": [
                     "Identify line symmetry in 2D shapes and cultural art patterns.",
                     "Describe movement using quarter-turns and half-turns."
@@ -172,7 +172,7 @@ CURRICULUM_DATA = {
                     "Calculate the area of rectangles using square grid units."
                 ]
             },
-            "Space": {
+            "Geometry": {
                 "Shape and Spatial Reasoning": [
                     "Classify 2D shapes and 3D objects based on geometric properties.",
                     "Identify horizontal, vertical, parallel, and perpendicular lines."
@@ -213,7 +213,7 @@ CURRICULUM_DATA = {
                     "Calculate volume of rectangular prisms using unit cubes."
                 ]
             },
-            "Space": {
+            "Geometry": {
                 "Shape and Spatial Reasoning": [
                     "Measure and classify acute, right, obtuse, and reflex angles using a protractor."
                 ]
@@ -248,7 +248,7 @@ CURRICULUM_DATA = {
                     "Convert between complex metric measures (mm, cm, m, km, g, kg, t, mL, L)."
                 ]
             },
-            "Space": {
+            "Geometry": {
                 "Shape and Spatial Reasoning": [
                     "Use grid coordinates and compass directions to navigate and scale maps."
                 ]
@@ -284,7 +284,7 @@ CURRICULUM_DATA = {
                     "Calculate area of triangles, parallelograms, and composite shapes."
                 ]
             },
-            "Space": {
+            "Geometry": {
                 "Shape and Spatial Reasoning": [
                     "Apply angle properties on parallel lines and within triangles."
                 ]
@@ -312,7 +312,7 @@ CURRICULUM_DATA = {
                     "Calculate volume and surface area of prisms and cylinders."
                 ]
             },
-            "Space": {
+            "Geometry": {
                 "Shape and Spatial Reasoning": [
                     "Perform transformations: translation, reflection, rotation, and enlargement."
                 ]
