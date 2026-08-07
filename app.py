@@ -103,7 +103,7 @@ if generate_btn:
             - "ans_ext": Teacher solution/guidance for Extension Challenge
             """
 
-            models_to_try = ['gemini-3.5-flash', 'gemini-2.0-flash']
+            models_to_try = ['gemini-3.5-flash']
             response = None
             last_error = None
 
