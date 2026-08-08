@@ -31,485 +31,321 @@ NZ_THEMES = [
     "Custom Context (Enter your own below)"
 ]
 
+"""
+Curriculum structure data mapping Phase -> Year Level -> Strand -> Substrand -> Objectives.
+"""
+
 CURRICULUM_DATA = {
-    "Phase 1 (Years 0–3)": {
-        "Year 0-1": {
+    "Phase 1": {
+        "Year 1": {
             "Number": {
-                "Number Structures": [
-                    "Read, write, compare, and order numbers up to 20, and order up to 5th place.",
-                    "Count forwards and backwards up to 20.",
-                    "Instantly recognise small groups of 3 to 5 objects without counting each one (subitising).",
-                    "Count up to 10 items using one-to-one counting (pointing to each item once).",
-                    "Read, write, compare, and order numbers up to 100.",
-                    "Use te reo Māori for numbers up to 30.",
-                    "Count forwards and backwards in 2s and 10s up to 100.",
-                    "Group items in pairs, 5s, or 10s to find totals up to 20."
-                ],
-                "Operations": [
-                    "Addition is putting groups together; subtraction is taking groups apart.",
-                    "Memorise basic addition and subtraction facts up to 5.",
-                    "Name the number right before or right after any number up to 10.",
-                    "Memorise addition/subtraction facts up to 10 and doubles/halves up to 10.",
-                    "Add and subtract numbers up to 20, and solve 1-step word problems using objects or pictures.",
-                    "Combine or share equal groups to multiply and divide up to 20."
-                ],
-                "Rational Numbers (Fractions)": [
-                    "Fractions describe equal parts of a whole.",
-                    "A half (1/2) is 1 of 2 equal parts; a quarter (1/4) is 1 of 4 equal parts.",
-                    "Use te reo Māori words for fractions (haurua = half, hauwhā = quarter).",
-                    "Find a half or a quarter of a set by sharing objects into equal groups."
-                ],
-                "Financial Mathematics": [
-                    "Recognise and know the values of New Zealand coins and notes."
-                ]
-            },
-            "Algebra": {
-                "Equations and Relationships": [
-                    "Copy, extend, create, and describe 2-element repeating patterns.",
-                    "Use ordinal numbers up to 5th place to describe positions in a line.",
-                    "Copy, continue, and create 3-element repeating patterns, and find missing pieces.",
-                    "Fill in missing numbers and check if simple number equations are true or false (e.g., 7 - 5 = 6 - 4)."
+                "Number Structures and Operations": [
+                    "Count forwards and backwards with whole numbers to 20.",
+                    "Read, write, compare, and order whole numbers to 20.",
+                    "Represent whole numbers to 20 using objects, pictures, and numerals.",
+                    "Group objects in tens and ones to understand place value up to 20.",
+                    "Add and subtract single-digit numbers using practical materials.",
+                    "Partition numbers up to 10 into part-whole combinations."
                 ]
             },
             "Measurement": {
                 "Measuring": [
-                    "Directly compare two objects by length, weight, or capacity.",
-                    "Name and order the days of the week, identifying weekdays and weekends.",
-                    "Compare length, weight, and capacity directly or by using a reference item.",
-                    "Use words like longer, shorter, taller, heavier, and lighter.",
-                    "Tell time to the hour on digital and analogue clocks ('o'clock').",
-                    "Use everyday time words (before, after, yesterday, tomorrow, morning, night) to order daily events."
+                    "Compare and order objects directly by length, weight, and capacity.",
+                    "Use informal units to measure length, mass, and volume.",
+                    "Recognise and order simple time events using daily routines."
                 ]
             },
             "Geometry": {
                 "Shapes & Spatial Reasoning": [
-                    "Identify, describe, and sort 2D shapes (triangles, circles, squares, rectangles) by one feature.",
-                    "Follow movement instructions using location words (up, down, left, right, under, next to).",
-                    "Identify, describe, and sort 3D shapes (cubes, cylinders, spheres).",
-                    "Put small shapes together to make larger shapes, or break big shapes into smaller ones.",
-                    "Use positional words to describe where things are located.",
-                    "Use pictures, stories, or simple map diagrams to describe locations."
+                    "Identify and name common 2D shapes (circles, squares, triangles, rectangles).",
+                    "Sort objects and shapes by single attributes (size, color, shape).",
+                    "Describe relative positions using directional words (above, below, next to)."
                 ]
             },
             "Statistics": {
                 "Developing Knowledge & Visualisation": [
-                    "Collect category data to answer a simple question and record answers with tally marks.",
-                    "Build picture graphs where every image represents one item.",
-                    "Describe picture graphs and answer questions about which category has the most or least items."
+                    "Collect and record simple data using tallies or physical objects.",
+                    "Create simple picture graphs using one-to-one representations.",
+                    "Answer simple questions about data visualisations."
+                ]
+            },
+            "Probability": {
+                "Experimental & Theoretical Probability": [
+                    "Use everyday language to describe chance and likelihood (will happen, won't happen)."
                 ]
             }
         },
         "Year 2": {
             "Number": {
-                "Number Structures": [
-                    "Read, write, compare, and order numbers up to 120.",
-                    "Use te reo Māori for numbers up to 100.",
-                    "Place numbers approximately on a partially labelled number line.",
-                    "Group items in 10s to find the total amount.",
-                    "Count forwards and backwards in 2s, 5s, and 10s, and count forwards in 3s.",
-                    "Round numbers up to 120 to the nearest 10.",
-                    "Identify odd and even numbers up to 120."
-                ],
-                "Operations": [
-                    "Memorise addition and subtraction facts up to 20, as well as doubles and halves to 20.",
-                    "Add and subtract numbers up to 100, and solve 1-step or multi-step word problems.",
-                    "Add three 1-digit numbers together.",
-                    "Memorise multiplication and division facts for 2, 5, and 10."
-                ],
-                "Rational Numbers (Fractions)": [
-                    "Read, write, and draw fractions (1/2, 1/3, 1/4, 2/4, 3/4).",
-                    "Compare two fractions directly.",
-                    "Find a half, third, or quarter of a group using patterns.",
-                    "Find the whole amount when given a fraction part."
-                ],
-                "Financial Mathematics": [
-                    "Sort and order NZ coins and notes by value.",
-                    "Group matching coins or notes and combine them to make specific amounts."
-                ]
-            },
-            "Algebra": {
-                "Equations and Relationships": [
-                    "Check if number comparisons are true or false (e.g., 16 > 60).",
-                    "Fill in missing numbers in equations using equipment, drawings, or number lines.",
-                    "Find the repeating pattern rule and use ordinal positions to predict missing or future elements."
+                "Number Structures and Operations": [
+                    "Count forwards and backwards in ones, twos, fives, and tens up to 100.",
+                    "Read, write, compare, and order whole numbers to 100.",
+                    "Understand two-digit place value (tens and ones).",
+                    "Recall basic addition and subtraction facts up to 10.",
+                    "Solve simple addition and subtraction word problems within 20.",
+                    "Recognise and find equal halves of shapes and sets of objects."
                 ]
             },
             "Measurement": {
                 "Measuring": [
-                    "Estimate and measure length, weight (mass), and liquid volume using informal objects, then metric tools (cm, g, mL).",
-                    "Measure the perimeter of straight-sided shapes (polygons).",
-                    "Turn people or objects using full, half, quarter, and three-quarter turns.",
-                    "Tell time on clocks to the hour, half-hour, and quarter-hour.",
-                    "Name, order, and describe durations of days, weeks, months, seasons, and years."
+                    "Measure and compare length, weight, and capacity using uniform informal units.",
+                    "Tell time to the hour and half-hour using analog and digital clocks."
                 ]
             },
             "Geometry": {
                 "Shapes & Spatial Reasoning": [
-                    "Identify, describe, and sort 2D and 3D shapes (including ovals, semicircles, pentagons, hexagons, cuboids, pyramids, cones).",
-                    "Flip, turn, and slide shapes to build designs or patterns."
-                ],
-                "Pathways": [
-                    "Give and follow instructions to move places using turns, directions, and step counts.",
-                    "Read simple maps and diagrams to find where objects are located."
+                    "Identify, describe, and compare common 2D shapes and 3D objects.",
+                    "Recognise simple patterns and symmetry in everyday objects and shapes."
                 ]
             },
             "Statistics": {
                 "Developing Knowledge & Visualisation": [
-                    "Ask a question to collect category data and record it using tally charts.",
-                    "Create picture graphs and dot plots to show data.",
-                    "Describe graphs and answer questions about which category has the most or least."
+                    "Gather data to answer simple categorical questions.",
+                    "Represent data using simple tally charts, bar charts, and pictograms."
+                ]
+            },
+            "Probability": {
+                "Experimental & Theoretical Probability": [
+                    "Classify events as certain, possible, or impossible."
                 ]
             }
         },
         "Year 3": {
             "Number": {
-                "Number Structures": [
-                    "Read, write, compare, and order numbers up to 1,000.",
-                    "Count in groups (like 10s or 100s) to count large groups of items faster.",
-                    "Count forwards and backwards in 2s, 3s, 4s, 5s, 8s, 10s, and 100s.",
-                    "Round numbers to the nearest 10 or 100."
-                ],
-                "Operations": [
-                    "Add and subtract numbers up to 1,000, including solving word problems.",
-                    "Memorise multiplication and division facts for 2, 3, 4, 5, 8, and 10.",
-                    "Multiply a 1- or 2-digit number by a 1-digit number.",
-                    "Divide numbers with no leftovers (remainders)."
-                ],
-                "Rational Numbers (Fractions)": [
-                    "Read, write, and draw fractions.",
-                    "Compare and order fractions up to 1/12.",
-                    "Add and subtract fractions that have the same bottom number.",
-                    "Find a fraction of a set of items using division."
-                ],
-                "Financial Mathematics": [
-                    "Make target amounts using $1, $2 coins, and $5 to $100 notes.",
-                    "Use addition and subtraction to work out total costs and change."
-                ]
-            },
-            "Algebra": {
-                "Equations and Relationships": [
-                    "Check if number sentences are true or false (e.g., 313 < 330).",
-                    "Fill in missing numbers in equations (e.g., 217 - _ = 105).",
-                    "Make and extend growing number patterns."
+                "Number Structures and Operations": [
+                    "Read, write, order, and compare whole numbers up to 1,000.",
+                    "Recognise the place value of each digit in a three-digit number.",
+                    "Recall basic addition and subtraction facts to 20.",
+                    "Recall multiplication and division facts for 2, 5, and 10 times tables.",
+                    "Identify and model fractions such as halves, quarters, thirds, and eighths."
                 ]
             },
             "Measurement": {
                 "Measuring": [
-                    "Estimate and measure length (cm, m), mass/weight (g, kg), and liquid volume (mL, L).",
-                    "Measure the perimeter of shapes and the area of rectangles using grid squares.",
-                    "Turn people or objects using full, half, quarter, and three-quarter turns.",
-                    "Tell time on clocks to the exact minute and nearest 5 minutes."
+                    "Estimate and measure length, mass, and capacity using standard metric units (m, cm, kg, g, L, mL).",
+                    "Tell time to five-minute intervals and read simple calendar schedules."
                 ]
             },
             "Geometry": {
                 "Shapes & Spatial Reasoning": [
-                    "Identify and sort regular shapes up to 10 sides.",
-                    "Find and draw lines of symmetry in pictures and patterns."
-                ],
-                "Pathways": [
-                    "Give and follow directions to move objects or people (including turn amounts and distance).",
-                    "Use simple maps to find places or objects."
+                    "Describe 2D and 3D shapes using geometric properties (edges, vertices, faces).",
+                    "Identify angles as right angles, greater than, or less than a right angle."
                 ]
             },
             "Statistics": {
                 "Developing Knowledge & Visualisation": [
-                    "Gather category data or count data by asking questions (e.g., 'How many lost teeth?').",
-                    "Create bar graphs and dot plots to show data.",
-                    "Describe graphs using real-world contexts and answer questions about which group has the most, least, or total amount."
+                    "Plan and conduct simple statistical investigations.",
+                    "Construct pictograms and column graphs with simple grid scales."
+                ]
+            },
+            "Probability": {
+                "Experimental & Theoretical Probability": [
+                    "Describe the likelihood of simple outcomes using qualitative terms (likely, unlikely, equal chance)."
                 ]
             }
         }
     },
-    "Phase 2 (Years 4–6)": {
+    "Phase 2": {
         "Year 4": {
             "Number": {
-                "Number Structures": [
-                    "Read, write, compare, order, and represent numbers up to 10,000.",
-                    "Round whole numbers to the nearest 10, 100, or 1,000, and round tenths to the nearest whole number.",
-                    "Count in 2s, 3s, 4s, 5s, 6s, 7s, 8s, 9s, 25s, and 50s from multiples, and in 10s, 100s, and 1,000s."
-                ],
-                "Operations": [
-                    "Add and subtract numbers up to four digits.",
-                    "Memorise multiplication and division facts from 2s to 10s.",
-                    "Multiply 2- and 3-digit numbers by a 1-digit number.",
-                    "Divide up to 3-digit numbers by a 1-digit divisor with no remainder."
-                ],
-                "Rational Numbers (Fractions & Decimals)": [
-                    "Read, write, compare, and order tenths as fractions and decimals.",
-                    "Multiply and divide whole numbers by 10 to work with decimal tenths.",
-                    "Memorise the decimal equivalent of 1/2 (0.5) and tenths.",
-                    "Add and subtract fractions with common denominators and decimals to one decimal place.",
-                    "Find a unit fraction of a whole number and find the whole from a fractional part."
+                "Number Structures and Operations": [
+                    "Read, write, compare, and order numbers up to 10,000.",
+                    "Use place value to solve multi-digit addition and subtraction problems.",
+                    "Recall multiplication facts up to $10 \\times 10$.",
+                    "Model, compare, and order simple proper fractions with like denominators.",
+                    "Find unit fractions of small quantities."
                 ],
                 "Financial Mathematics": [
-                    "Calculate total costs and change for dollar amounts.",
-                    "Represent money values using different combinations of coins and notes."
+                    "Solve simple practical financial problems involving money transactions and change."
                 ]
             },
             "Algebra": {
                 "Equations and Relationships": [
-                    "Check the truth of and solve open equations involving addition, subtraction, multiplication, or division.",
-                    "Identify, extend, and create growing numerical and non-numerical patterns."
+                    "Find missing numbers in simple number sentence equations.",
+                    "Identify, describe, and extend repeating or growing patterns."
                 ]
             },
             "Measurement": {
                 "Measuring": [
-                    "Measure length, mass, and capacity in mixed metric units and temperature in degrees Celsius.",
-                    "Calculate perimeter of polygons and areas of rectangles/squares using side length multiplication.",
-                    "Measure irregular shape areas using grid squares and 3D volume using unit blocks.",
-                    "Tell time to the exact minute on analogue/digital clocks and convert equivalent durations."
+                    "Calculate perimeters of simple 2D rectilinear shapes.",
+                    "Estimate and measure area using square units.",
+                    "Convert between basic metric units (e.g., meters to centimeters)."
                 ]
             },
             "Geometry": {
                 "Shapes & Spatial Reasoning": [
-                    "Classify polygons up to 12 sides using edges, vertices, and angles.",
-                    "Identify lines of symmetry and connect 3D shapes to 2D perspective diagrams.",
-                    "Perform one-step reflections, translations, and rotations on 2D shapes."
-                ],
-                "Pathways": [
-                    "Use alphanumeric grid references to plot positions and locate regions on maps."
+                    "Classify 2D shapes based on side lengths, parallel lines, and angle types.",
+                    "Create simple grid maps and locate objects using grid references."
                 ]
             },
             "Statistics": {
                 "Developing Knowledge & Visualisation": [
-                    "Collect numerical data and create dot plots or bar graphs."
-                ],
-                "Interpretation of Data": [
-                    "Answer questions using dot plots and bar graphs by distinguishing between specific values and frequencies."
+                    "Collect discrete data and represent it using tables, dot plots, and bar graphs.",
+                    "Interpret frequency distributions and identify mode values."
+                ]
+            },
+            "Probability": {
+                "Experimental & Theoretical Probability": [
+                    "Conduct simple chance experiments and record frequency outcomes."
                 ]
             }
         },
         "Year 5": {
             "Number": {
-                "Number Structures": [
-                    "Read, write, compare, order, and represent numbers up to 1,000,000 using base-10 structure.",
-                    "Find factor pairs for products of whole numbers up to 10 x 10.",
-                    "Round whole numbers (10s to 100,000s) and decimals (tenths/hundredths to whole numbers).",
-                    "Count in 11s and 12s, skip-count in large powers, and count backwards into negative integers."
-                ],
-                "Operations": [
-                    "Add and subtract increasingly large whole numbers using mental strategies or written algorithms.",
-                    "Memorise multiplication and division facts up to 12 x 12.",
-                    "Multiply 3- and 4-digit numbers by a 1-digit number, and multiply two 2-digit numbers.",
-                    "Divide up to 4-digit numbers by a 1-digit divisor, including answers with remainders."
-                ],
-                "Rational Numbers (Fractions, Decimals, & Percentages)": [
-                    "Read, write, compare, and order decimals to two decimal places (tenths and hundredths).",
-                    "Memorise decimal equivalents for 1/4, 1/2, 3/4 and tenths/hundredths.",
-                    "Convert key percentages (10%, 25%, 50%) to fractions/decimals, and calculate those percentages.",
-                    "Add and subtract decimals and fractions with matching or related denominators.",
-                    "Find non-unit fractions of set values and calculate the whole set from a known fraction."
+                "Number Structures and Operations": [
+                    "Read, write, and order numbers up to 100,000.",
+                    "Multiply 2-digit and 3-digit numbers by 1-digit numbers.",
+                    "Perform division with remainders.",
+                    "Compare, order, and add/subtract fractions with same and related denominators.",
+                    "Connect decimals (tenths and hundredths) with fraction representations."
                 ],
                 "Financial Mathematics": [
-                    "Calculate costs and change for items priced in dollars and cents, rounding to nearest dollar or 10 dollars."
+                    "Calculate simple costs, total expenses, and change required for multi-item purchases."
                 ]
             },
             "Algebra": {
                 "Equations and Relationships": [
-                    "Complete open number sentences and verify balance/truth across expressions using equality and inequality symbols.",
-                    "Identify, extend, create, and describe growing patterns changing by decimal or constant increments."
+                    "Use rule statements to complete linear pattern input-output tables.",
+                    "Solve simple open number sentences with unknown variables."
                 ]
             },
             "Measurement": {
                 "Measuring": [
-                    "Measure length, weight, capacity, temperature, and duration using standard metric tools and units.",
-                    "Convert metric length units (m and cm).",
-                    "Calculate perimeters of regular polygons and areas of rectangles/squares using side length formulas.",
-                    "Calculate 3D rectangular prism volumes using centicube layers.",
-                    "Measure, construct, and classify angles up to 180 degrees using a protractor.",
-                    "Calculate durations across 12-hour (a.m./p.m.) and 24-hour time formats."
+                    "Calculate the area of rectangles and squares using $A = l \\times w$.",
+                    "Measure and construct angles using a protractor in degrees.",
+                    "Calculate elapsed time duration across 12-hour and 24-hour clocks."
                 ]
             },
             "Geometry": {
                 "Shapes & Spatial Reasoning": [
-                    "Classify prisms using cross-sections, faces, edges, and vertices.",
-                    "Match 3D shapes to their corresponding unfolded 2D nets.",
-                    "Identify parallel/perpendicular lines on shapes and describe transformations."
-                ],
-                "Pathways": [
-                    "Create and interpret grid maps to plot coordinates and plan routes using grid references and compass directions."
+                    "Identify line symmetry and rotational symmetry in 2D shapes.",
+                    "Describe translations, reflections, and rotations of 2D shapes."
                 ]
             },
             "Statistics": {
                 "Developing Knowledge & Visualisation": [
-                    "Collect continuous numerical data and bivariate categorical data.",
-                    "Group continuous data into ranged table intervals.",
-                    "Plot paired categorical data onto clustered bar graphs."
-                ],
-                "Interpretation of Data": [
-                    "Interpret visualisations by describing variable units, context, peaks, centre grouping, and range spread."
-                ],
-                "Probability": [
-                    "Run chance experiments and describe outcome likelihoods using formal vocabulary.",
-                    "Place probability events accurately onto a 0 to 1 numeric line."
+                    "Formulate questions to collect categorical and numerical data.",
+                    "Construct line graphs to display continuous data changes over time."
+                ]
+            },
+            "Probability": {
+                "Experimental & Theoretical Probability": [
+                    "List all possible outcomes of a single chance experiment.",
+                    "Calculate theoretical probability of simple events as fractions."
                 ]
             }
         },
         "Year 6": {
             "Number": {
-                "Number Structures": [
-                    "Read, write, compare, order, and represent any whole number using base-10 structure.",
-                    "Find factor pairs for products of whole numbers up to 12 x 12.",
-                    "Round whole numbers to the nearest million down to 10, and round hundredths to whole/tenth.",
-                    "Recognise n² and n³ notation, memorising square numbers to 144 and cube numbers to 125.",
-                    "Count forwards and backwards using positive and negative whole numbers."
-                ],
-                "Operations": [
-                    "Evaluate mathematical expressions using the order of operations.",
-                    "Add and subtract any whole numbers, and multiply whole numbers by a 2-digit number.",
-                    "Divide up to 5-digit numbers by a 1-digit divisor, representing remainders as numbers, fractions, or decimals.",
-                    "Connect finding unit fractions of whole numbers directly to division with remainders."
-                ],
-                "Rational Numbers (Fractions, Decimals, & Percentages)": [
-                    "Read, write, compare, order, and convert decimals up to three decimal places.",
-                    "Memorise decimal and percentage equivalents for key fractions.",
-                    "Multiply and divide whole numbers and decimals by 10, 100, or 1,000.",
-                    "Find equivalent fractions, convert mixed/improper fractions, and add/subtract fractions and decimals.",
-                    "Find non-unit fractions and percentages of whole numbers, or find the whole amount."
+                "Number Structures and Operations": [
+                    "Work with whole numbers of any size, including place value and rounding.",
+                    "Multiply multi-digit whole numbers using formal written algorithms.",
+                    "Find percentages, decimals, and equivalent fraction representations.",
+                    "Add and subtract decimals with up to three decimal places.",
+                    "Solve problems involving simple proportions, ratios, and rates."
                 ],
                 "Financial Mathematics": [
-                    "Calculate 10%, 25%, and 50% of whole dollar amounts.",
-                    "Solve multi-step money and purchasing questions."
+                    "Create and manage simple personal budgets based on simple earnings and expense scenarios."
                 ]
             },
             "Algebra": {
                 "Equations and Relationships": [
-                    "Solve and verify open number sentences using all four operations and inequality signs with order of operations.",
-                    "Formulate verbal rules for growing patterns and plot pattern values onto a coordinate plane."
+                    "Write algebraic expressions to represent word situations.",
+                    "Plot ordered pairs $(x, y)$ on a single-quadrant Cartesian coordinate graph."
                 ]
             },
             "Measurement": {
                 "Measuring": [
-                    "Estimate and accurately measure length, mass, capacity, temperature, and duration using standard tools.",
-                    "Convert between metric units combining mixed units up to 2 decimal places.",
-                    "Calculate rectangular prism volumes and areas of rectangles/right-angled triangles.",
-                    "Classify, measure, construct, and solve for unknown angles up to 360 degrees.",
-                    "Convert time units and calculate elapsed time across 12- and 24-hour schedules."
+                    "Convert between metric units of length, mass, and capacity ($m$, $km$, $g$, $kg$, $mL$, $L$).",
+                    "Calculate volumes of rectangular prisms using $V = l \\times w \\times h$.",
+                    "Solve problems involving perimeter, area, and volume."
                 ]
             },
             "Geometry": {
                 "Shapes & Spatial Reasoning": [
-                    "Classify 2D shapes, triangles, quadrilaterals, prisms, and pyramids by attributes, interior angles, and symmetry.",
-                    "Build geometric patterns and tessellations using translations, reflections, and rotations.",
-                    "Predict the results of two-step transformations on 2D shapes."
-                ],
-                "Pathways": [
-                    "Interpret grid maps using alphanumeric coordinates, scales, compass directions, distances, and turn angles."
+                    "Construct 3D shapes from 2D nets.",
+                    "Classify triangles and quadrilaterals by angle and side properties."
                 ]
             },
             "Statistics": {
                 "Developing Knowledge & Visualisation": [
-                    "Collect time-series data and calculate the mean and range for numerical data sets.",
-                    "Plot time-series line graphs on a coordinate plane."
-                ],
-                "Interpretation of Data": [
-                    "Interpret data visualisations by identifying overall trends, centre, shape, and spread."
-                ],
-                "Probability": [
-                    "List the complete sample space for chance experiments.",
-                    "Calculate probabilities of single outcomes, fraction-based spinner events, and combined outcomes."
+                    "Interpret and critique media statistical visualisations.",
+                    "Calculate mean, median, mode, and range for numerical data sets."
+                ]
+            },
+            "Probability": {
+                "Experimental & Theoretical Probability": [
+                    "Compare experimental results with theoretical probabilities and explain discrepancies."
                 ]
             }
         }
     },
-    "Phase 3 (Years 7–8)": {
+    "Phase 3": {
         "Year 7": {
             "Number": {
                 "Number Structures and Operations": [
-                    "Read, write, compare, and order whole numbers using powers of 10 and expanded forms.",
-                    "Use exponents, radicals (√), and find square roots for squares up to 144.",
-                    "Apply divisibility rules, identify primes to 100, find HCFs (<100), and find LCMs (<10).",
-                    "Locate, order, add, and subtract integers on a number line in real-world contexts.",
-                    "Round whole numbers to any power of 10 and decimals up to hundredths.",
-                    "Multiply whole numbers and divide whole numbers by 1- or 2-digit divisors.",
-                    "Evaluate expressions using GEMA."
-                ],
-                "Rational Numbers (Fractions, Decimals, & Percentages)": [
-                    "Compare, order, and convert between fractions, decimals, and percentages.",
-                    "Simplify, add, and subtract fractions, improper fractions, and mixed numbers.",
-                    "Multiply/divide by powers of 10, multiply decimals, and divide fractions by whole numbers.",
-                    "Calculate fractions/percentages of whole numbers and find whole amounts from known parts.",
-                    "Apply proportional reasoning to multiplicative relationship problems."
+                    "Apply order of operations (BEDMAS) to solve arithmetic calculations.",
+                    "Perform calculations with positive and negative integers.",
+                    "Find prime factors, greatest common factors (GCF), and least common multiples (LCM).",
+                    "Multiply and divide fractions and decimals efficiently."
                 ],
                 "Financial Mathematics": [
-                    "Calculate totals and change for transactions, and apply percentage discounts to dollar amounts."
+                    "Calculate percentage increases, decreases, discounts, and tax markup amounts."
                 ]
             },
             "Algebra": {
                 "Equations and Relationships": [
-                    "Form and solve 1- and 2-step linear equations with integer solutions.",
-                    "Rearrange known 1- or 2-step formulas and simplify expressions by collecting like terms.",
-                    "Plot ordered pairs across all four quadrants of the coordinate plane.",
-                    "Identify pattern rules from tables, graphs, or diagrams using algebraic notation."
+                    "Simplify linear expressions by combining like terms.",
+                    "Solve one-step and two-step linear equations.",
+                    "Graph linear equations on a four-quadrant Cartesian plane."
                 ]
             },
             "Measurement": {
                 "Measuring": [
-                    "Select base metric units with prefixes (kilo-, centi-) appropriately.",
-                    "Use formulas to solve for missing dimensions in perimeter, area, and volume problems.",
-                    "Interpret timetables and charts to solve time and duration problems."
+                    "Calculate area of triangles, parallelograms, and composite shapes.",
+                    "Calculate circle circumference and area using $\\pi$ approximations."
                 ]
             },
             "Geometry": {
                 "Shapes & Spatial Reasoning": [
-                    "Classify triangles by side and angle properties.",
-                    "Perform single translations, reflections, or 90-degree step rotations on a coordinate plane.",
-                    "Identify 2D face shapes of 3D objects and draw nets for prisms and pyramids.",
-                    "Solve multi-step equations for unknown angles using angle rules."
-                ],
-                "Pathways": [
-                    "Communicate locations and routes using coordinates, angle measures, and 8 main compass points."
+                    "Solve for missing angles using intersecting, complementary, and supplementary angle rules.",
+                    "Perform geometric transformations including enlargements."
                 ]
             },
             "Statistics": {
                 "Developing Knowledge & Visualisation": [
-                    "Plan and collect data to investigate statistical questions.",
-                    "Calculate mean, median, mode, and range.",
-                    "Construct appropriate graphs (dot plots, bar graphs, time-series) and identify outliers."
-                ],
-                "Interpretation of Data": [
-                    "Summarise findings using central tendency, range, and contextual evidence.",
-                    "Describe visual features: shape (peaks, symmetry, skew), centre (median), and spread (range)."
-                ],
-                "Probability": [
-                    "Conduct chance experiments (30+ and 100+ trials) to calculate experimental probabilities.",
-                    "Calculate theoretical probabilities as fractions, decimals, or percentages."
+                    "Collect multivariate data using random sampling methods.",
+                    "Construct stem-and-leaf plots, dot plots, and grouped frequency tables."
+                ]
+            },
+            "Probability": {
+                "Experimental & Theoretical Probability": [
+                    "Represent compound outcomes using tree diagrams and sample space lists.",
+                    "Determine probability of simple compound events."
                 ]
             }
         },
         "Year 8": {
             "Number": {
                 "Number Structures and Operations": [
-                    "Read, write, compare, order, and express numbers in expanded form using powers of 10.",
-                    "Represent negative powers of 10 as fractions or decimals, and vice versa.",
-                    "Identify cube roots for cubes up to 125 using radicals (∛) and approximate non-perfect roots.",
-                    "Break down composite numbers into prime factorisations using exponents.",
-                    "Compare, order, add, and subtract integers on a number line.",
-                    "Evaluate integer expressions using GEMA, and round to thousandths."
-                ],
-                "Rational Numbers (Fractions, Decimals, Ratios, & Percentages)": [
-                    "Convert, compare, and order fractions, decimals, and percentages.",
-                    "Multiply whole numbers, fractions, improper fractions, mixed numbers, and decimals.",
-                    "Find fractions or percentages of whole numbers or calculate the 100% whole from a part.",
-                    "Recognise percentage equivalence in calculations (e.g., 45% of 20 = 20% of 45).",
-                    "Divide quantities into two parts using given ratios or express existing divisions as ratios."
+                    "Apply exponent laws for positive integer powers.",
+                    "Express numbers in scientific notation.",
+                    "Solve real-world problems involving ratios, rates, and unit pricing conversions."
                 ],
                 "Financial Mathematics": [
-                    "Create and compare finance plans, savings budgets, phone plans, and 'buy now, pay later' services.",
-                    "Apply percentage discounts to calculate new discounted prices."
+                    "Calculate simple interest and evaluate financial loan/savings scenarios."
                 ]
             },
             "Algebra": {
                 "Equations and Relationships": [
-                    "Form and solve linear equations with rational solutions and solve linear inequalities.",
-                    "Substitute values into formulas and rearrange known formulas.",
-                    "Simplify expressions involving single brackets/like terms and factorise simple expressions.",
+                    "Expand single brackets and factorise linear algebraic expressions.",
+                    "Solve linear equations involving fractions or variables on both sides.",
                     "Investigate and plot non-linear pattern sequences."
                 ]
             },
             "Measurement": {
                 "Measuring": [
-                    "Convert between metric units of area (mm² to km²), volume (mm³ to m³), and capacity (mL, L).",
+                    "Convert between metric units of area ($mm^2$ to $km^2$), volume ($mm^3$ to $m^3$), and capacity ($mL$, $L$).",
                     "Calculate areas of parallelograms and trapeziums.",
                     "Calculate volumes of triangular prisms and composite 3D shapes.",
                     "Solve complex duration problems and convert time units."
@@ -528,20 +364,22 @@ CURRICULUM_DATA = {
             "Statistics": {
                 "Developing Knowledge & Visualisation": [
                     "Plan and collect statistical data, calculating mean, median, mode, and range.",
-                    "Choose and construct appropriate visualisations (dot plots, bar graphs, stacked/clustered bar graphs, time-series)."
+                    "Choose and construct appropriate visualisations (dot plots, bar graphs, stacked/clustered bar graphs)."
                 ],
                 "Interpretation of Data": [
                     "Interpret visualisations by describing shape, central tendency, spread, and trends.",
                     "Identify misleading graphs, missing details, or influential outliers."
-                ],
-                "Probability": [
-                    "Conduct chance experiments (30+ and 100+ trials) to compare experimental outcomes against theoretical calculations.",
+                ]
+            },
+            "Probability": {
+                "Experimental & Theoretical Probability": [
+                    "Conduct chance experiments (30+ and 100+ trials) to compare experimental outcomes against theoretical expectations.",
                     "Calculate probabilities for single and complementary events as fractions, decimals, or percentages."
-               ]
+                ]
             }
         }
     },
-    "Phase 4 (Years 9–10)": {
+    "Phase 4": {
         "Year 9": {
             "Number": {
                 "Number Structures and Operations": [
@@ -696,4 +534,93 @@ CURRICULUM_DATA = {
             }
         }
     }
+}
+
+STRAND_KEYWORDS = {
+    "Number": [
+        "Counting",
+        "Sequencing",
+        "Place Value",
+        "Rounding",
+        "Odd and Even Numbers",
+        "Grouping",
+        "Partitioning",
+        "Factors and Multiples",
+        "Prime and Composite",
+        "Addition",
+        "Subtraction",
+        "Multiplication",
+        "Division",
+        "BEDMAS / Order of Operations",
+        "Integers",
+        "Fractions",
+        "Proportions",
+        "Estimation",
+        "Money and Finance",
+        "Rates and Ratios",
+        "Indices and Roots",
+        "Scientific Notation"
+    ],
+    "Algebra": [
+        "Patterns",
+        "Variables",
+        "Expressions",
+        "Substitution",
+        "Expanding",
+        "Factorising",
+        "Equations",
+        "Inequalities",
+        "Linear Relationships",
+        "Gradient and Intercept",
+        "Quadratics"
+    ],
+    "Measurement": [
+        "Time",
+        "Calendars",
+        "Length and Distance",
+        "Weight and Mass",
+        "Capacity and Volume",
+        "Area",
+        "Perimeter",
+        "Surface Area",
+        "Metric System",
+        "Pythagoras' Theorem",
+        "Speed, Distance, Time",
+        "Scale Factors"
+    ],
+    "Geometry": [
+        "2D Shapes",
+        "3D Shapes",
+        "Nets",
+        "Position and Mapping",
+        "Coordinates",
+        "Symmetry",
+        "Transformations",
+        "Angles",
+        "Parallel Line Rules",
+        "Lines",
+        "Circle Properties",
+        "Congruence and Similarity"
+    ],
+    "Statistics": [
+        "Data Collection",
+        "Graphing",
+        "Data Analysis",
+        "Measures of Central Tendency",
+        "Measures of Spread",
+        "Five-Point Summary",
+        "Scatter Plots",
+        "Misleading Graphs",
+        "Statistical Inference"
+    ],
+    "Probability": [
+        "Chance",
+        "Probability",
+        "Sample Space",
+        "Theoretical Probability",
+        "Experimental Probability",
+        "Tree Diagrams",
+        "Simulations",
+        "Law of Large Numbers"
+    ]
 }
