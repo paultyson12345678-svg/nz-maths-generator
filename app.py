@@ -134,7 +134,7 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
                 for attempt in range(max_retries):
                     try:
                         response = client.models.generate_content(
-                            model='gemini-2.0-flash',
+                            model='gemini-1.5-flash',
                             contents=prompt,
                             config={'response_mime_type': 'application/json'}
                         )
