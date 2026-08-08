@@ -93,7 +93,7 @@ available_keywords = STRAND_KEYWORDS.get(strand, []) if strand else []
 selected_keywords = []
 
 if available_keywords:
-    st.sidebar.write("**Select Keywords / Concepts:**")
+    st.sidebar.write("**Select Keywords:**")
     with st.sidebar.expander("View / Select Keywords", expanded=False):
         for kw in available_keywords:
             if st.checkbox(kw, value=False, key=f"kw_{strand}_{kw}"):
