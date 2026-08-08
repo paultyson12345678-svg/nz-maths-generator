@@ -37,7 +37,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     """
     Generates a 3-slide widescreen PowerPoint presentation with larger typography:
     - Slide 1: Title, Meta, Scenario (just 'Scenario:'), and Question 1 only.
-    - Slide 2: Question 2 & Extension Challenge (without 'Tasks' header).
+    - Slide 2: Question 2 & Extension Challenge with extra vertical spacing.
     - Slide 3: Detailed Solutions & Teacher Guidance.
     """
     prs = Presentation()
@@ -106,7 +106,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     p_head2.font.color.rgb = RGBColor(27, 54, 93)
 
     # Tasks Box (Questions 2+ and Extension - Header removed)
-    q2_box = slide_2.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(11.733), Inches(5.2))
+    q2_box = slide_2.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(11.733), Inches(5.5))
     tf_q2 = q2_box.text_frame
     tf_q2.word_wrap = True
 
@@ -121,7 +121,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
             p.font.bold = True
             p.space_after = Pt(16)
 
-    # Extension Challenge
+    # Extension Challenge with increased space before
     if extension:
         p_ext = tf_q2.paragraphs[0] if first_q2_item else tf_q2.add_paragraph()
         p_ext.text = f"Extension Challenge: {extension}"
@@ -129,7 +129,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_ext.font.bold = True
         p_ext.font.color.rgb = RGBColor(180, 83, 9)  # Warm accent color
         if not first_q2_item:
-            p_ext.space_before = Pt(16)
+            p_ext.space_before = Pt(36)  # Increased vertical gap between Question 2 and Extension Challenge
 
     # --- SLIDE 3: Teacher Solutions & Guidance ---
     slide_3 = prs.slides.add_slide(blank_slide_layout)
