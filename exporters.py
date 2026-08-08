@@ -167,8 +167,8 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
 def generate_task_pdf(title, scenario, questions, extension, phase, theme, answers):
     """
     Generates a 1-page printable A4 PDF student worksheet.
-    Dynamically adjusts working box heights and font sizes to guarantee 
-    that the scenario and all questions fit on a single page.
+    Dynamically adjusts working box heights and font sizes while ensuring 
+    generous spacing between boxes to avoid a crowded layout.
     """
     buffer = io.BytesIO()
 
@@ -176,32 +176,32 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     font_normal, font_bold = get_macron_font()
 
     # 1. Page dimensions & setup (A4: 595.27 x 841.89 pt)
-    # Margins: Top/Bottom 28pt, Left/Right 36pt -> Printable height ~785pt
+    # Margins: Top/Bottom 24pt, Left/Right 36pt -> Printable height ~793pt
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
         rightMargin=36,
         leftMargin=36,
-        topMargin=28,
-        bottomMargin=28
+        topMargin=24,
+        bottomMargin=24
     )
 
     story = []
     styles = getSampleStyleSheet()
 
-    # 2. Estimate text volume to dynamically tune sizes
+    # 2. Estimate text volume to dynamically tune font sizes
     total_text_length = len(title) + len(scenario) + sum(len(q) for q in questions) + (len(extension) if extension else 0)
     
-    # Compact styles for heavier text inputs
+    # Adjust typography for breathing room
     if total_text_length > 600:
         title_size, title_lead = 16, 20
-        body_size, body_lead = 10, 13
-        q_size, q_lead = 10.5, 14
+        body_size, body_lead = 9.5, 12.5
+        q_size, q_lead = 10, 13.5
         scen_padding = 6
     else:
         title_size, title_lead = 18, 22
-        body_size, body_lead = 10.5, 14
-        q_size, q_lead = 11, 15
+        body_size, body_lead = 10, 13.5
+        q_size, q_lead = 10.5, 14.5
         scen_padding = 8
 
     title_style = ParagraphStyle(
@@ -241,7 +241,7 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         textColor=colors.HexColor('#1A202C')
     )
 
-    # 3. Add Header & Scenario
+    # 3. Add Header & Scenario Box
     story.append(Paragraph(title, title_style))
     story.append(Paragraph(f"<b>Phase:</b> {phase} &nbsp;&nbsp;|&nbsp;&nbsp; <b>Context:</b> {theme}", meta_style))
     story.append(Spacer(1, 6))
@@ -255,19 +255,21 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
     ]))
     story.append(scenario_table)
-    story.append(Spacer(1, 8))
+    
+    # Increased gap below scenario box (before Question 1)
+    story.append(Spacer(1, 12))
 
-    # 4. Calculate Dynamic Box Height for 1-Page Constraint
+    # 4. Calculate Dynamic Box Height incorporating larger inter-element gaps
     num_boxes = len(questions) + (1 if extension else 0)
     
-    # Vertical height budgeting:
-    # Available height ~785pt. Reserve header/scenario area (~200pt) & margins/spacers (~60pt)
-    # Estimate ~520pt remaining total for questions + working boxes.
+    # Vertical height budgeting with larger gaps:
+    # Gap per box = 4pt (before box) + 14pt (after box) = 18pt total per box
     estimated_text_lines = sum(max(1, len(q) // 80) for q in questions) + (max(1, len(extension) // 80) if extension else 0)
     text_height = estimated_text_lines * q_lead
     
-    available_box_space = 520 - text_height - (num_boxes * 12)
-    calculated_box_height = max(55, min(125, available_box_space / max(1, num_boxes)))
+    # Budget height remaining for boxes (re-calculated to preserve 1-page fit with wider gaps)
+    available_box_space = 480 - text_height - (num_boxes * 18)
+    calculated_box_height = max(50, min(115, available_box_space / max(1, num_boxes)))
 
     def create_working_box(box_height):
         t = Table([['']], colWidths=[523], rowHeights=[box_height])
@@ -277,17 +279,18 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         ]))
         return t
 
-    # 5. Build Questions & Working Boxes
+    # 5. Build Questions & Working Boxes with bigger gaps
     for idx, q_text in enumerate(questions, 1):
         story.append(Paragraph(f"<b>Question {idx}:</b> {q_text}", question_style))
         story.append(Spacer(1, 4))
         story.append(create_working_box(box_height=calculated_box_height))
-        story.append(Spacer(1, 8))
+        story.append(Spacer(1, 14))  # Increased gap under each working box
 
     if extension:
         story.append(Paragraph(f"<b>Extension Challenge:</b> {extension}", question_style))
         story.append(Spacer(1, 4))
         story.append(create_working_box(box_height=calculated_box_height))
+        story.append(Spacer(1, 14))  # Increased gap under extension working box
 
     # Build PDF document
     doc.build(story)
