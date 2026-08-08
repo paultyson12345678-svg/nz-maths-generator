@@ -97,7 +97,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
 
     if extension:
         p_ext = tf_q.add_paragraph()
-        p_ext.text = f" Extension Challenge: {extension}"
+        p_ext.text = f"<b>Extension Challenge: {extension}"
         p_ext.font.size = Pt(15)
         p_ext.font.bold = True
         p_ext.font.color.rgb = RGBColor(180, 83, 9)
