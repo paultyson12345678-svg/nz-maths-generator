@@ -94,7 +94,7 @@ selected_keywords = []
 
 if available_keywords:
     st.sidebar.write("**Select Keywords:**")
-    with st.sidebar.expander("View / Select Keywords", expanded=False):
+    with st.sidebar.expander("View Keywords", expanded=False):
         for kw in available_keywords:
             if st.checkbox(kw, value=False, key=f"kw_{strand}_{kw}"):
                 selected_keywords.append(kw)
