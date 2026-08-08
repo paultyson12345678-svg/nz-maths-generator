@@ -88,16 +88,16 @@ if available_skills:
 else:
     selected_skill = st.sidebar.text_input("Custom Learning Focus", "Solving real-world problems")
 
-# 5. Strand Keywords Selection (Placed under Learning Focus / Skill)
+# 5. Strand Keywords Selection (List of Checkboxes)
 available_keywords = STRAND_KEYWORDS.get(strand, []) if strand else []
+selected_keywords = []
+
 if available_keywords:
-    selected_keywords = st.sidebar.multiselect(
-        "Select Strand Keywords / Concepts",
-        options=available_keywords,
-        default=available_keywords  # Pre-selects all keywords by default
-    )
-else:
-    selected_keywords = []
+    st.sidebar.write("**Select Keywords / Concepts:**")
+    with st.sidebar.expander("View / Select Keywords", expanded=True):
+        for kw in available_keywords:
+            if st.checkbox(kw, value=True, key=f"kw_{strand}_{kw}"):
+                selected_keywords.append(kw)
 
 # 6. Theme / Context
 selected_theme = st.sidebar.selectbox("Select Context", NZ_THEMES)
@@ -217,7 +217,6 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
                 
                 with st.expander("👩‍🏫 Teacher Notes & Misconceptions"):
                     if task.get('misconceptions'):
-                        # Using custom HTML to force a dark background with white text
                         st.markdown(
                             f"""
                             <div style="background-color: #2c3e50; padding: 15px; border-radius: 8px;">
@@ -229,7 +228,7 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
                     else:
                         st.write("No specific misconceptions identified for this task.")
 
-                st.divider() # Adds a subtle line before the buttons
+                st.divider()
 
                 # Export Buttons side-by-side inside the tab
                 col1, col2 = st.columns(2)
