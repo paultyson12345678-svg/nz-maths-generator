@@ -111,19 +111,38 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
 
             - Curriculum Phase: {phase} ({year_level})
             - Learning Focus / Skill: {selected_skill}
-            - Cultural / Local Context: {theme_context}
+            - Core Theme / Context: {theme_context}
 
             Guidelines for Tasks:
-            1. Integrate local NZ contexts, te reo Māori terms (e.g., tamariki, waka, kai, marae, whānau) appropriately with correct macrons.
-            2. Each task must have 2 main questions and 1 extension challenge that progress in depth/complexity.
-            3. Include clear solutions and teacher guidance notes for all questions.
-            4. Include a section identifying common student misconceptions for the task and how teachers can proactively address them.
-            5. Ensure tone is supportive, culturally responsive, and mathematically sound.
-            6. CRITICAL: Do NOT use any unescaped double quotes (") inside your text strings. Use single quotes (') instead to prevent JSON parsing errors.
+            1. Task 1 MUST feature a Māori bicultural context, integrating te reo Māori terms (e.g., tamariki, waka, kai, marae) appropriately with correct macrons.
+            2. Task 2 MUST feature a Pasifika cultural context (e.g., Samoan, Tongan, Cook Island Māori, Fijian) reflecting Pacific communities in Aotearoa.
+            3. Task 3 MUST feature a general Kiwi/European New Zealand context (e.g., typical NZ school life, farming, local sports, or community events).
+            4. Each task must have 2 main questions and 1 extension challenge that progress in depth/complexity.
+            5. Include clear solutions and teacher guidance notes for all questions.
+            6. Include a section identifying common student misconceptions for the task and how teachers can proactively address them.
+            7. Ensure tone is supportive, culturally responsive, and mathematically sound.
+            8. CRITICAL: Do NOT use any unescaped double quotes (") inside your text strings. Use single quotes (') instead to prevent JSON parsing errors.
 
             Output strictly as a JSON array containing exactly 3 objects.
             Format structure:
             [
+              {{
+                "title": "Task Title",
+                "scenario": "Rich context paragraph describing the situation...",
+                "questions": [
+                  "Question 1 text...",
+                  "Question 2 text..."
+                ],
+                "extension": "Extension challenge text...",
+                "misconceptions": "Common student misconceptions and how to guide them...",
+                "answers": [
+                  "Detailed solution for Question 1...",
+                  "Detailed solution for Question 2...",
+                  "Detailed solution for Extension..."
+                ]
+              }}
+            ]
+            """
               {{
                 "title": "Task Title",
                 "scenario": "Rich context paragraph describing the situation...",
