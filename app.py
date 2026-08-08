@@ -160,8 +160,12 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
     st.markdown("---")
     st.header("Generated Task Options")
 
-    for i, task in enumerate(tasks):
-        with st.container():
+    # This creates 3 side-by-side columns
+    cols = st.columns(len(tasks))
+
+    for i, (col, task) in enumerate(zip(cols, tasks)):
+        # Using "with col:" puts everything inside that specific column
+        with col:
             st.subheader(f"Option {i + 1}: {task['title']}")
             
             st.markdown(f"**Context & Scenario:**\n{task['scenario']}")
@@ -177,41 +181,45 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
                     label = f"Q{a_idx + 1} Solution:" if a_idx < len(task['questions']) else "Extension Solution:"
                     st.markdown(f"**{label}** {ans}")
 
-            col1, col2 = st.columns(2)
-            with col1:
-                pptx_data = generate_powerpoint_slide(
-                    title=task['title'],
-                    scenario=task['scenario'],
-                    questions=task['questions'],
-                    extension=task.get('extension', ''),
-                    phase=params['phase'],
-                    theme=params['theme'],
-                    answers=task.get('answers', [])
-                )
-                st.download_button(
-                    label="📊 Download PowerPoint (.pptx)",
-                    data=pptx_data,
-                    file_name=f"{task['title'].replace(' ', '_')}_Presentation.pptx",
-                    mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                    key=f"pptx_{i}"
-                )
+            # --- PPTX Spacing Hack ---
+            # We add two newline characters to the end of each answer so they space out nicely on the slide
+            spaced_answers = [ans + "\n\n" for ans in task.get('answers', [])]
 
-            with col2:
-                pdf_data = generate_task_pdf(
-                    title=task['title'],
-                    scenario=task['scenario'],
-                    questions=task['questions'],
-                    extension=task.get('extension', ''),
-                    phase=params['phase'],
-                    theme=params['theme'],
-                    answers=task.get('answers', [])
-                )
-                st.download_button(
-                    label="📄 Download Worksheet (.pdf)",
-                    data=pdf_data,
-                    file_name=f"{task['title'].replace(' ', '_')}_Worksheet.pdf",
-                    mime="application/pdf",
-                    key=f"pdf_{i}"
-                )
+            # We stack the buttons vertically in the column and make them full-width
+            pptx_data = generate_powerpoint_slide(
+                title=task['title'],
+                scenario=task['scenario'],
+                questions=task['questions'],
+                extension=task.get('extension', ''),
+                phase=params['phase'],
+                theme=params['theme'],
+                answers=spaced_answers  # Passing the spaced answers here
+            )
+            st.download_button(
+                label="📊 Download PowerPoint (.pptx)",
+                data=pptx_data,
+                file_name=f"{task['title'].replace(' ', '_')}_Presentation.pptx",
+                mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                key=f"pptx_{i}",
+                use_container_width=True # Stretches button to fill the column
+            )
+
+            pdf_data = generate_task_pdf(
+                title=task['title'],
+                scenario=task['scenario'],
+                questions=task['questions'],
+                extension=task.get('extension', ''),
+                phase=params['phase'],
+                theme=params['theme'],
+                answers=task.get('answers', [])
+            )
+            st.download_button(
+                label="📄 Download Worksheet (.pdf)",
+                data=pdf_data,
+                file_name=f"{task['title'].replace(' ', '_')}_Worksheet.pdf",
+                mime="application/pdf",
+                key=f"pdf_{i}",
+                use_container_width=True # Stretches button to fill the column
+            )
             
             st.markdown("---")
