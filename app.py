@@ -143,23 +143,6 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
               }}
             ]
             """
-              {{
-                "title": "Task Title",
-                "scenario": "Rich context paragraph describing the situation...",
-                "questions": [
-                  "Question 1 text...",
-                  "Question 2 text..."
-                ],
-                "extension": "Extension challenge text...",
-                "misconceptions": "Common student misconceptions and how to guide them...",
-                "answers": [
-                  "Detailed solution for Question 1...",
-                  "Detailed solution for Question 2...",
-                  "Detailed solution for Extension..."
-                ]
-              }}
-            ]
-            """
 
             response = None
             
