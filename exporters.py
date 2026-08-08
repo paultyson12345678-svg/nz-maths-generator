@@ -264,7 +264,7 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     elements = []
 
     # --- PAGE 1: STUDENT TASK CARD ---
-    elements.append(Paragraph(f"AOTEAROA RICH MATHS TASK • {phase.upper()} • {theme.upper()}", style_header))
+    elements.append(Paragraph(f"RICH MATHS TASK • {phase.upper()} • {theme.upper()}", style_header))
     elements.append(Paragraph(title, style_title))
 
     # Scenario
