@@ -5,20 +5,42 @@ import io
 import json
 import time
 from google import genai
-
 from curriculum import CURRICULUM_DATA, NZ_THEMES
 from exporters import generate_powerpoint_slide, generate_task_pdf
 
+# Set page configuration first
 st.set_page_config(page_title="Rich Maths Task Generator", page_icon="🇳🇿", layout="wide")
+
+# --- ACCESS CONTROL GATE ---
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if not st.session_state.authenticated:
+    st.title("🔒 Restricted Access")
+    st.write("This generator is currently in testing for Marshland School staff and invited teachers.")
+    
+    email = st.text_input("Enter your school email address:").strip().lower()
+    guest_code = st.text_input("Guest Passcode (for external reviewers):", type="password").strip()
+    
+    if st.button("Access Generator", type="primary"):
+        # Automatically approve Marshland staff domain OR correct guest code
+        if email.endswith("@marshland.school.nz"):
+            st.session_state.authenticated = True
+            st.rerun()
+        elif guest_code == "KiaOra2026":  # You can change this guest passcode anytime
+            st.session_state.authenticated = True
+            st.rerun()
+        else:
+            st.error("Access denied. Please enter a valid Marshland School email address or guest passcode.")
+            
+    st.stop()  # Prevents the rest of the app from loading until authenticated
+# ---------------------------
 
 st.title("🇳🇿 Rich Maths Task Generator")
 st.markdown("Generate rich, context-aligned mathematical tasks for Phase 1 to Phase 3 (Years 1–8).")
 
 # --- SIDEBAR CONFIGURATION ---
 st.sidebar.header("Task Settings")
-
-# Check if secret exists in Streamlit Cloud
-default_api_key = st.secrets.get("GEMINI_API_KEY", "")
 
 # Check if secret exists in Streamlit Cloud Secrets
 default_api_key = st.secrets.get("GEMINI_API_KEY", "")
@@ -28,11 +50,8 @@ if default_api_key:
     api_key = default_api_key
 else:
     # Only show input field if no secret key is set in Streamlit Cloud
-    api_key = st.sidebar.text_input(
-        "Gemini API Key", 
-        type="password", 
-        help="Enter your Google AI Studio API key."
-    )
+    api_key = st.sidebar.text_input("Gemini API Key", type="password", help="Enter your Google AI Studio API key.")
+
 # 1. Phase Selection
 phase = st.sidebar.selectbox("Select Curriculum Phase", list(CURRICULUM_DATA.keys()))
 
@@ -59,151 +78,134 @@ else:
 # 5. Theme / Context
 selected_theme = st.sidebar.selectbox("Select Cultural / NZ Context", NZ_THEMES)
 if selected_theme == "Custom Context (Enter your own below)":
-    custom_theme = st.sidebar.text_input("Enter Custom Theme", "School Gala")
-    active_theme = custom_theme if custom_theme else "School Gala"
+    custom_theme = st.sidebar.text_input("Enter Custom Context / Local Story", "Community Garden Project")
+    theme_context = custom_theme
 else:
-    active_theme = selected_theme
+    theme_context = selected_theme
 
-st.sidebar.markdown("---")
-generate_btn = st.sidebar.button("✨ Generate 3 Tasks", type="primary", use_container_width=True)
-
-# Initialize Session State
-if "generated_tasks" not in st.session_state:
-    st.session_state.generated_tasks = None
-
-
-# --- AI GENERATION LOGIC ---
-if generate_btn:
+# --- GENERATION LOGIC ---
+if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
     if not api_key:
-        st.error("Please enter a valid Gemini API Key in the sidebar to generate tasks.")
+        st.error("Please enter a valid Gemini API Key in the sidebar or configure it in secrets.")
     else:
-        with st.spinner("Creating 3 context-rich tasks with Gemini..."):
+        try:
             client = genai.Client(api_key=api_key)
-            
-            prompt = f"""
-            You are an expert New Zealand primary school mathematics teacher.
-            Create 3 distinct, engaging, context-rich math learning tasks for:
-            - Curriculum Phase: {phase}
-            - Year Level: {year_level}
-            - Learning Area / Strand: {strand}
-            - Specific Skill/Focus: {selected_skill}
-            - NZ Context/Theme: {active_theme}
 
-            Return ONLY a JSON array containing exactly 3 objects. Do not include markdown formatting or extra text outside JSON.
-            Each object must have these exact keys:
-            - "title": Short descriptive title
-            - "scenario": Realistic, culturally appropriate NZ scenario paragraph setting up the task
-            - "q1": Main discussion/problem-solving question
-            - "q2": Follow-up or next-step question
-            - "extension": An extension challenge question for fast finishers
-            - "ans1": Teacher solution/guidance for Question 1
-            - "ans2": Teacher solution/guidance for Question 2
-            - "ans_ext": Teacher solution/guidance for Extension Challenge
+            prompt = f"""
+            You are an expert primary school mathematics specialist in Aotearoa New Zealand.
+            Generate 3 rich, authentic mathematical tasks for New Zealand classrooms using the updated NZ Curriculum parameters below:
+
+            - Curriculum Phase: {phase} ({year_level})
+            - Learning Focus / Skill: {selected_skill}
+            - Cultural / Local Context: {theme_context}
+
+            Guidelines for Tasks:
+            1. Integrate local NZ contexts, te reo Māori terms (e.g., tamariki, waka, kai, marae, whānau) appropriately with correct macrons.
+            2. Each task must have 2 main questions and 1 extension challenge that progress in depth/complexity.
+            3. Include clear solutions and teacher guidance notes for all questions.
+            4. Ensure tone is supportive, culturally responsive, and mathematically sound.
+
+            Output strictly as a JSON array containing exactly 3 objects.
+            Format structure:
+            [
+              {{
+                "title": "Task Title",
+                "scenario": "Rich context paragraph describing the situation...",
+                "questions": [
+                  "Question 1 text...",
+                  "Question 2 text..."
+                ],
+                "extension": "Extension challenge text...",
+                "answers": [
+                  "Detailed solution for Question 1...",
+                  "Detailed solution for Question 2...",
+                  "Detailed solution for Extension..."
+                ]
+              }}
+            ]
             """
 
-            models_to_try = ['gemini-3.5-flash', 'gemini-3.5-flash-lite']
-            response = None
-            last_error = None
+            with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
+                response = client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=prompt,
+                    config={
+                        'response_mime_type': 'application/json'
+                    }
+                )
+                
+                tasks = json.loads(response.text)
+                st.session_state['generated_tasks'] = tasks
+                st.session_state['current_params'] = {
+                    'phase': phase,
+                    'year_level': year_level,
+                    'theme': theme_context
+                }
 
-            for model_name in models_to_try:
-                try:
-                    response = client.models.generate_content(
-                        model=model_name,
-                        contents=prompt,
-                    )
-                    if response and response.text:
-                        break
-                except Exception as e:
-                    last_error = e
-                    time.sleep(1)
+        except Exception as e:
+            st.error(f"Error generating tasks: {str(e)}")
 
-            if response and response.text:
-                try:
-                    raw_text = response.text.strip()
-                    if raw_text.startswith("```json"):
-                        raw_text = raw_text.split("```json")[1].split("```")[0].strip()
-                    elif raw_text.startswith("```"):
-                        raw_text = raw_text.split("```")[1].split("```")[0].strip()
-                        
-                    st.session_state.generated_tasks = json.loads(raw_text)
-                    st.success("Generated 3 tasks successfully!")
-                except Exception as parse_err:
-                    st.error(f"Failed to parse task format: {parse_err}")
-            else:
-                st.error(f"Error generating tasks: {last_error}")
+# --- DISPLAY GENERATED TASKS & EXPORTS ---
+if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']:
+    tasks = st.session_state['generated_tasks']
+    params = st.session_state.get('current_params', {'phase': phase, 'year_level': year_level, 'theme': theme_context})
 
-
-# --- 3-COLUMN SIDE-BY-SIDE DISPLAY ---
-if st.session_state.generated_tasks:
     st.markdown("---")
     st.header("Generated Task Options")
 
-    cols = st.columns(3)
-
-    for idx, task in enumerate(st.session_state.generated_tasks):
-        with cols[idx]:
-            st.subheader(f"Option {idx + 1}")
+    for i, task in enumerate(tasks):
+        with st.container():
+            st.subheader(f"Option {i + 1}: {task['title']}")
             
-            t_title = task.get("title", f"Task {idx + 1}")
-            t_scenario = task.get("scenario", "")
-            t_q1 = task.get("q1", "")
-            t_q2 = task.get("q2", "")
-            t_ext = task.get("extension", "")
-            t_ans1 = task.get("ans1", "")
-            t_ans2 = task.get("ans2", "")
-            t_ans_ext = task.get("ans_ext", "")
-
-            # Display card
-            st.markdown(f"### **{t_title}**")
-            st.markdown(f"**Context & Scenario:**\n\n{t_scenario}")
-            st.markdown(f"**Question 1:**\n\n{t_q1}")
-            st.markdown(f"**Question 2:**\n\n{t_q2}")
-            st.markdown(f"**Extension Challenge:**\n\n{t_ext}")
+            st.markdown(f"**Context & Scenario:**\n{task['scenario']}")
+            
+            for q_idx, q in enumerate(task['questions']):
+                st.markdown(f"**Question {q_idx + 1}:** {q}")
+            
+            if task.get('extension'):
+                st.markdown(f"**Extension Challenge:** {task['extension']}")
             
             with st.expander("Teacher Notes & Solutions"):
-                st.markdown(f"**Q1 Solution:**\n{t_ans1}")
-                st.markdown(f"**Q2 Solution:**\n{t_ans2}")
-                st.markdown(f"**Extension Solution:**\n{t_ans_ext}")
+                for a_idx, ans in enumerate(task.get('answers', [])):
+                    label = f"Q{a_idx + 1} Solution:" if a_idx < len(task['questions']) else "Extension Solution:"
+                    st.markdown(f"**{label}** {ans}")
 
-            questions_list = [t_q1, t_q2]
-            answers_list = [t_ans1, t_ans2, t_ans_ext]
-
-            st.markdown("---")
-            st.markdown("#### 📥 Exports")
-            
-            # PPTX Export
-            try:
+            # Export Buttons
+            col1, col2 = st.columns(2)
+            with col1:
                 pptx_data = generate_powerpoint_slide(
-                    title=t_title, scenario=t_scenario, questions=questions_list,
-                    extension=t_ext, phase=phase, theme=active_theme, answers=answers_list
+                    title=task['title'],
+                    scenario=task['scenario'],
+                    questions=task['questions'],
+                    extension=task.get('extension', ''),
+                    phase=params['phase'],
+                    theme=params['theme'],
+                    answers=task.get('answers', [])
                 )
                 st.download_button(
-                    label="📊 PowerPoint (.pptx)",
+                    label="📊 Download PowerPoint (.pptx)",
                     data=pptx_data,
-                    file_name=f"{t_title.replace(' ', '_')}.pptx",
+                    file_name=f"{task['title'].replace(' ', '_')}_Presentation.pptx",
                     mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                    key=f"pptx_btn_{idx}",
-                    use_container_width=True
+                    key=f"pptx_{i}"
                 )
-            except Exception as e:
-                st.error(f"PPTX Error: {e}")
 
-            # PDF Export
-            try:
+            with col2:
                 pdf_data = generate_task_pdf(
-                    title=t_title, scenario=t_scenario, questions=questions_list,
-                    extension=t_ext, phase=phase, theme=active_theme, answers=answers_list
+                    title=task['title'],
+                    scenario=task['scenario'],
+                    questions=task['questions'],
+                    extension=task.get('extension', ''),
+                    phase=params['phase'],
+                    theme=params['theme'],
+                    answers=task.get('answers', [])
                 )
                 st.download_button(
-                    label="📄 Worksheet (.pdf)",
+                    label="📄 Download Worksheet (.pdf)",
                     data=pdf_data,
-                    file_name=f"{t_title.replace(' ', '_')}.pdf",
+                    file_name=f"{task['title'].replace(' ', '_')}_Worksheet.pdf",
                     mime="application/pdf",
-                    key=f"pdf_btn_{idx}",
-                    use_container_width=True
+                    key=f"pdf_{i}"
                 )
-            except Exception as e:
-                st.error(f"PDF Error: {e}")
-
-else:
-    st.info("👈 Select your parameters in the sidebar and click **'✨ Generate 3 Tasks'** to generate options!")
+            
+            st.markdown("---")
