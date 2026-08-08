@@ -77,10 +77,16 @@ strands = list(CURRICULUM_DATA[phase][year_level].keys())
 if strands:
     strand = st.sidebar.selectbox("Select Area / Strand", strands)
     available_skills = CURRICULUM_DATA[phase][year_level].get(strand, [])
+    
+    # --- STRAND KEYWORDS ADDON (UI DISPLAY) ---
+    keywords_list = STRAND_KEYWORDS.get(strand, [])
+    if keywords_list:
+        st.sidebar.caption(f"**Key Vocabulary:** {', '.join(keywords_list)}")
 else:
     st.sidebar.warning(f"No strands configured for {year_level} yet.")
     strand = None
     available_skills = []
+    keywords_list = []
 
 # 4. Specific Skill / Objective Selection
 if available_skills:
@@ -102,14 +108,18 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
         st.error("Please enter a valid Gemini API Key in the sidebar or configure it in secrets.")
     else:
         try:
-            # Using the modern SDK without API version overrides, pointing to the current stable model
             client = genai.Client(api_key=api_key)
+            
+            # Format keywords for the prompt
+            keywords_str = ", ".join(keywords_list) if keywords_list else "None specified"
             
             prompt = f"""
             You are an expert primary school mathematics specialist in Aotearoa New Zealand.
             Generate 3 rich, authentic mathematical tasks for New Zealand classrooms using the updated NZ Curriculum parameters below:
 
             - Curriculum Phase: {phase} ({year_level})
+            - Area / Strand: {strand}
+            - Strand Key Vocabulary: {keywords_str}
             - Learning Focus / Skill: {selected_skill}
             - Theme / Context: {theme_context}
 
@@ -117,11 +127,12 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
             1. Task 1 MUST feature a Māori bicultural context, integrating te reo Māori terms (e.g., tamariki, waka, kai, marae) appropriately with correct macrons.
             2. Task 2 MUST feature a Pasifika cultural context (e.g., Samoan, Tongan, Cook Island Māori, Fijian) reflecting Pacific communities in Aotearoa.
             3. Task 3 MUST feature a general Kiwi/European New Zealand context (e.g., typical NZ school life, farming, local sports, or community events).
-            4. Each task must have 2 main questions and 1 extension challenge that progress in depth/complexity.
-            5. Include clear solutions and teacher guidance notes for all questions.
-            6. Include a section identifying common student misconceptions for the task and how teachers can proactively address them.
-            7. Ensure tone is supportive, culturally responsive, and mathematically sound.
-            8. CRITICAL: Do NOT use any unescaped double quotes (") inside your text strings. Use single quotes (') instead to prevent JSON parsing errors.
+            4. Integrate relevant Strand Key Vocabulary naturally across the tasks where appropriate.
+            5. Each task must have 2 main questions and 1 extension challenge that progress in depth/complexity.
+            6. Include clear solutions and teacher guidance notes for all questions.
+            7. Include a section identifying common student misconceptions for the task and how teachers can proactively address them.
+            8. Ensure tone is supportive, culturally responsive, and mathematically sound.
+            9. CRITICAL: Do NOT use any unescaped double quotes (") inside your text strings. Use single quotes (') instead to prevent JSON parsing errors.
 
             Output strictly as a JSON array containing exactly 3 objects.
             Format structure:
