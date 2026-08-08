@@ -89,8 +89,8 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
         st.error("Please enter a valid Gemini API Key in the sidebar or configure it in secrets.")
     else:
         try:
-            # Using the modern SDK and explicitly setting to v1 API to avoid v1beta 404s
-            client = genai.Client(api_key=api_key, http_options={'api_version': 'v1'})
+            # Using the modern SDK without API version overrides, pointing to the current stable model
+            client = genai.Client(api_key=api_key)
             
             prompt = f"""
             You are an expert primary school mathematics specialist in Aotearoa New Zealand.
@@ -131,7 +131,7 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
             with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
                 try:
                     response = client.models.generate_content(
-                        model='gemini-1.5-flash',
+                        model='gemini-3.5-flash',
                         contents=prompt,
                         config={'response_mime_type': 'application/json'}
                     )
