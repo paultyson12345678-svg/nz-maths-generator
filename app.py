@@ -85,7 +85,7 @@ if selected_theme == "Custom Context (Enter your own below)":
 else:
     theme_context = selected_theme
 
-# --- GENERATION LOGIC ---
+# --- GENERATION LOGIC WITH MODEL FALLBACK ---
 if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
     if not api_key:
         st.error("Please enter a valid Gemini API Key in the sidebar or configure it in secrets.")
@@ -127,15 +127,24 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
             ]
             """
 
+            # Active Gemini models list to attempt sequentially if one hits a quota limit
+            models_to_try = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro']
+            response = None
+
             with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
-                response = client.models.generate_content(
-                    model='gemini-2.0-flash',  # <--- Correct active model identifier
-                    contents=prompt,
-                    config={
-                        'response_mime_type': 'application/json'
-                    }
-                )
-                
+                for model_name in models_to_try:
+                    try:
+                        response = client.models.generate_content(
+                            model=model_name,
+                            contents=prompt,
+                            config={'response_mime_type': 'application/json'}
+                        )
+                        break  # Stop trying as soon as a request succeeds
+                    except Exception as model_err:
+                        # Fall back to next model on rate limit or endpoint error
+                        continue
+
+            if response:
                 tasks = json.loads(response.text)
                 st.session_state['generated_tasks'] = tasks
                 st.session_state['current_params'] = {
@@ -143,6 +152,8 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
                     'year_level': year_level,
                     'theme': theme_context
                 }
+            else:
+                st.error("All model attempts failed or rate limits were reached. Please wait 20 seconds and try again.")
 
         except Exception as e:
             st.error(f"Error generating tasks: {str(e)}")
