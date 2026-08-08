@@ -213,7 +213,7 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
             with st.container(border=True): 
                 st.subheader(task['title'])
                 
-                st.markdown(f"**Context & Scenario:**\n{task['scenario']}")
+                st.markdown(f"**Scenario:**\n{task['scenario']}")
                 
                 with st.expander("👩‍🏫 Teacher Notes & Misconceptions"):
                     if task.get('misconceptions'):
