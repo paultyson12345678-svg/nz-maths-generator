@@ -54,7 +54,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     tf_header.word_wrap = True
     
     p_phase = tf_header.paragraphs[0]
-    p_phase.text = f"AOTEAROA RICH MATHS TASK • {phase.upper()} • {theme.upper()}"
+    p_phase.text = f"RICH MATHS TASK • {phase.upper()} • {theme.upper()}"
     p_phase.font.size = Pt(12)
     p_phase.font.bold = True
     p_phase.font.color.rgb = RGBColor(0, 102, 204)
