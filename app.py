@@ -78,15 +78,21 @@ if strands:
     strand = st.sidebar.selectbox("Select Area / Strand", strands)
     available_skills = CURRICULUM_DATA[phase][year_level].get(strand, [])
     
-    # --- STRAND KEYWORDS ADDON (UI DISPLAY) ---
-    keywords_list = STRAND_KEYWORDS.get(strand, [])
-    if keywords_list:
-        st.sidebar.caption(f"**Key Vocabulary:** {', '.join(keywords_list)}")
+    # --- STRAND KEYWORDS MULTI-SELECT DROPDOWN ---
+    available_keywords = STRAND_KEYWORDS.get(strand, [])
+    if available_keywords:
+        selected_keywords = st.sidebar.multiselect(
+            "Select Strand Keywords / Concepts",
+            options=available_keywords,
+            default=available_keywords  # Pre-selects all by default; users can remove or pick specific ones
+        )
+    else:
+        selected_keywords = []
 else:
     st.sidebar.warning(f"No strands configured for {year_level} yet.")
     strand = None
     available_skills = []
-    keywords_list = []
+    selected_keywords = []
 
 # 4. Specific Skill / Objective Selection
 if available_skills:
@@ -110,8 +116,8 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
         try:
             client = genai.Client(api_key=api_key)
             
-            # Format keywords for the prompt
-            keywords_str = ", ".join(keywords_list) if keywords_list else "None specified"
+            # Format selected keywords for the prompt
+            keywords_str = ", ".join(selected_keywords) if selected_keywords else "None selected"
             
             prompt = f"""
             You are an expert primary school mathematics specialist in Aotearoa New Zealand.
@@ -119,7 +125,7 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
 
             - Curriculum Phase: {phase} ({year_level})
             - Area / Strand: {strand}
-            - Strand Key Vocabulary: {keywords_str}
+            - Targeted Strand Keywords / Concepts: {keywords_str}
             - Learning Focus / Skill: {selected_skill}
             - Theme / Context: {theme_context}
 
@@ -127,7 +133,7 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
             1. Task 1 MUST feature a Māori bicultural context, integrating te reo Māori terms (e.g., tamariki, waka, kai, marae) appropriately with correct macrons.
             2. Task 2 MUST feature a Pasifika cultural context (e.g., Samoan, Tongan, Cook Island Māori, Fijian) reflecting Pacific communities in Aotearoa.
             3. Task 3 MUST feature a general Kiwi/European New Zealand context (e.g., typical NZ school life, farming, local sports, or community events).
-            4. Integrate relevant Strand Key Vocabulary naturally across the tasks where appropriate.
+            4. Explicitly integrate and focus on the selected targeted strand keywords ({keywords_str}) across the task scenarios, questions, and solutions where relevant.
             5. Each task must have 2 main questions and 1 extension challenge that progress in depth/complexity.
             6. Include clear solutions and teacher guidance notes for all questions.
             7. Include a section identifying common student misconceptions for the task and how teachers can proactively address them.
@@ -172,98 +178,4 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
                 raw_text = response.text.strip()
                 if raw_text.startswith("```json"):
                     raw_text = raw_text[7:-3].strip()
-                elif raw_text.startswith("```"):
-                    raw_text = raw_text[3:-3].strip()
-                
-                try:
-                    tasks = json.loads(raw_text)
-                    st.session_state['generated_tasks'] = tasks
-                    st.session_state['current_params'] = {
-                        'phase': phase,
-                        'year_level': year_level,
-                        'theme': theme_context
-                    }
-                except json.JSONDecodeError as json_err:
-                    st.error("The AI generated invalid text formatting. Please click 'Generate 3 Tasks' again to retry.")
-            elif not response:
-                st.error("Could not generate tasks. Please verify your API key in Google AI Studio.")
-
-        except Exception as e:
-            st.error(f"Error initializing AI client: {str(e)}")
-
-# --- DISPLAY GENERATED TASKS & EXPORTS ---
-if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']:
-    tasks = st.session_state['generated_tasks']
-    params = st.session_state.get('current_params', {'phase': phase, 'year_level': year_level, 'theme': theme_context})
-
-    st.markdown("---")
-    st.header("✨ Generated Task Options")
-    st.write("Review the scenarios and teacher notes below. Download the slides or worksheet to access the full tasks and answers!")
-
-    # Create Tabs instead of columns
-    tab_list = st.tabs([f"Option {i+1}" for i in range(len(tasks))])
-
-    for i, (tab, task) in enumerate(zip(tab_list, tasks)):
-        with tab:
-            with st.container(border=True): 
-                st.subheader(task['title'])
-                
-                st.markdown(f"**Context & Scenario:**\n{task['scenario']}")
-                
-                with st.expander("👩‍🏫 Teacher Notes & Misconceptions"):
-                    if task.get('misconceptions'):
-                        # Using custom HTML to force a dark background with white text
-                        st.markdown(
-                            f"""
-                            <div style="background-color: #2c3e50; padding: 15px; border-radius: 8px;">
-                                <p style="color: white; margin: 0;"><b>💡 Common Misconceptions:</b><br>{task['misconceptions']}</p>
-                            </div>
-                            """, 
-                            unsafe_allow_html=True
-                        )
-                    else:
-                        st.write("No specific misconceptions identified for this task.")
-
-                st.divider() # Adds a subtle line before the buttons
-
-                # Export Buttons side-by-side inside the tab
-                col1, col2 = st.columns(2)
-                with col1:
-                    spaced_answers = [ans + "\n\n" for ans in task.get('answers', [])]
-                    pptx_data = generate_powerpoint_slide(
-                        title=task['title'],
-                        scenario=task['scenario'],
-                        questions=task['questions'],
-                        extension=task.get('extension', ''),
-                        phase=params['phase'],
-                        theme=params['theme'],
-                        answers=spaced_answers
-                    )
-                    st.download_button(
-                        label="📊 Download for Google Slides",
-                        help="Download this file and drag it into your Google Drive. It will open perfectly in Google Slides!",
-                        data=pptx_data,
-                        file_name=f"{task['title'].replace(' ', '_')}_Presentation.pptx",
-                        mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                        key=f"pptx_{i}",
-                        use_container_width=True 
-                    )
-
-                with col2:
-                    pdf_data = generate_task_pdf(
-                        title=task['title'],
-                        scenario=task['scenario'],
-                        questions=task['questions'],
-                        extension=task.get('extension', ''),
-                        phase=params['phase'],
-                        theme=params['theme'],
-                        answers=task.get('answers', [])
-                    )
-                    st.download_button(
-                        label="📄 Download Worksheet (.pdf)",
-                        data=pdf_data,
-                        file_name=f"{task['title'].replace(' ', '_')}_Worksheet.pdf",
-                        mime="application/pdf",
-                        key=f"pdf_{i}",
-                        use_container_width=True 
-                    )
+                elif raw_text.startswith("
