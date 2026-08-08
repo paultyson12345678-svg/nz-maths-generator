@@ -49,7 +49,7 @@ st.sidebar.markdown(
     """
     <div style="text-align: center; margin-bottom: 15px;">
         <p style="font-size: 0.85em; color: #666; margin-bottom: 8px;">Help keep this generator free for teachers!</p>
-        <a href="https://www.buymeacoffee.com/paultyson" target="_blank">
+        <a href="url?id=29" target="_blank">
             <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 40px !important; width: 145px !important;" >
         </a>
     </div>
@@ -88,7 +88,7 @@ if available_skills:
 else:
     selected_skill = st.sidebar.text_input("Custom Learning Focus", "Solving real-world problems")
 
-# 5. Strand Keywords Selection (List of Checkboxes)
+# 5. Strand Keywords Selection (Checkboxes, all unticked by default)
 available_keywords = STRAND_KEYWORDS.get(strand, []) if strand else []
 selected_keywords = []
 
@@ -96,7 +96,7 @@ if available_keywords:
     st.sidebar.write("**Select Keywords / Concepts:**")
     with st.sidebar.expander("View / Select Keywords", expanded=True):
         for kw in available_keywords:
-            if st.checkbox(kw, value=True, key=f"kw_{strand}_{kw}"):
+            if st.checkbox(kw, value=False, key=f"kw_{strand}_{kw}"):
                 selected_keywords.append(kw)
 
 # 6. Theme / Context
