@@ -118,6 +118,7 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
             2. Each task must have 2 main questions and 1 extension challenge that progress in depth/complexity.
             3. Include clear solutions and teacher guidance notes for all questions.
             4. Ensure tone is supportive, culturally responsive, and mathematically sound.
+            5. CRITICAL: Do NOT use any unescaped double quotes (") inside your text strings. Use single quotes (') instead to prevent JSON parsing errors.
 
             Output strictly as a JSON array containing exactly 3 objects.
             Format structure:
@@ -152,13 +153,23 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
                     st.error(f"Generation failed: {err}")
 
             if response and response.text:
-                tasks = json.loads(response.text)
-                st.session_state['generated_tasks'] = tasks
-                st.session_state['current_params'] = {
-                    'phase': phase,
-                    'year_level': year_level,
-                    'theme': theme_context
-                }
+                # Clean up the response text to remove any accidental markdown blocks
+                raw_text = response.text.strip()
+                if raw_text.startswith("```json"):
+                    raw_text = raw_text[7:-3].strip()
+                elif raw_text.startswith("```"):
+                    raw_text = raw_text[3:-3].strip()
+                
+                try:
+                    tasks = json.loads(raw_text)
+                    st.session_state['generated_tasks'] = tasks
+                    st.session_state['current_params'] = {
+                        'phase': phase,
+                        'year_level': year_level,
+                        'theme': theme_context
+                    }
+                except json.JSONDecodeError as json_err:
+                    st.error("The AI generated invalid text formatting. Please click 'Generate 3 Tasks' again to retry.")
             elif not response:
                 st.error("Could not generate tasks. Please verify your API key in Google AI Studio.")
 
