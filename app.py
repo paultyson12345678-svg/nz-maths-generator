@@ -5,7 +5,7 @@ import io
 import json
 import time
 from google import genai
-from curriculum import CURRICULUM_DATA, NZ_THEMES
+from curriculum import CURRICULUM_DATA, NZ_THEMES, STRAND_KEYWORDS
 from exporters import generate_powerpoint_slide, generate_task_pdf
 
 # Set page configuration first
