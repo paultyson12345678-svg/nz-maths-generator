@@ -85,7 +85,7 @@ if selected_theme == "Custom Context (Enter your own below)":
 else:
     theme_context = selected_theme
 
-# --- GENERATION LOGIC WITH AUTO-RETRY ---
+# --- GENERATION LOGIC WITH PREPAID BILLING & RETRY ---
 if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
     if not api_key:
         st.error("Please enter a valid Gemini API Key in the sidebar or configure it in secrets.")
@@ -128,24 +128,23 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
             """
 
             response = None
-            max_retries = 3
+            
+            # Model fallbacks formatted specifically for google-genai
+            models_to_try = ['gemini-2.0-flash', 'gemini-1.5-flash']
 
             with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
-                for attempt in range(max_retries):
+                for model_name in models_to_try:
                     try:
                         response = client.models.generate_content(
-                            model='gemini-2.0-flash',
+                            model=model_name,
                             contents=prompt,
                             config={'response_mime_type': 'application/json'}
                         )
-                        break  # Request succeeded
+                        break  # Stop trying if successful
                     except Exception as err:
-                        if "429" in str(err) and attempt < max_retries - 1:
-                            st.sidebar.caption(f"Quota rate-limited. Retrying in 2 seconds... (Attempt {attempt + 1}/{max_retries})")
-                            time.sleep(2)  # Wait 2 seconds for rolling window to clear
-                            continue
-                        else:
-                            raise err
+                        st.sidebar.caption(f"Attempt with {model_name} failed: {err}")
+                        time.sleep(1)
+                        continue
 
             if response:
                 tasks = json.loads(response.text)
@@ -155,6 +154,8 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
                     'year_level': year_level,
                     'theme': theme_context
                 }
+            else:
+                st.error("Could not generate tasks with current API setup. Please verify your key in Google AI Studio.")
 
         except Exception as e:
             st.error(f"Error generating tasks: {str(e)}")
