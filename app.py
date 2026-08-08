@@ -85,13 +85,14 @@ if selected_theme == "Custom Context (Enter your own below)":
 else:
     theme_context = selected_theme
 
-# --- GENERATION LOGIC WITH AUTO-RETRY ---
+# --- GENERATION LOGIC WITH FIXED CLIENT ENDPOINT ---
 if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
     if not api_key:
         st.error("Please enter a valid Gemini API Key in the sidebar or configure it in secrets.")
     else:
         try:
-            client = genai.Client(api_key=api_key)
+            # Explicitly force API version v1 to prevent v1beta 404 route errors
+            client = genai.Client(api_key=api_key, http_options={'api_version': 'v1'})
 
             prompt = f"""
             You are an expert primary school mathematics specialist in Aotearoa New Zealand.
@@ -128,21 +129,24 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
             """
 
             response = None
-            max_retries = 3
+            models_to_try = ['gemini-1.5-flash', 'gemini-2.0-flash']
 
             with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
-                for attempt in range(max_retries):
-                    try:
-                        response = client.models.generate_content(
-                            model='gemini-1.5-flash',
-                            contents=prompt,
-                            config={'response_mime_type': 'application/json'}
-                        )
-                        break  # Stop as soon as generation succeeds
-                    except Exception as model_err:
-                        st.sidebar.caption(f"Attempt {attempt + 1} failed: {model_err}")
-                        time.sleep(2)  # Pause 2 seconds before retrying
-                        continue
+                for model_name in models_to_try:
+                    for attempt in range(2):
+                        try:
+                            response = client.models.generate_content(
+                                model=model_name,
+                                contents=prompt,
+                                config={'response_mime_type': 'application/json'}
+                            )
+                            break
+                        except Exception as model_err:
+                            st.sidebar.caption(f"{model_name} attempt {attempt + 1} failed: {model_err}")
+                            time.sleep(2)
+                            continue
+                    if response:
+                        break
 
             if response:
                 tasks = json.loads(response.text)
@@ -153,7 +157,7 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
                     'theme': theme_context
                 }
             else:
-                st.error("Could not generate tasks. Please check your API key in Google AI Studio.")
+                st.error("Could not generate tasks. Please check your API key status in Google AI Studio.")
 
         except Exception as e:
             st.error(f"Error generating tasks: {str(e)}")
