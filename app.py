@@ -44,6 +44,19 @@ st.markdown("Generate rich, context-aligned mathematical tasks for Phase 1 to Ph
 # --- SIDEBAR CONFIGURATION ---
 st.sidebar.header("Task Settings")
 
+# --- DONATION / SUPPORT BUTTON ---
+st.sidebar.markdown(
+    """
+    <div style="text-align: center; margin-bottom: 15px;">
+        <p style="font-size: 0.85em; color: #666; margin-bottom: 8px;">Help keep this generator running for teachers!</p>
+        <a href="https://www.buymeacoffee.com/YOUR_USERNAME" target="_blank">
+            <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 40px !important; width: 145px !important;" >
+        </a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 # Check if secret exists in Streamlit Cloud Secrets
 default_api_key = st.secrets.get("GEMINI_API_KEY", "")
 
@@ -85,14 +98,13 @@ if selected_theme == "Custom Context (Enter your own below)":
 else:
     theme_context = selected_theme
 
-# --- GENERATION LOGIC WITH FIXED CLIENT ENDPOINT ---
+# --- GENERATION LOGIC WITH ACTIVE GENAI MODELS ---
 if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
     if not api_key:
         st.error("Please enter a valid Gemini API Key in the sidebar or configure it in secrets.")
     else:
         try:
-            # Explicitly force API version v1 to prevent v1beta 404 route errors
-            client = genai.Client(api_key=api_key, http_options={'api_version': 'v1'})
+            client = genai.Client(api_key=api_key)
 
             prompt = f"""
             You are an expert primary school mathematics specialist in Aotearoa New Zealand.
@@ -129,26 +141,25 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
             """
 
             response = None
-            models_to_try = ['gemini-1.5-flash', 'gemini-2.0-flash']
+            
+            # Primary active model followed by fallbacks for standard API keys
+            models_to_try = ['gemini-2.5-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-pro']
 
             with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
                 for model_name in models_to_try:
-                    for attempt in range(2):
-                        try:
-                            response = client.models.generate_content(
-                                model=model_name,
-                                contents=prompt,
-                                config={'response_mime_type': 'application/json'}
-                            )
-                            break
-                        except Exception as model_err:
-                            st.sidebar.caption(f"{model_name} attempt {attempt + 1} failed: {model_err}")
-                            time.sleep(2)
-                            continue
-                    if response:
-                        break
+                    try:
+                        response = client.models.generate_content(
+                            model=model_name,
+                            contents=prompt,
+                            config={'response_mime_type': 'application/json'}
+                        )
+                        break  # Stop as soon as generation succeeds
+                    except Exception as model_err:
+                        st.sidebar.caption(f"{model_name} failed: {model_err}")
+                        time.sleep(1)
+                        continue
 
-            if response:
+            if response and response.text:
                 tasks = json.loads(response.text)
                 st.session_state['generated_tasks'] = tasks
                 st.session_state['current_params'] = {
@@ -157,7 +168,7 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
                     'theme': theme_context
                 }
             else:
-                st.error("Could not generate tasks. Please check your API key status in Google AI Studio.")
+                st.error("Could not generate tasks. Please check your API key in Google AI Studio.")
 
         except Exception as e:
             st.error(f"Error generating tasks: {str(e)}")
