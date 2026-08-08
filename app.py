@@ -4,7 +4,7 @@ import os
 import io
 import json
 import time
-from google import genai
+import google.generativeai as genai
 from curriculum import CURRICULUM_DATA, NZ_THEMES
 from exporters import generate_powerpoint_slide, generate_task_pdf
 
@@ -85,15 +85,17 @@ if selected_theme == "Custom Context (Enter your own below)":
 else:
     theme_context = selected_theme
 
-# --- GENERATION LOGIC WITH STABLE V1 ENDPOINT ---
+# --- GENERATION LOGIC WITH STABLE SDK ---
 if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
     if not api_key:
         st.error("Please enter a valid Gemini API Key in the sidebar or configure it in secrets.")
     else:
         try:
-            # Force v1 API endpoint to prevent v1beta 404 route errors
-            client = genai.Client(api_key=api_key, http_options={'api_version': 'v1'})
-
+            genai.configure(api_key=api_key)
+            
+            # Model fallbacks that support generateContent on standard keys
+            models_to_try = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-exp']
+            
             prompt = f"""
             You are an expert primary school mathematics specialist in Aotearoa New Zealand.
             Generate 3 rich, authentic mathematical tasks for New Zealand classrooms using the updated NZ Curriculum parameters below:
@@ -129,20 +131,20 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
             """
 
             response = None
-            max_retries = 3
 
             with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
-                for attempt in range(max_retries):
+                for m_name in models_to_try:
                     try:
-                        response = client.models.generate_content(
-                            model='gemini-2.0-flash',
-                            contents=prompt,
-                            config={'response_mime_type': 'application/json'}
+                        model = genai.GenerativeModel(m_name)
+                        response = model.generate_content(
+                            prompt,
+                            generation_config={"response_mime_type": "application/json"}
                         )
-                        break
+                        if response and response.text:
+                            break
                     except Exception as err:
-                        st.sidebar.caption(f"Attempt {attempt + 1} retry: {err}")
-                        time.sleep(2)
+                        st.sidebar.caption(f"{m_name} failed: {err}")
+                        time.sleep(1)
                         continue
 
             if response and response.text:
@@ -154,7 +156,7 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
                     'theme': theme_context
                 }
             else:
-                st.error("Could not generate tasks. Please check your API key status in Google AI Studio.")
+                st.error("Could not generate tasks. Please verify your API key in Google AI Studio.")
 
         except Exception as e:
             st.error(f"Error generating tasks: {str(e)}")
