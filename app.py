@@ -39,7 +39,7 @@ if not st.session_state.authenticated:
 # ---------------------------
 
 st.title("🇳🇿 Rich Maths Task Generator")
-st.markdown("Generate rich, context-aligned mathematical tasks for Phase 1 to Phase 3 (Years 1–8).")
+st.markdown("Generate rich, context-aligned mathematical tasks for Phase 1 to Phase 4 (Years 1–10).")
 
 # --- SIDEBAR CONFIGURATION ---
 st.sidebar.header("Task Settings")
@@ -111,7 +111,7 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
 
             - Curriculum Phase: {phase} ({year_level})
             - Learning Focus / Skill: {selected_skill}
-            - Core Theme / Context: {theme_context}
+            - Theme / Context: {theme_context}
 
             Guidelines for Tasks:
             1. Task 1 MUST feature a Māori bicultural context, integrating te reo Māori terms (e.g., tamariki, waka, kai, marae) appropriately with correct macrons.
