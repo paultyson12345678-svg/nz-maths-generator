@@ -130,7 +130,7 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
             response = None
             
             # Model fallbacks formatted specifically for google-genai
-            models_to_try = ['gemini-2.0-flash', 'gemini-1.5-flash']
+            models_to_try = ['gemini-2.0-flash', 'gemini-1.5-flash'] with models_to_try = ['gemini-2.5-flash', 'gemini-2.0-flash-exp', 'gemini-1.5-flash-latest']
 
             with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
                 for model_name in models_to_try:
