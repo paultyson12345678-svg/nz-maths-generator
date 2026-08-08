@@ -82,7 +82,7 @@ if strands:
     available_keywords = STRAND_KEYWORDS.get(strand, [])
     if available_keywords:
         selected_keywords = st.sidebar.multiselect(
-            "Select Strand Keywords / Concepts",
+            "Keywords",
             options=available_keywords,
             default=available_keywords  # Pre-selects all keywords by default
         )
