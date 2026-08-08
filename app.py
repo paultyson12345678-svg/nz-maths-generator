@@ -15,6 +15,10 @@ st.set_page_config(page_title="Rich Maths Task Generator", page_icon="🇳🇿",
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
+# Remember access across refreshes/bookmarks
+if st.query_params.get("auth") == "approved":
+    st.session_state.authenticated = True
+
 if not st.session_state.authenticated:
     st.title("🔒 Restricted Access")
     st.write("This generator is currently in testing for Marshland School staff and invited teachers.")
@@ -24,11 +28,9 @@ if not st.session_state.authenticated:
     
     if st.button("Access Generator", type="primary"):
         # Automatically approve Marshland staff domain OR correct guest code
-        if email.endswith("@marshland.school.nz"):
+        if email.endswith("@marshland.school.nz") or guest_code == "KiaOra2026":
             st.session_state.authenticated = True
-            st.rerun()
-        elif guest_code == "KiaOra2026":  # You can change this guest passcode anytime
-            st.session_state.authenticated = True
+            st.query_params["auth"] = "approved"  # Remembers authentication in URL
             st.rerun()
         else:
             st.error("Access denied. Please enter a valid Marshland School email address or guest passcode.")
@@ -127,7 +129,7 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
 
             with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
                 response = client.models.generate_content(
-                    model='gemini-2.5-flash',
+                    model='gemini-1.5-flash',  # Valid official model name
                     contents=prompt,
                     config={
                         'response_mime_type': 'application/json'
