@@ -85,7 +85,7 @@ if selected_theme == "Custom Context (Enter your own below)":
 else:
     theme_context = selected_theme
 
-# --- GENERATION LOGIC WITH ACTIVE MODELS & RETRY ---
+# --- GENERATION LOGIC WITH AUTO-RETRY ---
 if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
     if not api_key:
         st.error("Please enter a valid Gemini API Key in the sidebar or configure it in secrets.")
@@ -128,20 +128,20 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
             """
 
             response = None
-            models_to_try = ['gemini-2.5-flash', 'gemini-2.0-flash-exp', 'gemini-1.5-flash-latest']
+            max_retries = 3
 
             with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
-                for model_name in models_to_try:
+                for attempt in range(max_retries):
                     try:
                         response = client.models.generate_content(
-                            model=model_name,
+                            model='gemini-2.0-flash',
                             contents=prompt,
                             config={'response_mime_type': 'application/json'}
                         )
                         break  # Stop as soon as generation succeeds
                     except Exception as model_err:
-                        st.sidebar.caption(f"Attempt with {model_name} failed: {model_err}")
-                        time.sleep(1)
+                        st.sidebar.caption(f"Attempt {attempt + 1} failed: {model_err}")
+                        time.sleep(2)  # Pause 2 seconds before retrying
                         continue
 
             if response:
