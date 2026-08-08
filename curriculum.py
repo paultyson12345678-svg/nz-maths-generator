@@ -537,6 +537,161 @@ CURRICULUM_DATA = {
                 "Probability": [
                     "Conduct chance experiments (30+ and 100+ trials) to compare experimental outcomes against theoretical calculations.",
                     "Calculate probabilities for single and complementary events as fractions, decimals, or percentages."
+               ]
+            }
+        }
+    },
+    "Phase 4 (Years 9–10)": {
+        "Year 9": {
+            "Number": {
+                "Number Structures and Operations": [
+                    "Identify, read, write, compare, order, and convert between fractions, decimals, and percentages.",
+                    "Record, compare, and order numbers using scientific notation (e.g., $3.14\\times10^{3}$).",
+                    "Find equivalent fractions, simplify them, and convert between mixed numbers and improper fractions.",
+                    "Express division remainders as fractions or decimals based on the context.",
+                    "Identify powers of 2 up to $2^{10}$ and convert negative powers to unit fractions (e.g., $3^{-2}=\\frac{1}{9}$).",
+                    "Approximate roots on a number line by referencing the closest perfect squares.",
+                    "Use rounding (to the required precision) and estimation to predict and check the reasonableness of calculations.",
+                    "Generalise rules for exponents of 0 and 1, and perform addition, subtraction, multiplication, and division with integers, fractions, and decimals.",
+                    "Generalise the rule for dividing by a fraction and connect multiplying/dividing decimals with fractions.",
+                    "Check equivalence for expressions with negative numbers (e.g., $(-3)^{2}\\ne-3^{2}$).",
+                    "Find a fraction or percentage of a number, and calculate the whole amount from a given percentage or fraction.",
+                    "Express numbers as fractions or percentages of other numbers, and proportionally increase or decrease numbers.",
+                    "Represent proportional relationships as simplified whole-number ratios, and divide quantities using part:part or part:whole ratios.",
+                    "Find equivalent ratios and rates by scaling up or down."
+                ],
+                "Financial Mathematics": [
+                    "Apply percentage mark-ups and discounts.",
+                    "Calculate simple interest and GST on dollar amounts."
+                ]
+            },
+            "Algebra": {
+                "Equations and Relationships": [
+                    "Simplify and manipulate expressions by collecting like terms, factorising using common factors, and expanding products.",
+                    "Generalise properties of operations with variables and accurately multiply or divide inequalities by negative numbers.",
+                    "Form and solve linear equations with rational coefficients, and linear inequalities with positive coefficients.",
+                    "Substitute values into formulas to evaluate expressions, and rearrange formulae (e.g., solving $P=2l+2w$ for w).",
+                    "Interpret linear rules of the form $y=mx+c$, plotting points using substitution and tables.",
+                    "Identify the sign of a gradient (m) and the value of a y-intercept (c) from graphs and tables.",
+                    "Use tables, graphs, and diagrams to recognise ordinal position relationships in linear patterns.",
+                    "Identify constant increases/decreases in patterns, write rules in words and algebraic notation, and make conjectures about future elements."
+                ]
+            },
+            "Measurement": {
+                "Measuring": [
+                    "Estimate, calculate, convert, and accurately represent measurements using appropriate metric units and prefixes.",
+                    "Find the perimeter of 2D shapes, half circles, quarter circles, and calculate the circumference of full circles.",
+                    "Find the area of parallelograms, trapeziums, and kites by relating their formulae to rectangles.",
+                    "Use Pythagoras' theorem to find hypotenuse lengths and verify right-angled triangles.",
+                    "Prove Pythagoras' theorem and generate new Pythagorean triples from given ones.",
+                    "Calculate distance or time when given the other variable alongside speed.",
+                    "Reason about durations using different time units, including decimal fractions of milliseconds."
+                ]
+            },
+            "Geometry": {
+                "Shapes & Spatial Reasoning": [
+                    "Identify and describe parts of a circle (e.g., chord, diameter, radius) and their relationships.",
+                    "Reason about unknown angles involving transversals, intersecting lines, and parallel lines.",
+                    "Verify that lines are parallel using transversal intersection angles.",
+                    "Represent and construct 3D shapes (including pyramids and rectangular/triangular prisms) from nets and plan views.",
+                    "Transform 2D shapes on a coordinate plane using translations, reflections across a line, and rotations by multiples of 90 degrees."
+                ]
+            },
+            "Statistics": {
+                "Developing Knowledge & Visualisation": [
+                    "Plan and collect multivariate data for statistical questions involving at least one categorical and one numerical variable.",
+                    "Calculate the five-point summary (minimum, maximum, median, and quartiles 1 and 3) and the interquartile range ($IQR=Q_{3}-Q_{1}$).",
+                    "Create multiple data visualisations with appropriate scales.",
+                    "Draw an eyeballed line or curve of best fit to predict responses in relationship investigations."
+                ],
+                "Interpretation of Data": [
+                    "Critically assess data visualisations, including media graphs, for misrepresentation.",
+                    "Communicate findings using evidence to answer questions, providing possible explanations.",
+                    "Compare findings to initial conjectures and evaluate whether data collection methods support the claims being made."
+                ]
+            },
+            "Probability": {
+                "Experimental & Theoretical Probability": [
+                    "Conduct chance experiments, including digital simulations with a large number of trials.",
+                    "Systematically list outcomes to determine sample spaces.",
+                    "Compare experimental probability (using 30+ trials) to theoretical probability, explaining differences.",
+                    "Demonstrate the Law of Large Numbers using experiments of at least 100 trials.",
+                    "Create and describe visual distributions of observed outcomes, and calculate probability estimates."
+                ]
+            }
+        },
+        "Year 10": {
+            "Number": {
+                "Number Structures and Operations": [
+                    "Identify, read, write, compare, order, and convert between fractions, decimals, and percentages.",
+                    "Record, compare, order, and calculate with numbers written in scientific notation.",
+                    "Identify irrational numbers (e.g., $\\pi$ or $\\sqrt[3]{10}$) and generalise when roots are rational or irrational.",
+                    "Perform exact calculations using fractions, roots, multiples of $\\pi$, and integer exponents.",
+                    "Use rounding (including to specified significant figures) and estimation to predict and verify calculations.",
+                    "Add, subtract, multiply, and divide positive and negative numbers, including fractions and decimals.",
+                    "Evaluate positive integer exponents for both positive and negative numbers.",
+                    "Find a fraction or percentage of a number, express numbers as percentages of others, and find whole amounts from fractions/percentages.",
+                    "Calculate proportional increases or decreases, and find percentage differences between two numbers.",
+                    "Compare and calculate using ratios and rates (e.g., solving for speed using distance and time)."
+                ],
+                "Financial Mathematics": [
+                    "Convert New Zealand dollars to and from other currencies.",
+                    "Calculate proportions of costs (e.g., the cost of a 400g item given the price per kilogram).",
+                    "Calculate compound interest over short periods by calculating simple interest month by month."
+                ]
+            },
+            "Algebra": {
+                "Equations and Relationships": [
+                    "Simplify and manipulate algebraic expressions by collecting terms, factorising using common factors, and factorising by grouping.",
+                    "Factorise quadratic expressions with a leading coefficient of 1.",
+                    "Expand products, including multiplying a single term by brackets and multiplying two expressions shaped like $ax+b$.",
+                    "Form and solve linear equations and inequalities (with rational coefficients) and plot inequality solutions on a number line.",
+                    "Solve quadratic equations in factorised form or $x^{2}+c=0$, connecting solutions directly to graph x-intercepts.",
+                    "Substitute into, rearrange, and simplify formulas involving squares or square roots (e.g., $A=\\pi r^{2}$).",
+                    "Interpret and graph linear equations ($y=mx+c$), finding the gradient and y-intercept from lines.",
+                    "Determine line equations using two points or one point and a gradient.",
+                    "Compare gradients of linear graphs using steepness.",
+                    "Determine how changing the $x^{2}$ coefficient or the fixed value c affects quadratic graphs."
+                ]
+            },
+            "Measurement": {
+                "Measuring": [
+                    "Estimate, calculate, convert, and represent measurements accurately using significant figures and metric prefixes (kilo- through nano-).",
+                    "Find the area of circles, half/quarter circles, and composite shapes containing circles.",
+                    "Derive formulas for, and calculate, the surface area of cubes, prisms, cylinders, and composite figures.",
+                    "Calculate the volume of cylinders, pyramids, and irregular prisms with consistent cross-sections.",
+                    "Scale shapes by a factor and determine the resulting scale factors for area and volume.",
+                    "Use Pythagoras' theorem to check for right angles, find unknown triangle sides, and calculate coordinate distances using $d=\\sqrt{(x_{2}-x_{1})^{2}+(y_{2}-y_{1})^{2}}$.",
+                    "Solve for speed, distance, or time given any two of the measurements, and reason about time durations."
+                ]
+            },
+            "Geometry": {
+                "Shapes & Spatial Reasoning": [
+                    "Find unknown lengths and angles using the properties of similarity in 2D shapes and right-angled triangles.",
+                    "Construct and represent 3D shapes (including cylinders) using nets.",
+                    "Transform composite 2D shapes by resizing them using scale factors."
+                ]
+            },
+            "Statistics": {
+                "Developing Knowledge & Visualisation": [
+                    "Plan and collect multivariate data using samples or census methods.",
+                    "Justify whether a mean or median is the best measure of central tendency for an investigation.",
+                    "Create multiple visualisations, scale data appropriately, and draw eyeballed lines/curves of best fit for relationship predictions."
+                ],
+                "Interpretation of Data": [
+                    "Critically assess data visualisations, including media graphs, to determine if they misrepresent data.",
+                    "Communicate findings contextually to answer questions while demonstrating an awareness of variability.",
+                    "Make informal population inferences from comparative data by applying the 75%-to-50% comparison rule visually.",
+                    "Make informal predictions (interpolations and extrapolations) using scatter plots."
+                ]
+            },
+            "Probability": {
+                "Experimental & Theoretical Probability": [
+                    "Run chance experiments and large simulations using digital tools.",
+                    "List sample space outcomes systematically and calculate probability estimates.",
+                    "Compare experimental outcomes (from 30+ trials) to theoretical probabilities and explain any discrepancies.",
+                    "Demonstrate the Law of Large Numbers by conducting experiments of 100+ trials.",
+                    "Create visualisations mapping the distribution of experimental outcomes."
                 ]
             }
         }
