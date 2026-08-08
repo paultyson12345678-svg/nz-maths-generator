@@ -49,8 +49,8 @@ st.sidebar.markdown(
     """
     <div style="text-align: center; margin-bottom: 15px;">
         <p style="font-size: 0.85em; color: #666; margin-bottom: 8px;">Help keep this generator free for teachers!</p>
-        <a href="https://www.buymeacoffee.com/paultyson" target="_blank">
-            <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 40px !important; width: 145px !important;" >
+        <a href="[https://www.buymeacoffee.com/paultyson](https://www.buymeacoffee.com/paultyson)" target="_blank">
+            <img src="[https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)" alt="Buy Me A Coffee" style="height: 40px !important; width: 145px !important;" >
         </a>
     </div>
     """,
@@ -84,7 +84,7 @@ if strands:
         selected_keywords = st.sidebar.multiselect(
             "Select Strand Keywords / Concepts",
             options=available_keywords,
-            default=available_keywords  # Pre-selects all by default; users can remove or pick specific ones
+            default=available_keywords  # Pre-selects all keywords by default
         )
     else:
         selected_keywords = []
@@ -178,4 +178,98 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
                 raw_text = response.text.strip()
                 if raw_text.startswith("```json"):
                     raw_text = raw_text[7:-3].strip()
-                elif raw_text.startswith("
+                elif raw_text.startswith("```"):
+                    raw_text = raw_text[3:-3].strip()
+                
+                try:
+                    tasks = json.loads(raw_text)
+                    st.session_state['generated_tasks'] = tasks
+                    st.session_state['current_params'] = {
+                        'phase': phase,
+                        'year_level': year_level,
+                        'theme': theme_context
+                    }
+                except json.JSONDecodeError as json_err:
+                    st.error("The AI generated invalid text formatting. Please click 'Generate 3 Tasks' again to retry.")
+            elif not response:
+                st.error("Could not generate tasks. Please verify your API key in Google AI Studio.")
+
+        except Exception as e:
+            st.error(f"Error initializing AI client: {str(e)}")
+
+# --- DISPLAY GENERATED TASKS & EXPORTS ---
+if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']:
+    tasks = st.session_state['generated_tasks']
+    params = st.session_state.get('current_params', {'phase': phase, 'year_level': year_level, 'theme': theme_context})
+
+    st.markdown("---")
+    st.header("✨ Generated Task Options")
+    st.write("Review the scenarios and teacher notes below. Download the slides or worksheet to access the full tasks and answers!")
+
+    # Create Tabs instead of columns
+    tab_list = st.tabs([f"Option {i+1}" for i in range(len(tasks))])
+
+    for i, (tab, task) in enumerate(zip(tab_list, tasks)):
+        with tab:
+            with st.container(border=True): 
+                st.subheader(task['title'])
+                
+                st.markdown(f"**Context & Scenario:**\n{task['scenario']}")
+                
+                with st.expander("👩‍🏫 Teacher Notes & Misconceptions"):
+                    if task.get('misconceptions'):
+                        # Using custom HTML to force a dark background with white text
+                        st.markdown(
+                            f"""
+                            <div style="background-color: #2c3e50; padding: 15px; border-radius: 8px;">
+                                <p style="color: white; margin: 0;"><b>💡 Common Misconceptions:</b><br>{task['misconceptions']}</p>
+                            </div>
+                            """, 
+                            unsafe_allow_html=True
+                        )
+                    else:
+                        st.write("No specific misconceptions identified for this task.")
+
+                st.divider() # Adds a subtle line before the buttons
+
+                # Export Buttons side-by-side inside the tab
+                col1, col2 = st.columns(2)
+                with col1:
+                    spaced_answers = [ans + "\n\n" for ans in task.get('answers', [])]
+                    pptx_data = generate_powerpoint_slide(
+                        title=task['title'],
+                        scenario=task['scenario'],
+                        questions=task['questions'],
+                        extension=task.get('extension', ''),
+                        phase=params['phase'],
+                        theme=params['theme'],
+                        answers=spaced_answers
+                    )
+                    st.download_button(
+                        label="📊 Download for Google Slides",
+                        help="Download this file and drag it into your Google Drive. It will open perfectly in Google Slides!",
+                        data=pptx_data,
+                        file_name=f"{task['title'].replace(' ', '_')}_Presentation.pptx",
+                        mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                        key=f"pptx_{i}",
+                        use_container_width=True 
+                    )
+
+                with col2:
+                    pdf_data = generate_task_pdf(
+                        title=task['title'],
+                        scenario=task['scenario'],
+                        questions=task['questions'],
+                        extension=task.get('extension', ''),
+                        phase=params['phase'],
+                        theme=params['theme'],
+                        answers=task.get('answers', [])
+                    )
+                    st.download_button(
+                        label="📄 Download Worksheet (.pdf)",
+                        data=pdf_data,
+                        file_name=f"{task['title'].replace(' ', '_')}_Worksheet.pdf",
+                        mime="application/pdf",
+                        key=f"pdf_{i}",
+                        use_container_width=True 
+                    )
