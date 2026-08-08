@@ -69,7 +69,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     tf_scenario = scenario_box.text_frame
     tf_scenario.word_wrap = True
     p_scen_header = tf_scenario.paragraphs[0]
-    p_scen_header.text = "Context & Scenario:"
+    p_scen_header.text = "Scenario:"
     p_scen_header.font.bold = True
     p_scen_header.font.size = Pt(16)
     p_scen_header.font.color.rgb = RGBColor(45, 55, 72)
