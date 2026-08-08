@@ -129,7 +129,7 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
 
             with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
                 response = client.models.generate_content(
-                    model='gemini-1.5-flash',  # Valid official model name
+                    model='gemini-2.0-flash',  # <--- Correct active model identifier
                     contents=prompt,
                     config={
                         'response_mime_type': 'application/json'
