@@ -93,8 +93,8 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
         try:
             genai.configure(api_key=api_key)
             
-            # Model fallbacks that support generateContent on standard keys
-            models_to_try = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-exp']
+            # Model fallbacks using the most stable aliases for the legacy SDK
+            models_to_try = ['gemini-1.5-flash-latest', 'gemini-1.5-flash', 'gemini-pro']
             
             prompt = f"""
             You are an expert primary school mathematics specialist in Aotearoa New Zealand.
