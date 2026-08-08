@@ -97,7 +97,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
 
     if extension:
         p_ext = tf_q.add_paragraph()
-        story.append(Paragraph(f"<b>Extension Challenge:</b> {extension}", question_style))
+        p_ext.text = f"Extension Challenge: {extension}"
         p_ext.font.size = Pt(15)
         p_ext.font.bold = True
         p_ext.font.color.rgb = RGBColor(180, 83, 9)
@@ -227,7 +227,7 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
 
     # 4. Extension Challenge + Working Box
     if extension:
-        story.append(Paragraph(f"<b>⭐ Extension Challenge:</b> {extension}", question_style))
+        story.append(Paragraph(f"<b>Extension Challenge:</b> {extension}", question_style))
         story.append(Spacer(1, 6))
         story.append(create_working_box(box_height=145))
 
