@@ -127,8 +127,8 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
             ]
             """
 
-            # Active Gemini models list to attempt sequentially if one hits a quota limit
-            models_to_try = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro']
+            # Valid, active Gemini model identifiers for the google-genai SDK
+            models_to_try = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-2.0-flash-lite']
             response = None
 
             with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
@@ -141,8 +141,8 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
                         )
                         break  # Stop trying as soon as a request succeeds
                     except Exception as model_err:
-                        # Print error to sidebar for debugging
                         st.sidebar.caption(f"Model {model_name} failed: {model_err}")
+                        time.sleep(1)  # Brief pause before attempting fallback
                         continue
 
             if response:
