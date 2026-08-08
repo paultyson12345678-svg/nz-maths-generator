@@ -35,8 +35,10 @@ def get_macron_font():
 
 def generate_powerpoint_slide(title, scenario, questions, extension, phase, theme, answers):
     """
-    Generates a widescreen PowerPoint presentation containing the task scenario,
-    questions, extension, and full answer key with guidance notes.
+    Generates a 3-slide widescreen PowerPoint presentation:
+    - Slide 1: Title, Meta, Scenario (large font), and Question 1 only.
+    - Slide 2: Question 2 & Extension Challenge.
+    - Slide 3: Detailed Solutions & Teacher Guidance.
     """
     prs = Presentation()
     prs.slide_width = Inches(13.333)
@@ -44,84 +46,127 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
 
     blank_slide_layout = prs.slide_layouts[6]
 
-    # --- SLIDE 1: Student Task Slide ---
+    # --- SLIDE 1: Title, Scenario (Larger Font), & Question 1 ---
     slide_1 = prs.slides.add_slide(blank_slide_layout)
 
     # Title Box
-    title_box = slide_1.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.733), Inches(1.0))
+    title_box = slide_1.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.733), Inches(1.1))
     tf_title = title_box.text_frame
     tf_title.word_wrap = True
     p_title = tf_title.paragraphs[0]
     p_title.text = title
-    p_title.font.size = Pt(28)
+    p_title.font.size = Pt(26)
     p_title.font.bold = True
     p_title.font.color.rgb = RGBColor(27, 54, 93)  # Dark navy blue
 
     # Meta Info
     p_meta = tf_title.add_paragraph()
     p_meta.text = f"Phase: {phase}  |  Context: {theme}"
-    p_meta.font.size = Pt(14)
+    p_meta.font.size = Pt(13)
     p_meta.font.italic = True
     p_meta.font.color.rgb = RGBColor(100, 100, 100)
 
-    # Scenario Box
-    scenario_box = slide_1.shapes.add_textbox(Inches(0.8), Inches(1.6), Inches(11.733), Inches(1.5))
+    # Scenario Box (Larger font size: 18pt)
+    scenario_box = slide_1.shapes.add_textbox(Inches(0.8), Inches(1.6), Inches(11.733), Inches(2.2))
     tf_scenario = scenario_box.text_frame
     tf_scenario.word_wrap = True
     p_scen_header = tf_scenario.paragraphs[0]
-    p_scen_header.text = "Scenario:"
+    p_scen_header.text = "Context & Scenario:"
     p_scen_header.font.bold = True
-    p_scen_header.font.size = Pt(16)
+    p_scen_header.font.size = Pt(18)
     p_scen_header.font.color.rgb = RGBColor(45, 55, 72)
 
     p_scen_body = tf_scenario.add_paragraph()
     p_scen_body.text = scenario
-    p_scen_body.font.size = Pt(15)
+    p_scen_body.font.size = Pt(18)  # Increased scenario font size
+    p_scen_body.space_before = Pt(6)
 
-    # Questions Box
-    q_box = slide_1.shapes.add_textbox(Inches(0.8), Inches(3.3), Inches(11.733), Inches(3.6))
-    tf_q = q_box.text_frame
-    tf_q.word_wrap = True
+    # Question 1 Box
+    q1_box = slide_1.shapes.add_textbox(Inches(0.8), Inches(4.0), Inches(11.733), Inches(2.8))
+    tf_q1 = q1_box.text_frame
+    tf_q1.word_wrap = True
 
-    p_q_header = tf_q.paragraphs[0]
-    p_q_header.text = "Tasks & Questions:"
-    p_q_header.font.bold = True
-    p_q_header.font.size = Pt(16)
-    p_q_header.font.color.rgb = RGBColor(45, 55, 72)
+    p_q1_header = tf_q1.paragraphs[0]
+    p_q1_header.text = "Tasks & Questions:"
+    p_q1_header.font.bold = True
+    p_q1_header.font.size = Pt(18)
+    p_q1_header.font.color.rgb = RGBColor(45, 55, 72)
 
-    for idx, q_text in enumerate(questions, 1):
-        p = tf_q.add_paragraph()
-        p.text = f"Question {idx}: {q_text}"
-        p.font.size = Pt(15)
-        p.space_after = Pt(10)
+    if len(questions) > 0:
+        p_q1 = tf_q1.add_paragraph()
+        p_q1.text = f"Question 1: {questions[0]}"
+        p_q1.font.size = Pt(17)
+        p_q1.font.bold = True
+        p_q1.space_before = Pt(8)
 
-    if extension:
-        p_ext = tf_q.add_paragraph()
-        p_ext.text = f"Extension Challenge: {extension}"
-        p_ext.font.size = Pt(15)
-        p_ext.font.bold = True
-        p_ext.font.color.rgb = RGBColor(180, 83, 9)
-
-    # --- SLIDE 2: Teacher Answers & Guidance Slide ---
+    # --- SLIDE 2: Question 2 & Extension Challenge ---
     slide_2 = prs.slides.add_slide(blank_slide_layout)
 
-    title_box_2 = slide_2.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.733), Inches(1.0))
-    tf_title_2 = title_box_2.text_frame
-    tf_title_2.word_wrap = True
-    p_title_2 = tf_title_2.paragraphs[0]
-    p_title_2.text = f"Solutions & Teacher Guidance: {title}"
-    p_title_2.font.size = Pt(24)
-    p_title_2.font.bold = True
-    p_title_2.font.color.rgb = RGBColor(27, 54, 93)
+    # Header Box for Slide 2
+    head_box_2 = slide_2.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.733), Inches(0.8))
+    tf_head2 = head_box_2.text_frame
+    tf_head2.word_wrap = True
+    p_head2 = tf_head2.paragraphs[0]
+    p_head2.text = f"{title} (Continued)"
+    p_head2.font.size = Pt(24)
+    p_head2.font.bold = True
+    p_head2.font.color.rgb = RGBColor(27, 54, 93)
 
-    ans_box = slide_2.shapes.add_textbox(Inches(0.8), Inches(1.6), Inches(11.733), Inches(5.3))
+    # Tasks Box (Questions 2+ and Extension)
+    q2_box = slide_2.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(11.733), Inches(5.2))
+    tf_q2 = q2_box.text_frame
+    tf_q2.word_wrap = True
+
+    # Render Question 2 (and any additional questions beyond Q1)
+    if len(questions) > 1:
+        p_q2_header = tf_q2.paragraphs[0]
+        p_q2_header.text = "Further Tasks:"
+        p_q2_header.font.bold = True
+        p_q2_header.font.size = Pt(18)
+        p_q2_header.font.color.rgb = RGBColor(45, 55, 72)
+
+        for idx, q_text in enumerate(questions[1:], start=2):
+            p = tf_q2.add_paragraph()
+            p.text = f"Question {idx}: {q_text}"
+            p.font.size = Pt(17)
+            p.font.bold = True
+            p.space_after = Pt(14)
+    else:
+        p_q2_header = tf_q2.paragraphs[0]
+
+    # Extension Challenge
+    if extension:
+        p_ext = tf_q2.add_paragraph() if len(questions) > 1 else p_q2_header
+        p_ext.text = f"Extension Challenge: {extension}"
+        p_ext.font.size = Pt(17)
+        p_ext.font.bold = True
+        p_ext.font.color.rgb = RGBColor(180, 83, 9)  # Warm accent color
+        p_ext.space_before = Pt(16)
+
+    # --- SLIDE 3: Teacher Solutions & Guidance ---
+    slide_3 = prs.slides.add_slide(blank_slide_layout)
+
+    title_box_3 = slide_3.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.733), Inches(1.0))
+    tf_title_3 = title_box_3.text_frame
+    tf_title_3.word_wrap = True
+    p_title_3 = tf_title_3.paragraphs[0]
+    p_title_3.text = f"Solutions & Teacher Guidance: {title}"
+    p_title_3.font.size = Pt(24)
+    p_title_3.font.bold = True
+    p_title_3.font.color.rgb = RGBColor(27, 54, 93)
+
+    ans_box = slide_3.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(11.733), Inches(5.4))
     tf_ans = ans_box.text_frame
     tf_ans.word_wrap = True
 
     for idx, ans_text in enumerate(answers, 1):
         p_ans = tf_ans.add_paragraph() if idx > 1 else tf_ans.paragraphs[0]
-        label = f"Question {idx} Answer:" if idx <= len(questions) else "Extension Answer:"
-        p_ans.text = f"• {label} {ans_text}"
+        if idx <= len(questions):
+            label = f"Question {idx} Solution:"
+        else:
+            label = "Extension Solution:"
+            
+        p_ans.text = f"• {label}\n  {ans_text}"
         p_ans.font.size = Pt(14)
         p_ans.space_after = Pt(12)
 
@@ -198,7 +243,7 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     story.append(Spacer(1, 10))
 
     # Context / Scenario Callout Box (A4 width - 72pt margins = 523pt wide)
-    scenario_p = Paragraph(f"<b>Scenario:</b><br/>{scenario}", scenario_style)
+    scenario_p = Paragraph(f"<b>Context & Scenario:</b><br/>{scenario}", scenario_style)
     scenario_table = Table([[scenario_p]], colWidths=[523])
     scenario_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F7FAFC')),
