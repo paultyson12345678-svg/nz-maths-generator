@@ -38,7 +38,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     Generates a 3-slide widescreen PowerPoint presentation with larger typography:
     - Slide 1: Title, Meta, Scenario (just 'Scenario:'), and Question 1 only.
     - Slide 2: Question 2 & Extension Challenge with extra vertical spacing.
-    - Slide 3: Detailed Solutions & Teacher Guidance.
+    - Slide 3: Detailed Solutions & Open-Ended Teacher Guidance.
     """
     prs = Presentation()
     prs.slide_width = Inches(13.333)
@@ -152,11 +152,11 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         if idx <= len(questions):
             label = f"Question {idx} Solution:"
         else:
-            label = "Extension Solution:"
+            label = "Extension Challenge Guidance & Sample Solutions (Open-Ended):"
             
         p_ans.text = f"• {label}\n  {ans_text}"
-        p_ans.font.size = Pt(14)
-        p_ans.space_after = Pt(12)
+        p_ans.font.size = Pt(13)
+        p_ans.space_after = Pt(10)
 
     buffer = io.BytesIO()
     prs.save(buffer)
@@ -168,7 +168,7 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     """
     Generates a 1-page printable A4 PDF student worksheet.
     Dynamically adjusts working box heights and font sizes while ensuring 
-    generous spacing between boxes to avoid a crowded layout.
+    generous spacing below the scenario and boxes to avoid a crowded layout.
     """
     buffer = io.BytesIO()
 
@@ -263,7 +263,6 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     num_boxes = len(questions) + (1 if extension else 0)
     
     # Vertical height budgeting with larger gaps:
-    # Gap per box = 4pt (before box) + 14pt (after box) = 18pt total per box
     estimated_text_lines = sum(max(1, len(q) // 80) for q in questions) + (max(1, len(extension) // 80) if extension else 0)
     text_height = estimated_text_lines * q_lead
     
