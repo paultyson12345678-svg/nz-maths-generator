@@ -1,6 +1,6 @@
 NZ_THEMES = [
     # --- Cultural & Multicultural Celebrations ---
-    "Matariki & Star Navigation (Māori)",
+    "Matariki (Māori)",
     "Polyfest & Cultural Dance Festivals (Pasifika/Māori)",
     "Lunar New Year & Lantern Celebrations (Asian)",
     "Diwali Light Festival (South Asian)",
@@ -9,7 +9,7 @@ NZ_THEMES = [
     
     # --- Yearly Events, Holidays & Commemorations ---
     "ANZAC Day & Poppy Making",
-    "Christmas & Holiday Gift Giving",
+    "Christmas",
     "Easter Egg Hunt & Baking",
     "Halloween & Trick-or-Treat Sorting",
     "Guy Fawkes & Fire Safety Awareness",
