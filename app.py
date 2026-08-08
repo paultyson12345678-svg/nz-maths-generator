@@ -227,7 +227,8 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
                 answers=spaced_answers  # Passing the spaced answers here
             )
             st.download_button(
-                label="📊 Download PowerPoint (.pptx)",
+                label="📊 Download for Google Slides",
+                help="Download this file and drag it into your Google Drive. It will open perfectly in Google Slides!",
                 data=pptx_data,
                 file_name=f"{task['title'].replace(' ', '_')}_Presentation.pptx",
                 mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
