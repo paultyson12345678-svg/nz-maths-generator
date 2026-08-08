@@ -5,7 +5,7 @@ from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 
 from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from reportlab.pdfbase import pdfmetrics
@@ -35,158 +35,115 @@ def get_macron_font():
 
 def generate_powerpoint_slide(title, scenario, questions, extension, phase, theme, answers):
     """
-    Generates a 16:9 widescreen PowerPoint presentation (.pptx) containing 3 slides:
-    Slide 1: Title, Scenario (larger text), and Question 1
-    Slide 2: Question 2 and Extension Challenge
-    Slide 3: Teacher Answers & Solutions
+    Generates a widescreen PowerPoint presentation containing the task scenario,
+    questions, extension, and full answer key with guidance notes.
     """
     prs = Presentation()
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
+
     blank_slide_layout = prs.slide_layouts[6]
 
-    # --- SLIDE 1: SCENARIO & QUESTION 1 ---
-    slide1 = prs.slides.add_slide(blank_slide_layout)
+    # --- SLIDE 1: Student Task Slide ---
+    slide_1 = prs.slides.add_slide(blank_slide_layout)
 
-    # Header Box
-    header_box = slide1.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.733), Inches(0.9))
-    tf_header = header_box.text_frame
-    tf_header.word_wrap = True
-    
-    p_phase = tf_header.paragraphs[0]
-    p_phase.text = f"RICH MATHS TASK • {phase.upper()} • {theme.upper()}"
-    p_phase.font.size = Pt(12)
-    p_phase.font.bold = True
-    p_phase.font.color.rgb = RGBColor(0, 102, 204)
-
-    p_title = tf_header.add_paragraph()
+    # Title Box
+    title_box = slide_1.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.733), Inches(1.0))
+    tf_title = title_box.text_frame
+    tf_title.word_wrap = True
+    p_title = tf_title.paragraphs[0]
     p_title.text = title
-    p_title.font.size = Pt(26)
+    p_title.font.size = Pt(28)
     p_title.font.bold = True
-    p_title.font.color.rgb = RGBColor(30, 30, 30)
+    p_title.font.color.rgb = RGBColor(27, 54, 93)  # Dark navy blue
 
-    # Scenario Box (Larger Text)
-    scenario_box = slide1.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(11.733), Inches(2.2))
+    # Meta Info
+    p_meta = tf_title.add_paragraph()
+    p_meta.text = f"Phase: {phase}  |  Context: {theme}"
+    p_meta.font.size = Pt(14)
+    p_meta.font.italic = True
+    p_meta.font.color.rgb = RGBColor(100, 100, 100)
+
+    # Scenario Box
+    scenario_box = slide_1.shapes.add_textbox(Inches(0.8), Inches(1.6), Inches(11.733), Inches(1.5))
     tf_scenario = scenario_box.text_frame
     tf_scenario.word_wrap = True
-    
-    p_scen_hdr = tf_scenario.paragraphs[0]
-    p_scen_hdr.text = "Context & Scenario:"
-    p_scen_hdr.font.size = Pt(16)
-    p_scen_hdr.font.bold = True
-    p_scen_hdr.font.color.rgb = RGBColor(70, 70, 70)
+    p_scen_header = tf_scenario.paragraphs[0]
+    p_scen_header.text = "Context & Scenario:"
+    p_scen_header.font.bold = True
+    p_scen_header.font.size = Pt(16)
+    p_scen_header.font.color.rgb = RGBColor(45, 55, 72)
 
-    p_scen_txt = tf_scenario.add_paragraph()
-    p_scen_txt.text = scenario
-    p_scen_txt.font.size = Pt(16)  # Increased font size
-    p_scen_txt.font.color.rgb = RGBColor(40, 40, 40)
+    p_scen_body = tf_scenario.add_paragraph()
+    p_scen_body.text = scenario
+    p_scen_body.font.size = Pt(15)
 
-    # Question 1 Box
-    q1_box = slide1.shapes.add_textbox(Inches(0.8), Inches(4.0), Inches(11.733), Inches(2.8))
-    tf_q1 = q1_box.text_frame
-    tf_q1.word_wrap = True
+    # Questions Box
+    q_box = slide_1.shapes.add_textbox(Inches(0.8), Inches(3.3), Inches(11.733), Inches(3.6))
+    tf_q = q_box.text_frame
+    tf_q.word_wrap = True
 
-    p_q1_hdr = tf_q1.paragraphs[0]
-    p_q1_hdr.text = "Question 1:"
-    p_q1_hdr.font.size = Pt(18)
-    p_q1_hdr.font.bold = True
-    p_q1_hdr.font.color.rgb = RGBColor(0, 102, 204)
+    p_q_header = tf_q.paragraphs[0]
+    p_q_header.text = "Tasks & Questions:"
+    p_q_header.font.bold = True
+    p_q_header.font.size = Pt(16)
+    p_q_header.font.color.rgb = RGBColor(45, 55, 72)
 
-    p_q1_txt = tf_q1.add_paragraph()
-    q1_text = questions[0] if len(questions) > 0 else ""
-    p_q1_txt.text = q1_text
-    p_q1_txt.font.size = Pt(16)
-    p_q1_txt.font.color.rgb = RGBColor(20, 20, 20)
+    for idx, q_text in enumerate(questions, 1):
+        p = tf_q.add_paragraph()
+        p.text = f"Question {idx}: {q_text}"
+        p.font.size = Pt(15)
+        p.space_after = Pt(10)
 
-    # --- SLIDE 2: QUESTION 2 & EXTENSION ---
-    slide2 = prs.slides.add_slide(blank_slide_layout)
-
-    header_box2 = slide2.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.733), Inches(0.8))
-    tf_header2 = header_box2.text_frame
-    tf_header2.word_wrap = True
-
-    p_title2 = tf_header2.paragraphs[0]
-    p_title2.text = f"{title} (Continued)"
-    p_title2.font.size = Pt(24)
-    p_title2.font.bold = True
-    p_title2.font.color.rgb = RGBColor(30, 30, 30)
-
-    # Question 2 Box
-    q2_box = slide2.shapes.add_textbox(Inches(0.8), Inches(1.4), Inches(11.733), Inches(2.5))
-    tf_q2 = q2_box.text_frame
-    tf_q2.word_wrap = True
-
-    p_q2_hdr = tf_q2.paragraphs[0]
-    p_q2_hdr.text = "Question 2:"
-    p_q2_hdr.font.size = Pt(18)
-    p_q2_hdr.font.bold = True
-    p_q2_hdr.font.color.rgb = RGBColor(0, 102, 204)
-
-    p_q2_txt = tf_q2.add_paragraph()
-    q2_text = questions[1] if len(questions) > 1 else ""
-    p_q2_txt.text = q2_text
-    p_q2_txt.font.size = Pt(16)
-    p_q2_txt.font.color.rgb = RGBColor(20, 20, 20)
-
-    # Extension Challenge Box
     if extension:
-        ext_box = slide2.shapes.add_textbox(Inches(0.8), Inches(4.2), Inches(11.733), Inches(2.5))
-        tf_ext = ext_box.text_frame
-        tf_ext.word_wrap = True
+        p_ext = tf_q.add_paragraph()
+        p_ext.text = f"⭐ Extension Challenge: {extension}"
+        p_ext.font.size = Pt(15)
+        p_ext.font.bold = True
+        p_ext.font.color.rgb = RGBColor(180, 83, 9)
 
-        p_ext_hdr = tf_ext.paragraphs[0]
-        p_ext_hdr.text = "Extension Challenge:"
-        p_ext_hdr.font.size = Pt(18)
-        p_ext_hdr.font.bold = True
-        p_ext_hdr.font.color.rgb = RGBColor(180, 50, 50)
+    # --- SLIDE 2: Teacher Answers & Guidance Slide ---
+    slide_2 = prs.slides.add_slide(blank_slide_layout)
 
-        p_ext_txt = tf_ext.add_paragraph()
-        p_ext_txt.text = extension
-        p_ext_txt.font.size = Pt(16)
-        p_ext_txt.font.color.rgb = RGBColor(30, 30, 30)
+    title_box_2 = slide_2.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.733), Inches(1.0))
+    tf_title_2 = title_box_2.text_frame
+    tf_title_2.word_wrap = True
+    p_title_2 = tf_title_2.paragraphs[0]
+    p_title_2.text = f"Solutions & Teacher Guidance: {title}"
+    p_title_2.font.size = Pt(24)
+    p_title_2.font.bold = True
+    p_title_2.font.color.rgb = RGBColor(27, 54, 93)
 
-    # --- SLIDE 3: TEACHER SOLUTIONS ---
-    slide3 = prs.slides.add_slide(blank_slide_layout)
-
-    header_box3 = slide3.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.733), Inches(1.0))
-    tf_header3 = header_box3.text_frame
-    tf_header3.word_wrap = True
-
-    p_title3 = tf_header3.paragraphs[0]
-    p_title3.text = f"Teacher Solutions: {title}"
-    p_title3.font.size = Pt(26)
-    p_title3.font.bold = True
-    p_title3.font.color.rgb = RGBColor(0, 102, 204)
-
-    ans_box = slide3.shapes.add_textbox(Inches(0.8), Inches(1.6), Inches(11.733), Inches(5.2))
+    ans_box = slide_2.shapes.add_textbox(Inches(0.8), Inches(1.6), Inches(11.733), Inches(5.3))
     tf_ans = ans_box.text_frame
     tf_ans.word_wrap = True
 
-    if answers:
-        for a_idx, a_text in enumerate(answers):
-            p_a = tf_ans.add_paragraph() if a_idx > 0 or len(tf_ans.paragraphs[0].text) > 0 else tf_ans.paragraphs[0]
-            label = f"Q{a_idx + 1} Solution:" if a_idx < len(questions) else "Extension Solution:"
-            p_a.text = f"{label} {a_text}"
-            p_a.font.size = Pt(14)
-            p_a.font.color.rgb = RGBColor(40, 40, 40)
+    for idx, ans_text in enumerate(answers, 1):
+        p_ans = tf_ans.add_paragraph() if idx > 1 else tf_ans.paragraphs[0]
+        label = f"Question {idx} Answer:" if idx <= len(questions) else "Extension Answer:"
+        p_ans.text = f"• {label} {ans_text}"
+        p_ans.font.size = Pt(14)
+        p_ans.space_after = Pt(12)
 
-    pptx_io = io.BytesIO()
-    prs.save(pptx_io)
-    pptx_io.seek(0)
-    return pptx_io
+    buffer = io.BytesIO()
+    prs.save(buffer)
+    buffer.seek(0)
+    return buffer.getvalue()
 
 
 def generate_task_pdf(title, scenario, questions, extension, phase, theme, answers):
     """
-    Generates a 2-page PDF worksheet:
-    Page 1: Student Task with generous workout spaces & answer lines.
-    Page 2: Teacher Notes & Solutions.
+    Generates a printable A4 PDF student worksheet with clean, spacious rectangular 
+    working boxes that scale cleanly across the full page.
     """
-    font_name, font_bold_name = get_macron_font()
+    buffer = io.BytesIO()
 
-    pdf_io = io.BytesIO()
+    # Register/fetch macron font
+    font_normal, font_bold = get_macron_font()
+
+    # 1. Setup Document with standard 0.5 inch (36pt) margins
     doc = SimpleDocTemplate(
-        pdf_io,
+        buffer,
         pagesize=A4,
         rightMargin=36,
         leftMargin=36,
@@ -194,113 +151,87 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         bottomMargin=36
     )
 
+    story = []
     styles = getSampleStyleSheet()
 
-    style_header = ParagraphStyle(
-        'HeaderStyle',
-        parent=styles['Normal'],
-        fontName=font_bold_name,
-        fontSize=9.5,
-        textColor=colors.HexColor('#0066CC'),
-        spaceAfter=2
-    )
-
-    style_title = ParagraphStyle(
-        'TitleStyle',
+    # 2. Define Custom Styles
+    title_style = ParagraphStyle(
+        'DocTitle',
         parent=styles['Heading1'],
-        fontName=font_bold_name,
-        fontSize=18,
-        textColor=colors.HexColor('#1E1E1E'),
-        spaceAfter=8
+        fontName=font_bold,
+        fontSize=20,
+        leading=24,
+        textColor=colors.HexColor('#1B365D'),
+        spaceAfter=4
     )
 
-    style_section_heading = ParagraphStyle(
-        'SectionHeading',
-        parent=styles['Heading2'],
-        fontName=font_bold_name,
+    meta_style = ParagraphStyle(
+        'DocMeta',
+        parent=styles['Normal'],
+        fontName=font_bold,
         fontSize=11,
-        textColor=colors.HexColor('#333333'),
-        spaceAfter=4
+        leading=14,
+        textColor=colors.HexColor('#4A5568')
     )
 
-    style_body = ParagraphStyle(
-        'BodyStyle',
+    scenario_style = ParagraphStyle(
+        'ScenarioText',
         parent=styles['Normal'],
-        fontName=font_name,
-        fontSize=10,
-        leading=13.5,
-        textColor=colors.HexColor('#222222'),
-        spaceAfter=4
+        fontName=font_normal,
+        fontSize=11,
+        leading=15,
+        textColor=colors.HexColor('#2D3748')
     )
 
-    style_lines = ParagraphStyle(
-        'LinesStyle',
+    question_style = ParagraphStyle(
+        'QuestionText',
         parent=styles['Normal'],
-        fontName=font_name,
-        fontSize=9,
-        leading=18,
-        textColor=colors.HexColor('#A0A0A0')
+        fontName=font_bold,
+        fontSize=12,
+        leading=16,
+        textColor=colors.HexColor('#1A202C')
     )
 
-    style_extension = ParagraphStyle(
-        'ExtensionStyle',
-        parent=styles['Normal'],
-        fontName=font_bold_name,
-        fontSize=10,
-        leading=13.5,
-        textColor=colors.HexColor('#B43232'),
-        spaceAfter=4
-    )
+    # Header & Title Block
+    story.append(Paragraph(title, title_style))
+    story.append(Paragraph(f"<b>Phase:</b> {phase} &nbsp;&nbsp;|&nbsp;&nbsp; <b>Context:</b> {theme}", meta_style))
+    story.append(Spacer(1, 10))
 
-    style_teacher_hdr = ParagraphStyle(
-        'TeacherHeader',
-        parent=styles['Heading2'],
-        fontName=font_bold_name,
-        fontSize=16,
-        textColor=colors.HexColor('#0066CC'),
-        spaceAfter=10
-    )
+    # Context / Scenario Callout Box (A4 width - 72pt margins = 523pt wide)
+    scenario_p = Paragraph(f"<b>Context & Scenario:</b><br/>{scenario}", scenario_style)
+    scenario_table = Table([[scenario_p]], colWidths=[523])
+    scenario_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F7FAFC')),
+        ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#CBD5E0')),
+        ('PADDING', (0, 0), (-1, -1), 8),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    ]))
+    story.append(scenario_table)
+    story.append(Spacer(1, 15))
 
-    elements = []
+    # Helper function to generate clean, solid working boxes
+    def create_working_box(box_height=140):
+        t = Table([['']], colWidths=[523], rowHeights=[box_height])
+        t.setStyle(TableStyle([
+            ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#A0AEC0')), # Clean solid border
+            ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+        ]))
+        return t
 
-    # --- PAGE 1: STUDENT TASK CARD ---
-    elements.append(Paragraph(f"RICH MATHS TASK • {phase.upper()} • {theme.upper()}", style_header))
-    elements.append(Paragraph(title, style_title))
+    # 3. Main Questions + Spaced Working Boxes
+    for idx, q_text in enumerate(questions, 1):
+        story.append(Paragraph(f"<b>Question {idx}:</b> {q_text}", question_style))
+        story.append(Spacer(1, 6))
+        story.append(create_working_box(box_height=145))
+        story.append(Spacer(1, 15))
 
-    # Scenario
-    elements.append(Paragraph("<b>Context & Scenario:</b>", style_section_heading))
-    elements.append(Paragraph(scenario, style_body))
-    elements.append(Spacer(1, 8))
-
-    # Questions with Working Spaces
-    elements.append(Paragraph("<b>Task Questions:</b>", style_section_heading))
-    
-    dotted_line = ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."
-
-    for q_idx, q_text in enumerate(questions):
-        elements.append(Paragraph(f"<b>Question {q_idx + 1}:</b> {q_text}", style_body))
-        # Add workout room and answer lines
-        elements.append(Spacer(1, 4))
-        elements.append(Paragraph(f"<i>Working / Answer:</i><br/>{dotted_line}<br/>{dotted_line}", style_lines))
-        elements.append(Spacer(1, 10))
-
+    # 4. Extension Challenge + Working Box
     if extension:
-        elements.append(Paragraph(f"<b>Extension Challenge:</b> {extension}", style_extension))
-        elements.append(Spacer(1, 4))
-        elements.append(Paragraph(f"<i>Working / Answer:</i><br/>{dotted_line}<br/>{dotted_line}", style_lines))
+        story.append(Paragraph(f"<b>⭐ Extension Challenge:</b> {extension}", question_style))
+        story.append(Spacer(1, 6))
+        story.append(create_working_box(box_height=145))
 
-    # --- PAGE 2: TEACHER NOTES & SOLUTIONS ---
-    elements.append(PageBreak())  # Guarantees answers are strictly on Page 2
-
-    if answers:
-        elements.append(Paragraph("Teacher Notes & Solutions", style_teacher_hdr))
-        elements.append(Spacer(1, 6))
-        for a_idx, a_text in enumerate(answers):
-            label = f"Q{a_idx + 1} Solution:" if a_idx < len(questions) else "Extension Solution:"
-            elements.append(Paragraph(f"<b>{label}</b>", style_section_heading))
-            elements.append(Paragraph(a_text, style_body))
-            elements.append(Spacer(1, 8))
-
-    doc.build(elements)
-    pdf_io.seek(0)
-    return pdf_io
+    # Build PDF document
+    doc.build(story)
+    buffer.seek(0)
+    return buffer.getvalue()
