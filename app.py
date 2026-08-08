@@ -199,7 +199,15 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
                 
                 with st.expander("👩‍🏫 Teacher Notes & Misconceptions"):
                     if task.get('misconceptions'):
-                        st.info(f"**💡 Common Misconceptions:**\n{task['misconceptions']}")
+                        # Using custom HTML to force a dark background with white text
+                        st.markdown(
+                            f"""
+                            <div style="background-color: #2c3e50; padding: 15px; border-radius: 8px;">
+                                <p style="color: white; margin: 0;"><b>💡 Common Misconceptions:</b><br>{task['misconceptions']}</p>
+                            </div>
+                            """, 
+                            unsafe_allow_html=True
+                        )
                     else:
                         st.write("No specific misconceptions identified for this task.")
 
