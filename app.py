@@ -44,6 +44,19 @@ st.markdown("Generate rich, context-aligned mathematical tasks for Phase 1 to Ph
 # --- SIDEBAR CONFIGURATION ---
 st.sidebar.header("Task Settings")
 
+# --- DONATION / SUPPORT BUTTON ---
+st.sidebar.markdown(
+    """
+    <div style="text-align: center; margin-bottom: 15px;">
+        <p style="font-size: 0.85em; color: #666; margin-bottom: 8px;">Help keep this generator free for teachers!</p>
+        <a href="https://www.buymeacoffee.com/paultyson" target="_blank">
+            <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 40px !important; width: 145px !important;" >
+        </a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 # Check if secret exists in Streamlit Cloud Secrets
 default_api_key = st.secrets.get("GEMINI_API_KEY", "")
 
