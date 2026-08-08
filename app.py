@@ -4,7 +4,7 @@ import os
 import io
 import json
 import time
-import google.generativeai as genai
+from google import genai
 from curriculum import CURRICULUM_DATA, NZ_THEMES
 from exporters import generate_powerpoint_slide, generate_task_pdf
 
@@ -47,11 +47,9 @@ st.sidebar.header("Task Settings")
 # Check if secret exists in Streamlit Cloud Secrets
 default_api_key = st.secrets.get("GEMINI_API_KEY", "")
 
-# If a secret key exists, hide the text input box completely and use the secret key directly
 if default_api_key:
     api_key = default_api_key
 else:
-    # Only show input field if no secret key is set in Streamlit Cloud
     api_key = st.sidebar.text_input("Gemini API Key", type="password", help="Enter your Google AI Studio API key.")
 
 # 1. Phase Selection
@@ -85,16 +83,14 @@ if selected_theme == "Custom Context (Enter your own below)":
 else:
     theme_context = selected_theme
 
-# --- GENERATION LOGIC WITH STABLE SDK ---
+# --- GENERATION LOGIC ---
 if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
     if not api_key:
         st.error("Please enter a valid Gemini API Key in the sidebar or configure it in secrets.")
     else:
         try:
-            genai.configure(api_key=api_key)
-            
-            # Model fallbacks using the most stable aliases for the legacy SDK
-            models_to_try = ['gemini-1.5-flash-latest', 'gemini-1.5-flash', 'gemini-pro']
+            # Using the modern SDK and explicitly setting to v1 API to avoid v1beta 404s
+            client = genai.Client(api_key=api_key, http_options={'api_version': 'v1'})
             
             prompt = f"""
             You are an expert primary school mathematics specialist in Aotearoa New Zealand.
@@ -131,21 +127,16 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
             """
 
             response = None
-
+            
             with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
-                for m_name in models_to_try:
-                    try:
-                        model = genai.GenerativeModel(m_name)
-                        response = model.generate_content(
-                            prompt,
-                            generation_config={"response_mime_type": "application/json"}
-                        )
-                        if response and response.text:
-                            break
-                    except Exception as err:
-                        st.sidebar.caption(f"{m_name} failed: {err}")
-                        time.sleep(1)
-                        continue
+                try:
+                    response = client.models.generate_content(
+                        model='gemini-1.5-flash',
+                        contents=prompt,
+                        config={'response_mime_type': 'application/json'}
+                    )
+                except Exception as err:
+                    st.error(f"Generation failed: {err}")
 
             if response and response.text:
                 tasks = json.loads(response.text)
@@ -155,11 +146,11 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
                     'year_level': year_level,
                     'theme': theme_context
                 }
-            else:
+            elif not response:
                 st.error("Could not generate tasks. Please verify your API key in Google AI Studio.")
 
         except Exception as e:
-            st.error(f"Error generating tasks: {str(e)}")
+            st.error(f"Error initializing AI client: {str(e)}")
 
 # --- DISPLAY GENERATED TASKS & EXPORTS ---
 if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']:
@@ -186,7 +177,6 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
                     label = f"Q{a_idx + 1} Solution:" if a_idx < len(task['questions']) else "Extension Solution:"
                     st.markdown(f"**{label}** {ans}")
 
-            # Export Buttons
             col1, col2 = st.columns(2)
             with col1:
                 pptx_data = generate_powerpoint_slide(
