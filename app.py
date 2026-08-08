@@ -85,7 +85,7 @@ if selected_theme == "Custom Context (Enter your own below)":
 else:
     theme_context = selected_theme
 
-# --- GENERATION LOGIC WITH PREPAID BILLING & RETRY ---
+# --- GENERATION LOGIC WITH ACTIVE MODELS & RETRY ---
 if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
     if not api_key:
         st.error("Please enter a valid Gemini API Key in the sidebar or configure it in secrets.")
@@ -128,9 +128,7 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
             """
 
             response = None
-            
-            # Model fallbacks formatted specifically for google-genai
-            models_to_try = ['gemini-2.0-flash', 'gemini-1.5-flash'] with models_to_try = ['gemini-2.5-flash', 'gemini-2.0-flash-exp', 'gemini-1.5-flash-latest']
+            models_to_try = ['gemini-2.5-flash', 'gemini-2.0-flash-exp', 'gemini-1.5-flash-latest']
 
             with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
                 for model_name in models_to_try:
@@ -140,9 +138,9 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
                             contents=prompt,
                             config={'response_mime_type': 'application/json'}
                         )
-                        break  # Stop trying if successful
-                    except Exception as err:
-                        st.sidebar.caption(f"Attempt with {model_name} failed: {err}")
+                        break  # Stop as soon as generation succeeds
+                    except Exception as model_err:
+                        st.sidebar.caption(f"Attempt with {model_name} failed: {model_err}")
                         time.sleep(1)
                         continue
 
@@ -155,7 +153,7 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
                     'theme': theme_context
                 }
             else:
-                st.error("Could not generate tasks with current API setup. Please verify your key in Google AI Studio.")
+                st.error("Could not generate tasks. Please check your API key in Google AI Studio.")
 
         except Exception as e:
             st.error(f"Error generating tasks: {str(e)}")
