@@ -85,7 +85,7 @@ if selected_theme == "Custom Context (Enter your own below)":
 else:
     theme_context = selected_theme
 
-# --- GENERATION LOGIC WITH MODEL FALLBACK ---
+# --- GENERATION LOGIC WITH MODEL FALLBACK & DIAGNOSTICS ---
 if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
     if not api_key:
         st.error("Please enter a valid Gemini API Key in the sidebar or configure it in secrets.")
@@ -141,7 +141,8 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
                         )
                         break  # Stop trying as soon as a request succeeds
                     except Exception as model_err:
-                        # Fall back to next model on rate limit or endpoint error
+                        # Print error to sidebar for debugging
+                        st.sidebar.caption(f"Model {model_name} failed: {model_err}")
                         continue
 
             if response:
