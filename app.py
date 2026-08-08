@@ -117,8 +117,9 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
             1. Integrate local NZ contexts, te reo Māori terms (e.g., tamariki, waka, kai, marae, whānau) appropriately with correct macrons.
             2. Each task must have 2 main questions and 1 extension challenge that progress in depth/complexity.
             3. Include clear solutions and teacher guidance notes for all questions.
-            4. Ensure tone is supportive, culturally responsive, and mathematically sound.
-            5. CRITICAL: Do NOT use any unescaped double quotes (") inside your text strings. Use single quotes (') instead to prevent JSON parsing errors.
+            4. Include a section identifying common student misconceptions for the task and how teachers can proactively address them.
+            5. Ensure tone is supportive, culturally responsive, and mathematically sound.
+            6. CRITICAL: Do NOT use any unescaped double quotes (") inside your text strings. Use single quotes (') instead to prevent JSON parsing errors.
 
             Output strictly as a JSON array containing exactly 3 objects.
             Format structure:
@@ -131,6 +132,7 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
                   "Question 2 text..."
                 ],
                 "extension": "Extension challenge text...",
+                "misconceptions": "Common student misconceptions and how to guide them...",
                 "answers": [
                   "Detailed solution for Question 1...",
                   "Detailed solution for Question 2...",
@@ -201,6 +203,11 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
                 st.markdown(f"**Extension Challenge:** {task['extension']}")
             
             with st.expander("Teacher Notes & Solutions"):
+                # Display the new Misconceptions block first
+                if task.get('misconceptions'):
+                    st.markdown(f"**💡 Common Misconceptions:**\n{task['misconceptions']}")
+                    st.markdown("---")
+                
                 for a_idx, ans in enumerate(task.get('answers', [])):
                     label = f"Q{a_idx + 1} Solution:" if a_idx < len(task['questions']) else "Extension Solution:"
                     st.markdown(f"**{label}** {ans}")
@@ -245,5 +252,3 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
                 key=f"pdf_{i}",
                 use_container_width=True # Stretches button to fill the column
             )
-            
-            st.markdown("---")
