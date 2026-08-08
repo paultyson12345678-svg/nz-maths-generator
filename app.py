@@ -89,7 +89,7 @@ else:
     selected_skill = st.sidebar.text_input("Custom Learning Focus", "Solving real-world problems")
 
 # 5. Theme / Context
-selected_theme = st.sidebar.selectbox("Select Cultural / NZ Context", NZ_THEMES)
+selected_theme = st.sidebar.selectbox("Select Context", NZ_THEMES)
 if selected_theme == "Custom Context (Enter your own below)":
     custom_theme = st.sidebar.text_input("Enter Custom Context / Local Story", "Community Garden Project")
     theme_context = custom_theme
