@@ -49,8 +49,8 @@ st.sidebar.markdown(
     """
     <div style="text-align: center; margin-bottom: 15px;">
         <p style="font-size: 0.85em; color: #666; margin-bottom: 8px;">Help keep this generator free for teachers!</p>
-        <a href="[https://www.buymeacoffee.com/paultyson](https://www.buymeacoffee.com/paultyson)" target="_blank">
-            <img src="[https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)" alt="Buy Me A Coffee" style="height: 40px !important; width: 145px !important;" >
+        <a href="https://www.buymeacoffee.com/paultyson" target="_blank">
+            <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 40px !important; width: 145px !important;" >
         </a>
     </div>
     """,
@@ -77,22 +77,10 @@ strands = list(CURRICULUM_DATA[phase][year_level].keys())
 if strands:
     strand = st.sidebar.selectbox("Select Area / Strand", strands)
     available_skills = CURRICULUM_DATA[phase][year_level].get(strand, [])
-    
-    # --- STRAND KEYWORDS MULTI-SELECT DROPDOWN ---
-    available_keywords = STRAND_KEYWORDS.get(strand, [])
-    if available_keywords:
-        selected_keywords = st.sidebar.multiselect(
-            "Keywords",
-            options=available_keywords,
-            default=available_keywords  # Pre-selects all keywords by default
-        )
-    else:
-        selected_keywords = []
 else:
     st.sidebar.warning(f"No strands configured for {year_level} yet.")
     strand = None
     available_skills = []
-    selected_keywords = []
 
 # 4. Specific Skill / Objective Selection
 if available_skills:
@@ -100,7 +88,18 @@ if available_skills:
 else:
     selected_skill = st.sidebar.text_input("Custom Learning Focus", "Solving real-world problems")
 
-# 5. Theme / Context
+# 5. Strand Keywords Selection (Placed under Learning Focus / Skill)
+available_keywords = STRAND_KEYWORDS.get(strand, []) if strand else []
+if available_keywords:
+    selected_keywords = st.sidebar.multiselect(
+        "Select Strand Keywords / Concepts",
+        options=available_keywords,
+        default=available_keywords  # Pre-selects all keywords by default
+    )
+else:
+    selected_keywords = []
+
+# 6. Theme / Context
 selected_theme = st.sidebar.selectbox("Select Context", NZ_THEMES)
 if selected_theme == "Custom Context (Enter your own below)":
     custom_theme = st.sidebar.text_input("Enter Custom Context / Local Story", "Community Garden Project")
