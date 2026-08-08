@@ -81,7 +81,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     p_scen_body.font.size = Pt(22)  # Increased scenario text size
     p_scen_body.space_before = Pt(6)
 
-    # Question 1 Box ('Tasks & Questions' header removed)
+    # Question 1 Box
     q1_box = slide_1.shapes.add_textbox(Inches(0.8), Inches(4.2), Inches(11.733), Inches(2.8))
     tf_q1 = q1_box.text_frame
     tf_q1.word_wrap = True
@@ -105,7 +105,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     p_head2.font.bold = True
     p_head2.font.color.rgb = RGBColor(27, 54, 93)
 
-    # Tasks Box (Questions 2+ and Extension - Header removed)
+    # Tasks Box (Questions 2+ and Extension)
     q2_box = slide_2.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(11.733), Inches(5.5))
     tf_q2 = q2_box.text_frame
     tf_q2.word_wrap = True
@@ -129,7 +129,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_ext.font.bold = True
         p_ext.font.color.rgb = RGBColor(180, 83, 9)  # Warm accent color
         if not first_q2_item:
-            p_ext.space_before = Pt(36)  # Increased vertical gap between Question 2 and Extension Challenge
+            p_ext.space_before = Pt(36)  # Increased space between Q2 and Extension
 
     # --- SLIDE 3: Teacher Solutions & Guidance ---
     slide_3 = prs.slides.add_slide(blank_slide_layout)
@@ -166,44 +166,60 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
 
 def generate_task_pdf(title, scenario, questions, extension, phase, theme, answers):
     """
-    Generates a printable A4 PDF student worksheet with clean, spacious rectangular 
-    working boxes that scale cleanly across the full page.
+    Generates a 1-page printable A4 PDF student worksheet.
+    Dynamically adjusts working box heights and font sizes to guarantee 
+    that the scenario and all questions fit on a single page.
     """
     buffer = io.BytesIO()
 
     # Register/fetch macron font
     font_normal, font_bold = get_macron_font()
 
-    # 1. Setup Document with standard 0.5 inch (36pt) margins
+    # 1. Page dimensions & setup (A4: 595.27 x 841.89 pt)
+    # Margins: Top/Bottom 28pt, Left/Right 36pt -> Printable height ~785pt
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
         rightMargin=36,
         leftMargin=36,
-        topMargin=36,
-        bottomMargin=36
+        topMargin=28,
+        bottomMargin=28
     )
 
     story = []
     styles = getSampleStyleSheet()
 
-    # 2. Define Custom Styles
+    # 2. Estimate text volume to dynamically tune sizes
+    total_text_length = len(title) + len(scenario) + sum(len(q) for q in questions) + (len(extension) if extension else 0)
+    
+    # Compact styles for heavier text inputs
+    if total_text_length > 600:
+        title_size, title_lead = 16, 20
+        body_size, body_lead = 10, 13
+        q_size, q_lead = 10.5, 14
+        scen_padding = 6
+    else:
+        title_size, title_lead = 18, 22
+        body_size, body_lead = 10.5, 14
+        q_size, q_lead = 11, 15
+        scen_padding = 8
+
     title_style = ParagraphStyle(
         'DocTitle',
         parent=styles['Heading1'],
         fontName=font_bold,
-        fontSize=20,
-        leading=24,
+        fontSize=title_size,
+        leading=title_lead,
         textColor=colors.HexColor('#1B365D'),
-        spaceAfter=4
+        spaceAfter=2
     )
 
     meta_style = ParagraphStyle(
         'DocMeta',
         parent=styles['Normal'],
         fontName=font_bold,
-        fontSize=11,
-        leading=14,
+        fontSize=9.5,
+        leading=12,
         textColor=colors.HexColor('#4A5568')
     )
 
@@ -211,8 +227,8 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         'ScenarioText',
         parent=styles['Normal'],
         fontName=font_normal,
-        fontSize=11,
-        leading=15,
+        fontSize=body_size,
+        leading=body_lead,
         textColor=colors.HexColor('#2D3748')
     )
 
@@ -220,30 +236,40 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         'QuestionText',
         parent=styles['Normal'],
         fontName=font_bold,
-        fontSize=12,
-        leading=16,
+        fontSize=q_size,
+        leading=q_lead,
         textColor=colors.HexColor('#1A202C')
     )
 
-    # Header & Title Block
+    # 3. Add Header & Scenario
     story.append(Paragraph(title, title_style))
     story.append(Paragraph(f"<b>Phase:</b> {phase} &nbsp;&nbsp;|&nbsp;&nbsp; <b>Context:</b> {theme}", meta_style))
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 6))
 
-    # Scenario Callout Box
     scenario_p = Paragraph(f"<b>Scenario:</b><br/>{scenario}", scenario_style)
     scenario_table = Table([[scenario_p]], colWidths=[523])
     scenario_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F7FAFC')),
         ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#CBD5E0')),
-        ('PADDING', (0, 0), (-1, -1), 8),
+        ('PADDING', (0, 0), (-1, -1), scen_padding),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
     ]))
     story.append(scenario_table)
-    story.append(Spacer(1, 15))
+    story.append(Spacer(1, 8))
 
-    # Helper function to generate clean working boxes
-    def create_working_box(box_height=140):
+    # 4. Calculate Dynamic Box Height for 1-Page Constraint
+    num_boxes = len(questions) + (1 if extension else 0)
+    
+    # Vertical height budgeting:
+    # Available height ~785pt. Reserve header/scenario area (~200pt) & margins/spacers (~60pt)
+    # Estimate ~520pt remaining total for questions + working boxes.
+    estimated_text_lines = sum(max(1, len(q) // 80) for q in questions) + (max(1, len(extension) // 80) if extension else 0)
+    text_height = estimated_text_lines * q_lead
+    
+    available_box_space = 520 - text_height - (num_boxes * 12)
+    calculated_box_height = max(55, min(125, available_box_space / max(1, num_boxes)))
+
+    def create_working_box(box_height):
         t = Table([['']], colWidths=[523], rowHeights=[box_height])
         t.setStyle(TableStyle([
             ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#A0AEC0')),
@@ -251,18 +277,17 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         ]))
         return t
 
-    # 3. Main Questions + Spaced Working Boxes
+    # 5. Build Questions & Working Boxes
     for idx, q_text in enumerate(questions, 1):
         story.append(Paragraph(f"<b>Question {idx}:</b> {q_text}", question_style))
-        story.append(Spacer(1, 6))
-        story.append(create_working_box(box_height=145))
-        story.append(Spacer(1, 15))
+        story.append(Spacer(1, 4))
+        story.append(create_working_box(box_height=calculated_box_height))
+        story.append(Spacer(1, 8))
 
-    # 4. Extension Challenge + Working Box
     if extension:
         story.append(Paragraph(f"<b>Extension Challenge:</b> {extension}", question_style))
-        story.append(Spacer(1, 6))
-        story.append(create_working_box(box_height=145))
+        story.append(Spacer(1, 4))
+        story.append(create_working_box(box_height=calculated_box_height))
 
     # Build PDF document
     doc.build(story)
