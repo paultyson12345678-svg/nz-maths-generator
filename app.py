@@ -134,10 +134,24 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
             3. Task 3 MUST feature a general Kiwi/European New Zealand context (e.g., typical NZ school life, farming, local sports, or community events).
             4. Explicitly integrate and focus on the selected targeted strand keywords ({keywords_str}) across the task scenarios, questions, and solutions where relevant.
             5. Each task must have 2 main questions and 1 extension challenge that progress in depth/complexity.
-            6. Include clear solutions and teacher guidance notes for all questions.
-            7. Include a section identifying common student misconceptions for the task and how teachers can proactively address them.
-            8. Ensure tone is supportive, culturally responsive, and mathematically sound.
-            9. CRITICAL: Do NOT use any unescaped double quotes (") inside your text strings. Use single quotes (') instead to prevent JSON parsing errors.
+            
+            CRITICAL EXTENSION TASK PROTOCOL (LOW FLOOR, HIGH CEILING):
+            - The extension challenge MUST follow a Low Floor, High Ceiling model.
+            - It MUST be open-ended with multiple valid approaches, strategies, or solutions (NOT a single fixed numerical answer).
+            - Low Floor: The entry point should be clear and accessible so all students can start immediately.
+            - High Ceiling: Offers depth, generalisation, or multiple solution paths for advanced students.
+            - Use prompts like: "Find at least three different ways...", "Design a scenario where...", "What happens if...", or "Create a general rule that...".
+
+            SOLUTION & TEACHER GUIDANCE FORMATTING:
+            - For Question 1 & Question 2: Provide a step-by-step worked solution and final answer.
+            - For Extension Challenge:
+              - Explicitly state that answers will vary due to the open-ended nature.
+              - Provide 2-3 sample valid solutions / exemplary student responses.
+              - Include brief Teacher Guidance on key mathematical strategies or generalisations to look out for during assessment.
+
+            6. Include a section identifying common student misconceptions for the task and how teachers can proactively address them.
+            7. Ensure tone is supportive, culturally responsive, and mathematically sound.
+            8. CRITICAL: Do NOT use any unescaped double quotes (") inside your text strings. Use single quotes (') instead to prevent JSON parsing errors.
 
             Output strictly as a JSON array containing exactly 3 objects.
             Format structure:
@@ -154,7 +168,7 @@ if st.sidebar.button("✨ Generate 3 Tasks", type="primary"):
                 "answers": [
                   "Detailed solution for Question 1...",
                   "Detailed solution for Question 2...",
-                  "Detailed solution for Extension..."
+                  "Sample solutions & teacher guidance for Extension..."
                 ]
               }}
             ]
