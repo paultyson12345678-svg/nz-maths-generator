@@ -198,7 +198,7 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     story.append(Spacer(1, 10))
 
     # Context / Scenario Callout Box (A4 width - 72pt margins = 523pt wide)
-    scenario_p = Paragraph(f"<b>Context & Scenario:</b><br/>{scenario}", scenario_style)
+    scenario_p = Paragraph(f"<b>Scenario:</b><br/>{scenario}", scenario_style)
     scenario_table = Table([[scenario_p]], colWidths=[523])
     scenario_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F7FAFC')),
