@@ -1,275 +1,236 @@
 import io
 import os
-from pptx import Presentation
-from pptx.util import Inches, Pt
-from pptx.dml.color import RGBColor
-
+import re
 from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
+from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
+# Register Font for Macrons
+_font_registered = False
+_registered_font_name = 'Helvetica'
+_registered_bold_font_name = 'Helvetica-Bold'
 
-def get_macron_font():
+def register_macron_font():
+    global _font_registered, _registered_font_name, _registered_bold_font_name
+    if _font_registered:
+        return _registered_font_name, _registered_bold_font_name
+
+    # Try local font file in project root first
+    local_font_path = os.path.join(os.path.dirname(__file__), 'DejaVuSans.ttf')
+    
+    # Check common system font locations for DejaVu Sans
+    font_paths = [
+        local_font_path,
+        '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+        '/usr/share/fonts/TTF/DejaVuSans.ttf',
+        '/Library/Fonts/DejaVuSans.ttf',
+        'C:\\Windows\\Fonts\\DejaVuSans.ttf',
+    ]
+
+    for path in font_paths:
+        if os.path.exists(path):
+            try:
+                pdfmetrics.registerFont(TTFont('DejaVuSans', path))
+                _registered_font_name = 'DejaVuSans'
+                
+                # Check for Bold variant
+                bold_path = path.replace('.ttf', '-Bold.ttf')
+                if os.path.exists(bold_path):
+                    pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', bold_path))
+                    _registered_bold_font_name = 'DejaVuSans-Bold'
+                else:
+                    _registered_bold_font_name = 'DejaVuSans'
+                
+                _font_registered = True
+                return _registered_font_name, _registered_bold_font_name
+            except Exception:
+                pass
+
+    _font_registered = True
+    return _registered_font_name, _registered_bold_font_name
+
+
+class NumberedCanvas(canvas.Canvas):
     """
-    Registers the DejaVuSans TTF font uploaded to the repository
-    to ensure proper rendering of Māori macrons (ā, ē, ī, ō, ū).
+    Two-pass canvas to dynamically compute and render page footers.
     """
-    font_name = 'DejaVuSans'
-    font_path = "DejaVuSans.ttf"  # Local file in repository root
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._saved_page_states = []
 
-    if 'DejaVuSans' in pdfmetrics.getRegisteredFontNames():
-        return font_name, font_name
+    def showPage(self):
+        self._saved_page_states.append(dict(self.__dict__))
+        self._startPage()
 
-    if os.path.exists(font_path):
-        try:
-            pdfmetrics.registerFont(TTFont('DejaVuSans', font_path))
-            return font_name, font_name
-        except Exception as e:
-            print(f"Error registering local font: {e}")
+    def save(self):
+        num_pages = len(self._saved_page_states)
+        for state in self._saved_page_states:
+            self.__dict__.update(state)
+            self.draw_page_number(num_pages)
+            canvas.Canvas.showPage(self)
+        canvas.Canvas.save(self)
 
-    return 'Helvetica', 'Helvetica-Bold'
+    def draw_page_number(self, page_count):
+        self.saveState()
+        self.setFont("Helvetica", 9)
+        self.setFillColor(colors.HexColor('#6B7280'))
+        
+        # Draw top separator line on Page 2+
+        if self._pageNumber > 1:
+            self.setStrokeColor(colors.HexColor('#CBD5E1'))
+            self.setLineWidth(0.5)
+            self.line(36, 800, 559, 800)
+
+        # Footer line
+        self.setStrokeColor(colors.HexColor('#E2E8F0'))
+        self.setLineWidth(0.5)
+        self.line(36, 42, 559, 42)
+        
+        # Footer text
+        footer_text = f"Page {self._pageNumber} of {page_count}"
+        self.drawRightString(559, 28, footer_text)
+        self.drawString(36, 28, "NZ Curriculum Mathematics — Generated Worksheet")
+        self.restoreState()
 
 
-def generate_powerpoint_slide(title, scenario, questions, extension, phase, theme, answers):
+def format_text_with_macrons(text):
     """
-    Generates a 3-slide widescreen PowerPoint presentation with larger typography:
-    - Slide 1: Title, Meta, Scenario (just 'Scenario:'), and Question 1 only.
-    - Slide 2: Question 2 & Extension Challenge with extra vertical spacing.
-    - Slide 3: Detailed Solutions & Open-Ended Teacher Guidance.
+    Ensures macron characters in text are properly formatted for ReportLab.
     """
-    prs = Presentation()
-    prs.slide_width = Inches(13.333)
-    prs.slide_height = Inches(7.5)
-
-    blank_slide_layout = prs.slide_layouts[6]
-
-    # --- SLIDE 1: Title, Scenario, & Question 1 ---
-    slide_1 = prs.slides.add_slide(blank_slide_layout)
-
-    # Title Box
-    title_box = slide_1.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.733), Inches(1.1))
-    tf_title = title_box.text_frame
-    tf_title.word_wrap = True
-    p_title = tf_title.paragraphs[0]
-    p_title.text = title
-    p_title.font.size = Pt(28)
-    p_title.font.bold = True
-    p_title.font.color.rgb = RGBColor(27, 54, 93)  # Dark navy blue
-
-    # Meta Info
-    p_meta = tf_title.add_paragraph()
-    p_meta.text = f"Phase: {phase}  |  Context: {theme}"
-    p_meta.font.size = Pt(14)
-    p_meta.font.italic = True
-    p_meta.font.color.rgb = RGBColor(100, 100, 100)
-
-    # Scenario Box
-    scenario_box = slide_1.shapes.add_textbox(Inches(0.8), Inches(1.6), Inches(11.733), Inches(2.2))
-    tf_scenario = scenario_box.text_frame
-    tf_scenario.word_wrap = True
-    p_scen_header = tf_scenario.paragraphs[0]
-    p_scen_header.text = "Scenario:"
-    p_scen_header.font.bold = True
-    p_scen_header.font.size = Pt(22)
-    p_scen_header.font.color.rgb = RGBColor(45, 55, 72)
-
-    p_scen_body = tf_scenario.add_paragraph()
-    p_scen_body.text = scenario
-    p_scen_body.font.size = Pt(22)
-    p_scen_body.space_before = Pt(6)
-
-    # Question 1 Box
-    q1_box = slide_1.shapes.add_textbox(Inches(0.8), Inches(4.2), Inches(11.733), Inches(2.8))
-    tf_q1 = q1_box.text_frame
-    tf_q1.word_wrap = True
-
-    if len(questions) > 0:
-        p_q1 = tf_q1.paragraphs[0]
-        p_q1.text = f"Question 1: {questions[0]}"
-        p_q1.font.size = Pt(20)
-        p_q1.font.bold = True
-
-    # --- SLIDE 2: Question 2 & Extension Challenge ---
-    slide_2 = prs.slides.add_slide(blank_slide_layout)
-
-    # Header Box for Slide 2
-    head_box_2 = slide_2.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.733), Inches(0.8))
-    tf_head2 = head_box_2.text_frame
-    tf_head2.word_wrap = True
-    p_head2 = tf_head2.paragraphs[0]
-    p_head2.text = f"{title} (Continued)"
-    p_head2.font.size = Pt(26)
-    p_head2.font.bold = True
-    p_head2.font.color.rgb = RGBColor(27, 54, 93)
-
-    # Tasks Box (Questions 2+ and Extension)
-    q2_box = slide_2.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(11.733), Inches(5.5))
-    tf_q2 = q2_box.text_frame
-    tf_q2.word_wrap = True
-
-    first_q2_item = True
-    if len(questions) > 1:
-        for idx, q_text in enumerate(questions[1:], start=2):
-            p = tf_q2.paragraphs[0] if first_q2_item else tf_q2.add_paragraph()
-            first_q2_item = False
-            p.text = f"Question {idx}: {q_text}"
-            p.font.size = Pt(20)
-            p.font.bold = True
-            p.space_after = Pt(16)
-
-    if extension:
-        p_ext = tf_q2.paragraphs[0] if first_q2_item else tf_q2.add_paragraph()
-        p_ext.text = f"Extension Challenge: {extension}"
-        p_ext.font.size = Pt(20)
-        p_ext.font.bold = True
-        p_ext.font.color.rgb = RGBColor(180, 83, 9)  # Warm accent color
-        if not first_q2_item:
-            p_ext.space_before = Pt(36)
-
-    # --- SLIDE 3: Teacher Solutions & Guidance ---
-    slide_3 = prs.slides.add_slide(blank_slide_layout)
-
-    title_box_3 = slide_3.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.733), Inches(1.0))
-    tf_title_3 = title_box_3.text_frame
-    tf_title_3.word_wrap = True
-    p_title_3 = tf_title_3.paragraphs[0]
-    p_title_3.text = f"Solutions & Teacher Guidance: {title}"
-    p_title_3.font.size = Pt(24)
-    p_title_3.font.bold = True
-    p_title_3.font.color.rgb = RGBColor(27, 54, 93)
-
-    ans_box = slide_3.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(11.733), Inches(5.4))
-    tf_ans = ans_box.text_frame
-    tf_ans.word_wrap = True
-
-    for idx, ans_text in enumerate(answers, 1):
-        p_ans = tf_ans.add_paragraph() if idx > 1 else tf_ans.paragraphs[0]
-        if idx <= len(questions):
-            label = f"Question {idx} Solution:"
-        else:
-            label = "Extension Challenge Guidance & Sample Solutions (Open-Ended):"
-            
-        p_ans.text = f"• {label}\n  {ans_text}"
-        p_ans.font.size = Pt(13)
-        p_ans.space_after = Pt(10)
-
-    buffer = io.BytesIO()
-    prs.save(buffer)
-    buffer.seek(0)
-    return buffer.getvalue()
+    if not text:
+        return ""
+    # Standardize macron unicode characters
+    macron_map = {
+        'ā': 'ā', 'Ā': 'Ā',
+        'ē': 'ē', 'Ē': 'Ē',
+        'ī': 'ī', 'Ī': 'Ī',
+        'ō': 'ō', 'Ō': 'Ō',
+        'ū': 'ū', 'Ū': 'Ū'
+    }
+    for k, v in macron_map.items():
+        text = text.replace(k, v)
+    return text
 
 
-def generate_task_pdf(title, scenario, questions, extension, phase, theme, answers):
+def generate_task_pdf(title, scenario, questions, extension, phase, theme, answers=None):
     """
-    Generates a 1-page printable A4 PDF student worksheet.
-    Dynamically calculates vertical height so that the Extension Challenge box receives 
-    double the height of standard question working boxes while guaranteeing all content 
-    remains strictly within a single page layout.
+    Generates a PDF worksheet:
+      - Page 1: Task scenario, student questions, and optional extension challenge.
+      - Page 2: Full answer key and solutions (if provided).
     """
     buffer = io.BytesIO()
-
-    # Register/fetch macron font
-    font_normal, font_bold = get_macron_font()
-
-    # Page dimensions & setup (A4: 595.27 x 841.89 pt)
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
         rightMargin=36,
         leftMargin=36,
-        topMargin=24,
-        bottomMargin=24
+        topMargin=36,
+        bottomMargin=50
     )
 
     story = []
     styles = getSampleStyleSheet()
+    font_name, bold_font_name = register_macron_font()
 
-    # Estimate text volume to dynamically tune typography and padding
-    total_text_length = len(title) + len(scenario) + sum(len(q) for q in questions) + (len(extension) if extension else 0)
-    
-    if total_text_length > 600:
-        title_size, title_lead = 15, 19
-        body_size, body_lead = 9, 12
-        q_size, q_lead = 9.5, 13
-        scen_padding = 5
-        space_after_box = 10
-    else:
-        title_size, title_lead = 17, 21
-        body_size, body_lead = 9.5, 13
-        q_size, q_lead = 10, 14
-        scen_padding = 7
-        space_after_box = 12
-
+    # Base Typography Styles
     title_style = ParagraphStyle(
         'DocTitle',
         parent=styles['Heading1'],
-        fontName=font_bold,
-        fontSize=title_size,
-        leading=title_lead,
-        textColor=colors.HexColor('#1B365D'),
-        spaceAfter=2
+        fontName=bold_font_name,
+        fontSize=18,
+        leading=22,
+        textColor=colors.HexColor('#1E3A8A'),
+        spaceAfter=4
     )
 
     meta_style = ParagraphStyle(
-        'DocMeta',
+        'MetaText',
         parent=styles['Normal'],
-        fontName=font_bold,
+        fontName=font_name,
         fontSize=9,
-        leading=11,
-        textColor=colors.HexColor('#4A5568')
+        leading=12,
+        textColor=colors.HexColor('#4B5563'),
+        spaceAfter=10
     )
 
     scenario_style = ParagraphStyle(
-        'ScenarioText',
+        'ScenarioBody',
         parent=styles['Normal'],
-        fontName=font_normal,
-        fontSize=body_size,
-        leading=body_lead,
-        textColor=colors.HexColor('#2D3748')
+        fontName=font_name,
+        fontSize=10,
+        leading=14,
+        textColor=colors.HexColor('#1F2937')
     )
 
     question_style = ParagraphStyle(
         'QuestionText',
         parent=styles['Normal'],
-        fontName=font_bold,
-        fontSize=q_size,
-        leading=q_lead,
-        textColor=colors.HexColor('#1A202C')
+        fontName=font_name,
+        fontSize=10,
+        leading=14,
+        textColor=colors.HexColor('#1E293B')
     )
 
-    # Header & Scenario Box
-    story.append(Paragraph(title, title_style))
-    story.append(Paragraph(f"<b>Phase:</b> {phase} &nbsp;&nbsp;|&nbsp;&nbsp; <b>Context:</b> {theme}", meta_style))
-    story.append(Spacer(1, 4))
+    section_heading = ParagraphStyle(
+        'SectionHeading',
+        parent=styles['Heading2'],
+        fontName=bold_font_name,
+        fontSize=13,
+        leading=16,
+        textColor=colors.HexColor('#1E3A8A'),
+        spaceBefore=8,
+        spaceAfter=6
+    )
 
-    scenario_p = Paragraph(f"<b>Scenario:</b><br/>{scenario}", scenario_style)
+    answer_style = ParagraphStyle(
+        'AnswerText',
+        parent=styles['Normal'],
+        fontName=font_name,
+        fontSize=9.5,
+        leading=13.5,
+        textColor=colors.HexColor('#0F172A')
+    )
+
+    # Clean text inputs
+    title = format_text_with_macrons(title)
+    scenario = format_text_with_macrons(scenario)
+    questions = [format_text_with_macrons(q) for q in questions]
+    extension = format_text_with_macrons(extension) if extension else ""
+
+    # ==================== PAGE 1: WORKSHEET ====================
+    story.append(Paragraph(f"<b>{title}</b>", title_style))
+    story.append(Paragraph(f"<b>Phase:</b> {phase} &nbsp;|&nbsp; <b>Context:</b> {theme}", meta_style))
+
+    # Scenario Box
+    scenario_p = Paragraph(f"<b>Scenario:</b> {scenario}", scenario_style)
     scenario_table = Table([[scenario_p]], colWidths=[523])
     scenario_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F7FAFC')),
-        ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#CBD5E0')),
-        ('PADDING', (0, 0), (-1, -1), scen_padding),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F1F5F9')),
+        ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#CBD5E1')),
+        ('PADDING', (0, 0), (-1, -1), 10),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
     ]))
     story.append(scenario_table)
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 12))
 
-    # Calculate Dynamic Box Heights (1 unit per question box, 2 units for extension)
+    # Dynamic box sizing for working space
     num_questions = len(questions)
+    space_after_box = 8
+    q_lead = 14
+
     total_units = num_questions + (2 if extension else 0)
-    
     estimated_text_lines = sum(max(1, len(q) // 80) for q in questions) + (max(1, len(extension) // 80) if extension else 0)
     text_height = estimated_text_lines * q_lead
-    
     gaps_space = (num_questions + (1 if extension else 0)) * (space_after_box + 4)
     available_box_space = 460 - text_height - gaps_space
-    
+
     unit_height = max(35, min(75, available_box_space / max(1, total_units)))
-    
     standard_box_height = unit_height
-    extension_box_height = unit_height * 2  # Double height allocation
+    extension_box_height = unit_height * 2
 
     def create_working_box(box_height):
         t = Table([['']], colWidths=[523], rowHeights=[box_height])
@@ -292,7 +253,43 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         story.append(create_working_box(box_height=extension_box_height))
         story.append(Spacer(1, space_after_box))
 
-    # Build PDF document
-    doc.build(story)
+    # ==================== PAGE 2: SOLUTIONS ====================
+    if answers:
+        story.append(PageBreak())  # Force solution key to Page 2
+
+        story.append(Paragraph(f"<b>{title} — Answer Key & Solutions</b>", title_style))
+        story.append(Paragraph(f"<b>Phase:</b> {phase} &nbsp;|&nbsp; <b>Context:</b> {theme}", meta_style))
+        story.append(Spacer(1, 6))
+
+        story.append(Paragraph("<b>Solutions & Mark Scheme</b>", section_heading))
+        story.append(Spacer(1, 4))
+
+        if isinstance(answers, list):
+            for idx, ans_text in enumerate(answers, 1):
+                formatted_ans = format_text_with_macrons(str(ans_text))
+                ans_p = Paragraph(f"<b>Q{idx} Solution:</b> {formatted_ans}", answer_style)
+                ans_table = Table([[ans_p]], colWidths=[523])
+                ans_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F8FAFC')),
+                    ('BOX', (0, 0), (-1, -1), 0.75, colors.HexColor('#E2E8F0')),
+                    ('PADDING', (0, 0), (-1, -1), 8),
+                    ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ]))
+                story.append(ans_table)
+                story.append(Spacer(1, 6))
+        else:
+            formatted_ans = format_text_with_macrons(str(answers))
+            ans_p = Paragraph(formatted_ans, answer_style)
+            ans_table = Table([[ans_p]], colWidths=[523])
+            ans_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F8FAFC')),
+                ('BOX', (0, 0), (-1, -1), 0.75, colors.HexColor('#E2E8F0')),
+                ('PADDING', (0, 0), (-1, -1), 8),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ]))
+            story.append(ans_table)
+
+    # Build PDF Document
+    doc.build(story, canvasmaker=NumberedCanvas)
     buffer.seek(0)
     return buffer.getvalue()
