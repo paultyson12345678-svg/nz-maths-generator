@@ -24,6 +24,7 @@ _font_registered = False
 _registered_font_name = 'Helvetica'
 _registered_bold_font_name = 'Helvetica-Bold'
 
+
 def register_macron_font():
     global _font_registered, _registered_font_name, _registered_bold_font_name
     if _font_registered:
@@ -126,7 +127,7 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     """
     Generates a PDF worksheet:
       - Page 1: Task scenario, student questions, and optional extension challenge.
-      - Page 2: Full answer key and solutions with 2-3x larger gap between answers.
+      - Page 2: Full answer key and solutions with a generous gap between answers.
     """
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
@@ -277,21 +278,8 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
                     ('VALIGN', (0, 0), (-1, -1), 'TOP'),
                 ]))
                 story.append(ans_table)
-                # Significantly larger gap between solution boxes on Page 2
+                # Generous gap between solution boxes on Page 2
                 story.append(Spacer(1, 28))
-        else:
-            formatted_ans = format_text_with_macrons(str(answers))
-            ans_p = Paragraph(formatted_ans, answer_style)
-            ans_table = Table([[ans_p]], colWidths=[523])
-            ans_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F8FAFC')),
-                ('BOX', (0, 0), (-1, -1), 0.75, colors.HexColor('#CBD5E1')),
-                ('PADDING', (0, 0), (-1, -1), 10),
-                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ]))
-            story.append(ans_table)
-                # 2-3x larger gap between solution boxes (18pt instead of 6pt)
-                story.append(Spacer(1, 18))
         else:
             formatted_ans = format_text_with_macrons(str(answers))
             ans_p = Paragraph(formatted_ans, answer_style)
@@ -313,7 +301,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     """
     Generates a 3-slide PowerPoint presentation (.pptx):
       - Slide 1: Title, larger scenario font size, gap, Question 1.
-      - Slide 2: Question 2 (and subsequent questions if any) + Extension Challenge, nicely spaced out.
+      - Slide 2: Question 2+ and Extension Challenge, nicely spaced out.
       - Slide 3: Answer Key & Solutions.
     """
     if not PPTX_AVAILABLE:
@@ -343,7 +331,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     tf_scen.word_wrap = True
     p_scen = tf_scen.paragraphs[0]
     p_scen.text = f"Scenario: {scenario}"
-    p_scen.font.size = Pt(18)  # Larger font size
+    p_scen.font.size = Pt(18)
     p_scen.font.color.rgb = RGBColor(31, 41, 55)
 
     # Question 1 Box (Generous gap from scenario)
@@ -372,7 +360,6 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     tf_q2 = q2_box.text_frame
     tf_q2.word_wrap = True
 
-    # Render remaining questions (Question 2 onwards) with generous spacing
     remaining_qs = questions[1:] if len(questions) > 1 else []
     first_item = True
 
@@ -381,7 +368,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         first_item = False
         p_q.text = f"{idx}. {q}"
         p_q.font.size = Pt(16)
-        p_q.space_after = Pt(28)  # Generous gap after Question 2
+        p_q.space_after = Pt(28)
 
     if extension:
         p_ext = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
@@ -413,7 +400,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
                 p_a = tf_ans.add_paragraph() if idx > 1 else tf_ans.paragraphs[0]
                 p_a.text = f"Q{idx} Solution: {ans}"
                 p_a.font.size = Pt(15)
-                p_a.space_after = Pt(22)  # Well-spaced out solutions
+                p_a.space_after = Pt(22)
         else:
             p_a = tf_ans.paragraphs[0]
             p_a.text = str(answers)
