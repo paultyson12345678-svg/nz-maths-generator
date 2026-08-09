@@ -9,7 +9,17 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
-# Register Font for Macrons
+# Optional pptx import for slide export
+try:
+    from pptx import Presentation
+    from pptx.util import Inches, Pt
+    from pptx.dml.color import RGBColor
+    PPTX_AVAILABLE = True
+except ImportError:
+    PPTX_AVAILABLE = False
+
+
+# Register Font for Macrons in PDF
 _font_registered = False
 _registered_font_name = 'Helvetica'
 _registered_bold_font_name = 'Helvetica-Bold'
@@ -19,10 +29,8 @@ def register_macron_font():
     if _font_registered:
         return _registered_font_name, _registered_bold_font_name
 
-    # Try local font file in project root first
     local_font_path = os.path.join(os.path.dirname(__file__), 'DejaVuSans.ttf')
     
-    # Check common system font locations for DejaVu Sans
     font_paths = [
         local_font_path,
         '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
@@ -37,7 +45,6 @@ def register_macron_font():
                 pdfmetrics.registerFont(TTFont('DejaVuSans', path))
                 _registered_font_name = 'DejaVuSans'
                 
-                # Check for Bold variant
                 bold_path = path.replace('.ttf', '-Bold.ttf')
                 if os.path.exists(bold_path):
                     pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', bold_path))
@@ -103,7 +110,6 @@ def format_text_with_macrons(text):
     """
     if not text:
         return ""
-    # Standardize macron unicode characters
     macron_map = {
         'ā': 'ā', 'Ā': 'Ā',
         'ē': 'ē', 'Ē': 'Ē',
@@ -136,7 +142,6 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     styles = getSampleStyleSheet()
     font_name, bold_font_name = register_macron_font()
 
-    # Base Typography Styles
     title_style = ParagraphStyle(
         'DocTitle',
         parent=styles['Heading1'],
@@ -195,17 +200,15 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         textColor=colors.HexColor('#0F172A')
     )
 
-    # Clean text inputs
     title = format_text_with_macrons(title)
     scenario = format_text_with_macrons(scenario)
     questions = [format_text_with_macrons(q) for q in questions]
     extension = format_text_with_macrons(extension) if extension else ""
 
-    # ==================== PAGE 1: WORKSHEET ====================
+    # --- PAGE 1: WORKSHEET ---
     story.append(Paragraph(f"<b>{title}</b>", title_style))
     story.append(Paragraph(f"<b>Phase:</b> {phase} &nbsp;|&nbsp; <b>Context:</b> {theme}", meta_style))
 
-    # Scenario Box
     scenario_p = Paragraph(f"<b>Scenario:</b> {scenario}", scenario_style)
     scenario_table = Table([[scenario_p]], colWidths=[523])
     scenario_table.setStyle(TableStyle([
@@ -217,7 +220,6 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     story.append(scenario_table)
     story.append(Spacer(1, 12))
 
-    # Dynamic box sizing for working space
     num_questions = len(questions)
     space_after_box = 8
     q_lead = 14
@@ -240,7 +242,6 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         ]))
         return t
 
-    # Build Questions & Working Boxes
     for idx, q_text in enumerate(questions, 1):
         story.append(Paragraph(f"<b>Question {idx}:</b> {q_text}", question_style))
         story.append(Spacer(1, 3))
@@ -253,9 +254,9 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         story.append(create_working_box(box_height=extension_box_height))
         story.append(Spacer(1, space_after_box))
 
-    # ==================== PAGE 2: SOLUTIONS ====================
+    # --- PAGE 2: SOLUTIONS ---
     if answers:
-        story.append(PageBreak())  # Force solution key to Page 2
+        story.append(PageBreak())
 
         story.append(Paragraph(f"<b>{title} — Answer Key & Solutions</b>", title_style))
         story.append(Paragraph(f"<b>Phase:</b> {phase} &nbsp;|&nbsp; <b>Context:</b> {theme}", meta_style))
@@ -289,7 +290,94 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
             ]))
             story.append(ans_table)
 
-    # Build PDF Document
     doc.build(story, canvasmaker=NumberedCanvas)
+    buffer.seek(0)
+    return buffer.getvalue()
+
+
+def generate_powerpoint_slide(title, scenario, questions, extension, phase, theme, answers=None):
+    """
+    Generates a PowerPoint presentation (.pptx) containing:
+      - Slide 1: Task scenario and questions
+      - Slide 2: Solutions / Answer key (if provided)
+    """
+    if not PPTX_AVAILABLE:
+        raise ImportError("python-pptx is required for PowerPoint export.")
+
+    prs = Presentation()
+    prs.slide_width = Inches(13.333)
+    prs.slide_height = Inches(7.5)
+    blank_layout = prs.slide_layouts[6]
+
+    # --- SLIDE 1: Task Slide ---
+    slide1 = prs.slides.add_slide(blank_layout)
+
+    # Title Box
+    title_box = slide1.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.7), Inches(0.8))
+    tf = title_box.text_frame
+    tf.word_wrap = True
+    p = tf.paragraphs[0]
+    p.text = title
+    p.font.size = Pt(24)
+    p.font.bold = True
+    p.font.color.rgb = RGBColor(30, 58, 138)
+
+    # Scenario Box
+    scen_box = slide1.shapes.add_textbox(Inches(0.8), Inches(1.3), Inches(11.7), Inches(1.5))
+    tf2 = scen_box.text_frame
+    tf2.word_wrap = True
+    p2 = tf2.paragraphs[0]
+    p2.text = f"Scenario: {scenario}"
+    p2.font.size = Pt(14)
+    p2.font.color.rgb = RGBColor(31, 41, 55)
+
+    # Questions Box
+    q_box = slide1.shapes.add_textbox(Inches(0.8), Inches(2.9), Inches(11.7), Inches(3.8))
+    tf3 = q_box.text_frame
+    tf3.word_wrap = True
+
+    for idx, q in enumerate(questions, 1):
+        p_q = tf3.add_paragraph() if idx > 1 else tf3.paragraphs[0]
+        p_q.text = f"{idx}. {q}"
+        p_q.font.size = Pt(13)
+        p_q.space_after = Pt(8)
+
+    if extension:
+        p_ext = tf3.add_paragraph()
+        p_ext.text = f"Extension: {extension}"
+        p_ext.font.size = Pt(13)
+        p_ext.font.bold = True
+        p_ext.font.color.rgb = RGBColor(180, 83, 9)
+
+    # --- SLIDE 2: Solutions Slide ---
+    if answers:
+        slide2 = prs.slides.add_slide(blank_layout)
+
+        sol_title_box = slide2.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.7), Inches(0.8))
+        tf_sol = sol_title_box.text_frame
+        tf_sol.word_wrap = True
+        p_sol_title = tf_sol.paragraphs[0]
+        p_sol_title.text = f"{title} — Answer Key & Solutions"
+        p_sol_title.font.size = Pt(24)
+        p_sol_title.font.bold = True
+        p_sol_title.font.color.rgb = RGBColor(30, 58, 138)
+
+        ans_box = slide2.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(11.7), Inches(5.2))
+        tf_ans = ans_box.text_frame
+        tf_ans.word_wrap = True
+
+        if isinstance(answers, list):
+            for idx, ans in enumerate(answers, 1):
+                p_a = tf_ans.add_paragraph() if idx > 1 else tf_ans.paragraphs[0]
+                p_a.text = f"Q{idx} Solution: {ans}"
+                p_a.font.size = Pt(13)
+                p_a.space_after = Pt(10)
+        else:
+            p_a = tf_ans.paragraphs[0]
+            p_a.text = str(answers)
+            p_a.font.size = Pt(13)
+
+    buffer = io.BytesIO()
+    prs.save(buffer)
     buffer.seek(0)
     return buffer.getvalue()
