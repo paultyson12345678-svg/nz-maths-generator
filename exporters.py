@@ -300,8 +300,8 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
 def generate_powerpoint_slide(title, scenario, questions, extension, phase, theme, answers=None):
     """
     Generates a 3-slide PowerPoint presentation (.pptx):
-      - Slide 1: Title, larger scenario font size, gap, Question 1.
-      - Slide 2: Question 2+ and Extension Challenge, nicely spaced out.
+      - Slide 1: Title, larger scenario font size (18pt), generous gap, Question 1 (20pt).
+      - Slide 2: Question 2+ (20pt) and Extension Challenge (20pt) with generous spacing between them.
       - Slide 3: Answer Key & Solutions.
     """
     if not PPTX_AVAILABLE:
@@ -334,14 +334,14 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     p_scen.font.size = Pt(18)
     p_scen.font.color.rgb = RGBColor(31, 41, 55)
 
-    # Question 1 Box (Generous gap from scenario)
+    # Question 1 Box (Larger 20pt font + generous gap from scenario)
     q1_box = slide1.shapes.add_textbox(Inches(0.8), Inches(3.6), Inches(11.7), Inches(3.2))
     tf_q1 = q1_box.text_frame
     tf_q1.word_wrap = True
     if questions:
         p_q1 = tf_q1.paragraphs[0]
         p_q1.text = f"1. {questions[0]}"
-        p_q1.font.size = Pt(16)
+        p_q1.font.size = Pt(20)  # Larger font size
         p_q1.font.color.rgb = RGBColor(30, 41, 59)
 
     # --- SLIDE 2: Question 2+ & Extension Challenge ---
@@ -367,16 +367,16 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_q = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
         first_item = False
         p_q.text = f"{idx}. {q}"
-        p_q.font.size = Pt(16)
-        p_q.space_after = Pt(28)
+        p_q.font.size = Pt(20)  # Larger font size
+        p_q.space_after = Pt(40)  # Significantly larger gap after Question 2
 
     if extension:
         p_ext = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
         p_ext.text = f"Extension Challenge:\n{extension}"
-        p_ext.font.size = Pt(16)
+        p_ext.font.size = Pt(20)  # Larger font size
         p_ext.font.bold = True
         p_ext.font.color.rgb = RGBColor(180, 83, 9)
-        p_ext.space_before = Pt(14)
+        p_ext.space_before = Pt(30)  # Extra spacing above extension challenge
 
     # --- SLIDE 3: Answer Key & Solutions ---
     if answers:
@@ -399,12 +399,12 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
             for idx, ans in enumerate(answers, 1):
                 p_a = tf_ans.add_paragraph() if idx > 1 else tf_ans.paragraphs[0]
                 p_a.text = f"Q{idx} Solution: {ans}"
-                p_a.font.size = Pt(15)
+                p_a.font.size = Pt(16)
                 p_a.space_after = Pt(22)
         else:
             p_a = tf_ans.paragraphs[0]
             p_a.text = str(answers)
-            p_a.font.size = Pt(15)
+            p_a.font.size = Pt(16)
             p_a.space_after = Pt(22)
 
     buffer = io.BytesIO()
