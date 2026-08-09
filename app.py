@@ -57,7 +57,7 @@ if st.sidebar.button("✨ Generate Tasks", type="primary"):
         st.error("Gemini API key is missing. Please add `GEMINI_API_KEY` to your Streamlit secrets.")
     else:
         genai.configure(api_key=API_KEY)
-        model = genai.GenerativeModel("gemini-1.5-pro")
+        model = genai.GenerativeModel("gemini-2.5-flash")
 
         with st.spinner("Generating 3 rich learning tasks..."):
             try:
