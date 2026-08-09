@@ -122,8 +122,19 @@ if "generated_tasks" in st.session_state and st.session_state["generated_tasks"]
             col1, col2 = st.columns(2)
             
             with col1:
-                # Generate PPT data
-                ppt_data = generate_ppt(task)
+                # Generate PPT data using your specific function arguments
+                ppt_data = generate_powerpoint_slide(
+                    title=task.get('title', f'Maths Task {idx+1}'),
+                    scenario=task.get('scenario', ''),
+                    questions=task.get('questions', []),
+                    extension=task.get('extension', ''),
+                    phase=selected_phase,
+                    theme=active_theme,
+                    answers=task.get('answers', []),
+                    teacher_notes=task.get('teacher_notes', ''),
+                    misconceptions=task.get('misconceptions', '')
+                )
+                
                 if ppt_data:
                     st.download_button(
                         label="📥 Download PowerPoint",
@@ -136,14 +147,25 @@ if "generated_tasks" in st.session_state and st.session_state["generated_tasks"]
                     st.info("PowerPoint exporter not found/configured.")
                     
             with col2:
-                # Generate Worksheet data
-                ws_data = generate_worksheet(task)
-                if ws_data:
+                # Generate PDF data using your specific function arguments
+                pdf_data = generate_pdf_worksheet(
+                    title=task.get('title', f'Maths Task {idx+1}'),
+                    scenario=task.get('scenario', ''),
+                    questions=task.get('questions', []),
+                    extension=task.get('extension', ''),
+                    phase=selected_phase,
+                    theme=active_theme,
+                    answers=task.get('answers', []),
+                    teacher_notes=task.get('teacher_notes', ''),
+                    misconceptions=task.get('misconceptions', '')
+                )
+                
+                if pdf_data:
                     st.download_button(
-                        label="📥 Download Worksheet",
-                        data=ws_data,
-                        file_name=f"Task_{idx+1}_Worksheet.docx",
-                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        label="📥 Download Worksheet (PDF)",
+                        data=pdf_data,
+                        file_name=f"Task_{idx+1}_Worksheet.pdf",
+                        mime="application/pdf",
                         key=f"ws_{idx}"
                     )
                 else:
