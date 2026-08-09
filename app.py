@@ -3,13 +3,13 @@ import json
 import google.generativeai as genai
 from curriculum import NZ_THEMES, CURRICULUM_DATA, STRAND_KEYWORDS, GET_PROMPT
 
-# Import export functions - ensure these match the names in your exporters.py file
+# Import export functions from your existing exporters.py
 try:
-    from exporters import generate_ppt, generate_worksheet
+    from exporters import generate_powerpoint_slide, generate_pdf_worksheet
 except ImportError:
     # Fallback to prevent crashes if not found
-    def generate_ppt(task): return b""
-    def generate_worksheet(task): return b""
+    def generate_powerpoint_slide(*args, **kwargs): return b""
+    def generate_pdf_worksheet(*args, **kwargs): return b""
 
 # Streamlit Page Setup
 st.set_page_config(
