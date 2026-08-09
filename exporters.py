@@ -376,7 +376,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_ext.font.size = Pt(20)  # Larger font size
         p_ext.font.bold = True
         p_ext.font.color.rgb = RGBColor(180, 83, 9)
-        p_ext.space_before = Pt(45)  # Extra spacing above extension challenge
+        p_ext.space_before = Pt(60)  # Extra spacing above extension challenge
 
     # --- SLIDE 3: Answer Key & Solutions ---
     if answers:
