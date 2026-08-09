@@ -126,7 +126,7 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     """
     Generates a PDF worksheet:
       - Page 1: Task scenario, student questions, and optional extension challenge.
-      - Page 2: Full answer key and solutions (if provided).
+      - Page 2: Full answer key and solutions with 2-3x larger gap between answers.
     """
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
@@ -188,15 +188,15 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         leading=16,
         textColor=colors.HexColor('#1E3A8A'),
         spaceBefore=8,
-        spaceAfter=6
+        spaceAfter=10
     )
 
     answer_style = ParagraphStyle(
         'AnswerText',
         parent=styles['Normal'],
         fontName=font_name,
-        fontSize=9.5,
-        leading=13.5,
+        fontSize=10,
+        leading=15,
         textColor=colors.HexColor('#0F172A')
     )
 
@@ -260,10 +260,10 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
 
         story.append(Paragraph(f"<b>{title} — Answer Key & Solutions</b>", title_style))
         story.append(Paragraph(f"<b>Phase:</b> {phase} &nbsp;|&nbsp; <b>Context:</b> {theme}", meta_style))
-        story.append(Spacer(1, 6))
+        story.append(Spacer(1, 8))
 
         story.append(Paragraph("<b>Solutions & Mark Scheme</b>", section_heading))
-        story.append(Spacer(1, 4))
+        story.append(Spacer(1, 8))
 
         if isinstance(answers, list):
             for idx, ans_text in enumerate(answers, 1):
@@ -272,20 +272,21 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
                 ans_table = Table([[ans_p]], colWidths=[523])
                 ans_table.setStyle(TableStyle([
                     ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F8FAFC')),
-                    ('BOX', (0, 0), (-1, -1), 0.75, colors.HexColor('#E2E8F0')),
-                    ('PADDING', (0, 0), (-1, -1), 8),
+                    ('BOX', (0, 0), (-1, -1), 0.75, colors.HexColor('#CBD5E1')),
+                    ('PADDING', (0, 0), (-1, -1), 10),
                     ('VALIGN', (0, 0), (-1, -1), 'TOP'),
                 ]))
                 story.append(ans_table)
-                story.append(Spacer(1, 6))
+                # 2-3x larger gap between solution boxes (18pt instead of 6pt)
+                story.append(Spacer(1, 18))
         else:
             formatted_ans = format_text_with_macrons(str(answers))
             ans_p = Paragraph(formatted_ans, answer_style)
             ans_table = Table([[ans_p]], colWidths=[523])
             ans_table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F8FAFC')),
-                ('BOX', (0, 0), (-1, -1), 0.75, colors.HexColor('#E2E8F0')),
-                ('PADDING', (0, 0), (-1, -1), 8),
+                ('BOX', (0, 0), (-1, -1), 0.75, colors.HexColor('#CBD5E1')),
+                ('PADDING', (0, 0), (-1, -1), 10),
                 ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ]))
             story.append(ans_table)
@@ -297,9 +298,10 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
 
 def generate_powerpoint_slide(title, scenario, questions, extension, phase, theme, answers=None):
     """
-    Generates a PowerPoint presentation (.pptx) containing:
-      - Slide 1: Task scenario and questions
-      - Slide 2: Solutions / Answer key (if provided)
+    Generates a 3-slide PowerPoint presentation (.pptx):
+      - Slide 1: Title, larger scenario font size, gap, Question 1.
+      - Slide 2: Question 2 (and subsequent questions if any) + Extension Challenge, nicely spaced out.
+      - Slide 3: Answer Key & Solutions.
     """
     if not PPTX_AVAILABLE:
         raise ImportError("python-pptx is required for PowerPoint export.")
@@ -309,51 +311,78 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     prs.slide_height = Inches(7.5)
     blank_layout = prs.slide_layouts[6]
 
-    # --- SLIDE 1: Task Slide ---
+    # --- SLIDE 1: Scenario & Question 1 ---
     slide1 = prs.slides.add_slide(blank_layout)
 
     # Title Box
-    title_box = slide1.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.7), Inches(0.8))
-    tf = title_box.text_frame
-    tf.word_wrap = True
-    p = tf.paragraphs[0]
-    p.text = title
-    p.font.size = Pt(24)
-    p.font.bold = True
-    p.font.color.rgb = RGBColor(30, 58, 138)
+    title_box1 = slide1.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.7))
+    tf1 = title_box1.text_frame
+    tf1.word_wrap = True
+    p1 = tf1.paragraphs[0]
+    p1.text = title
+    p1.font.size = Pt(24)
+    p1.font.bold = True
+    p1.font.color.rgb = RGBColor(30, 58, 138)
 
-    # Scenario Box
-    scen_box = slide1.shapes.add_textbox(Inches(0.8), Inches(1.3), Inches(11.7), Inches(1.5))
-    tf2 = scen_box.text_frame
+    # Scenario Box (Bigger Font + Generous Height)
+    scen_box = slide1.shapes.add_textbox(Inches(0.8), Inches(1.2), Inches(11.7), Inches(2.0))
+    tf_scen = scen_box.text_frame
+    tf_scen.word_wrap = True
+    p_scen = tf_scen.paragraphs[0]
+    p_scen.text = f"Scenario: {scenario}"
+    p_scen.font.size = Pt(18)  # Larger font size
+    p_scen.font.color.rgb = RGBColor(31, 41, 55)
+
+    # Question 1 Box (Generous gap from scenario)
+    q1_box = slide1.shapes.add_textbox(Inches(0.8), Inches(3.6), Inches(11.7), Inches(3.2))
+    tf_q1 = q1_box.text_frame
+    tf_q1.word_wrap = True
+    if questions:
+        p_q1 = tf_q1.paragraphs[0]
+        p_q1.text = f"1. {questions[0]}"
+        p_q1.font.size = Pt(16)
+        p_q1.font.color.rgb = RGBColor(30, 41, 59)
+
+    # --- SLIDE 2: Question 2+ & Extension Challenge ---
+    slide2 = prs.slides.add_slide(blank_layout)
+
+    title_box2 = slide2.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.7))
+    tf2 = title_box2.text_frame
     tf2.word_wrap = True
     p2 = tf2.paragraphs[0]
-    p2.text = f"Scenario: {scenario}"
-    p2.font.size = Pt(14)
-    p2.font.color.rgb = RGBColor(31, 41, 55)
+    p2.text = f"{title} (Continued)"
+    p2.font.size = Pt(24)
+    p2.font.bold = True
+    p2.font.color.rgb = RGBColor(30, 58, 138)
 
-    # Questions Box
-    q_box = slide1.shapes.add_textbox(Inches(0.8), Inches(2.9), Inches(11.7), Inches(3.8))
-    tf3 = q_box.text_frame
-    tf3.word_wrap = True
+    q2_box = slide2.shapes.add_textbox(Inches(0.8), Inches(1.4), Inches(11.7), Inches(5.5))
+    tf_q2 = q2_box.text_frame
+    tf_q2.word_wrap = True
 
-    for idx, q in enumerate(questions, 1):
-        p_q = tf3.add_paragraph() if idx > 1 else tf3.paragraphs[0]
+    # Render remaining questions (Question 2 onwards) with generous spacing
+    remaining_qs = questions[1:] if len(questions) > 1 else []
+    first_item = True
+
+    for idx, q in enumerate(remaining_qs, 2):
+        p_q = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
+        first_item = False
         p_q.text = f"{idx}. {q}"
-        p_q.font.size = Pt(13)
-        p_q.space_after = Pt(8)
+        p_q.font.size = Pt(16)
+        p_q.space_after = Pt(28)  # Generous gap after Question 2
 
     if extension:
-        p_ext = tf3.add_paragraph()
-        p_ext.text = f"Extension: {extension}"
-        p_ext.font.size = Pt(13)
+        p_ext = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
+        p_ext.text = f"Extension Challenge:\n{extension}"
+        p_ext.font.size = Pt(16)
         p_ext.font.bold = True
         p_ext.font.color.rgb = RGBColor(180, 83, 9)
+        p_ext.space_before = Pt(14)
 
-    # --- SLIDE 2: Solutions Slide ---
+    # --- SLIDE 3: Answer Key & Solutions ---
     if answers:
-        slide2 = prs.slides.add_slide(blank_layout)
+        slide3 = prs.slides.add_slide(blank_layout)
 
-        sol_title_box = slide2.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.7), Inches(0.8))
+        sol_title_box = slide3.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.7))
         tf_sol = sol_title_box.text_frame
         tf_sol.word_wrap = True
         p_sol_title = tf_sol.paragraphs[0]
@@ -362,7 +391,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_sol_title.font.bold = True
         p_sol_title.font.color.rgb = RGBColor(30, 58, 138)
 
-        ans_box = slide2.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(11.7), Inches(5.2))
+        ans_box = slide3.shapes.add_textbox(Inches(0.8), Inches(1.4), Inches(11.7), Inches(5.5))
         tf_ans = ans_box.text_frame
         tf_ans.word_wrap = True
 
@@ -370,12 +399,13 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
             for idx, ans in enumerate(answers, 1):
                 p_a = tf_ans.add_paragraph() if idx > 1 else tf_ans.paragraphs[0]
                 p_a.text = f"Q{idx} Solution: {ans}"
-                p_a.font.size = Pt(13)
-                p_a.space_after = Pt(10)
+                p_a.font.size = Pt(15)
+                p_a.space_after = Pt(22)  # Well-spaced out solutions
         else:
             p_a = tf_ans.paragraphs[0]
             p_a.text = str(answers)
-            p_a.font.size = Pt(13)
+            p_a.font.size = Pt(15)
+            p_a.space_after = Pt(22)
 
     buffer = io.BytesIO()
     prs.save(buffer)
