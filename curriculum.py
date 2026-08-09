@@ -1,3 +1,5 @@
+import json
+
 NZ_THEMES = [
     # --- Cultural & Multicultural Celebrations ---
     "Matariki (Māori)",
@@ -31,8 +33,9 @@ NZ_THEMES = [
     "Custom Context (Enter your own below)"
 ]
 
-"""
-Curriculum structure data mapping Phase -> Year Level -> Strand -> Substrand -> Objectives.
+CURRICULUM_CONTEXT = """
+You are an expert New Zealand Mathematics Educator creating rich, contextualised classroom learning tasks aligned with Te Mātaiaho (the refreshed New Zealand Curriculum). 
+Tasks must reflect bicultural and multicultural Aotearoa contexts, promote mathematical problem-solving, and provide clear teacher guidance including solutions and common misconceptions.
 """
 
 CURRICULUM_DATA = {
@@ -151,7 +154,7 @@ CURRICULUM_DATA = {
                 "Number Structures and Operations": [
                     "Read, write, compare, and order numbers up to 10,000.",
                     "Use place value to solve multi-digit addition and subtraction problems.",
-                    "Recall multiplication facts up to $10 \\times 10$.",
+                    r"Recall multiplication facts up to $10 \times 10$.",
                     "Model, compare, and order simple proper fractions with like denominators.",
                     "Find unit fractions of small quantities."
                 ],
@@ -211,7 +214,7 @@ CURRICULUM_DATA = {
             },
             "Measurement": {
                 "Measuring": [
-                    "Calculate the area of rectangles and squares using $A = l \\times w$.",
+                    r"Calculate the area of rectangles and squares using $A = l \times w$.",
                     "Measure and construct angles using a protractor in degrees.",
                     "Calculate elapsed time duration across 12-hour and 24-hour clocks."
                 ]
@@ -251,13 +254,13 @@ CURRICULUM_DATA = {
             "Algebra": {
                 "Equations and Relationships": [
                     "Write algebraic expressions to represent word situations.",
-                    "Plot ordered pairs $(x, y)$ on a single-quadrant Cartesian coordinate graph."
+                    r"Plot ordered pairs $(x, y)$ on a single-quadrant Cartesian coordinate graph."
                 ]
             },
             "Measurement": {
                 "Measuring": [
-                    "Convert between metric units of length, mass, and capacity ($m$, $km$, $g$, $kg$, $mL$, $L$).",
-                    "Calculate volumes of rectangular prisms using $V = l \\times w \\times h$.",
+                    r"Convert between metric units of length, mass, and capacity ($m$, $km$, $g$, $kg$, $mL$, $L$).",
+                    r"Calculate volumes of rectangular prisms using $V = l \times w \times h$.",
                     "Solve problems involving perimeter, area, and volume."
                 ]
             },
@@ -303,7 +306,7 @@ CURRICULUM_DATA = {
             "Measurement": {
                 "Measuring": [
                     "Calculate area of triangles, parallelograms, and composite shapes.",
-                    "Calculate circle circumference and area using $\\pi$ approximations."
+                    r"Calculate circle circumference and area using $\pi$ approximations."
                 ]
             },
             "Geometry": {
@@ -345,7 +348,7 @@ CURRICULUM_DATA = {
             },
             "Measurement": {
                 "Measuring": [
-                    "Convert between metric units of area ($mm^2$ to $km^2$), volume ($mm^3$ to $m^3$), and capacity ($mL$, $L$).",
+                    r"Convert between metric units of area ($mm^2$ to $km^2$), volume ($mm^3$ to $m^3$), and capacity ($mL$, $L$).",
                     "Calculate areas of parallelograms and trapeziums.",
                     "Calculate volumes of triangular prisms and composite 3D shapes.",
                     "Solve complex duration problems and convert time units."
@@ -384,15 +387,15 @@ CURRICULUM_DATA = {
             "Number": {
                 "Number Structures and Operations": [
                     "Identify, read, write, compare, order, and convert between fractions, decimals, and percentages.",
-                    "Record, compare, and order numbers using scientific notation (e.g., $3.14\\times10^{3}$).",
+                    r"Record, compare, and order numbers using scientific notation (e.g., $3.14\times10^{3}$).",
                     "Find equivalent fractions, simplify them, and convert between mixed numbers and improper fractions.",
                     "Express division remainders as fractions or decimals based on the context.",
-                    "Identify powers of 2 up to $2^{10}$ and convert negative powers to unit fractions (e.g., $3^{-2}=\\frac{1}{9}$).",
+                    r"Identify powers of 2 up to $2^{10}$ and convert negative powers to unit fractions (e.g., $3^{-2}=\frac{1}{9}$).",
                     "Approximate roots on a number line by referencing the closest perfect squares.",
                     "Use rounding (to the required precision) and estimation to predict and check the reasonableness of calculations.",
                     "Generalise rules for exponents of 0 and 1, and perform addition, subtraction, multiplication, and division with integers, fractions, and decimals.",
                     "Generalise the rule for dividing by a fraction and connect multiplying/dividing decimals with fractions.",
-                    "Check equivalence for expressions with negative numbers (e.g., $(-3)^{2}\\ne-3^{2}$).",
+                    r"Check equivalence for expressions with negative numbers (e.g., $(-3)^{2}\ne-3^{2}$).",
                     "Find a fraction or percentage of a number, and calculate the whole amount from a given percentage or fraction.",
                     "Express numbers as fractions or percentages of other numbers, and proportionally increase or decrease numbers.",
                     "Represent proportional relationships as simplified whole-number ratios, and divide quantities using part:part or part:whole ratios.",
@@ -408,8 +411,8 @@ CURRICULUM_DATA = {
                     "Simplify and manipulate expressions by collecting like terms, factorising using common factors, and expanding products.",
                     "Generalise properties of operations with variables and accurately multiply or divide inequalities by negative numbers.",
                     "Form and solve linear equations with rational coefficients, and linear inequalities with positive coefficients.",
-                    "Substitute values into formulas to evaluate expressions, and rearrange formulae (e.g., solving $P=2l+2w$ for w).",
-                    "Interpret linear rules of the form $y=mx+c$, plotting points using substitution and tables.",
+                    r"Substitute values into formulas to evaluate expressions, and rearrange formulae (e.g., solving $P=2l+2w$ for w).",
+                    r"Interpret linear rules of the form $y=mx+c$, plotting points using substitution and tables.",
                     "Identify the sign of a gradient (m) and the value of a y-intercept (c) from graphs and tables.",
                     "Use tables, graphs, and diagrams to recognise ordinal position relationships in linear patterns.",
                     "Identify constant increases/decreases in patterns, write rules in words and algebraic notation, and make conjectures about future elements."
@@ -438,7 +441,7 @@ CURRICULUM_DATA = {
             "Statistics": {
                 "Developing Knowledge & Visualisation": [
                     "Plan and collect multivariate data for statistical questions involving at least one categorical and one numerical variable.",
-                    "Calculate the five-point summary (minimum, maximum, median, and quartiles 1 and 3) and the interquartile range ($IQR=Q_{3}-Q_{1}$).",
+                    r"Calculate the five-point summary (minimum, maximum, median, and quartiles 1 and 3) and the interquartile range ($IQR=Q_{3}-Q_{1}$).",
                     "Create multiple data visualisations with appropriate scales.",
                     "Draw an eyeballed line or curve of best fit to predict responses in relationship investigations."
                 ],
@@ -463,8 +466,8 @@ CURRICULUM_DATA = {
                 "Number Structures and Operations": [
                     "Identify, read, write, compare, order, and convert between fractions, decimals, and percentages.",
                     "Record, compare, order, and calculate with numbers written in scientific notation.",
-                    "Identify irrational numbers (e.g., $\\pi$ or $\\sqrt[3]{10}$) and generalise when roots are rational or irrational.",
-                    "Perform exact calculations using fractions, roots, multiples of $\\pi$, and integer exponents.",
+                    r"Identify irrational numbers (e.g., $\pi$ or $\sqrt[3]{10}$) and generalise when roots are rational or irrational.",
+                    r"Perform exact calculations using fractions, roots, multiples of $\pi$, and integer exponents.",
                     "Use rounding (including to specified significant figures) and estimation to predict and verify calculations.",
                     "Add, subtract, multiply, and divide positive and negative numbers, including fractions and decimals.",
                     "Evaluate positive integer exponents for both positive and negative numbers.",
@@ -482,14 +485,14 @@ CURRICULUM_DATA = {
                 "Equations and Relationships": [
                     "Simplify and manipulate algebraic expressions by collecting terms, factorising using common factors, and factorising by grouping.",
                     "Factorise quadratic expressions with a leading coefficient of 1.",
-                    "Expand products, including multiplying a single term by brackets and multiplying two expressions shaped like $ax+b$.",
+                    r"Expand products, including multiplying a single term by brackets and multiplying two expressions shaped like $ax+b$.",
                     "Form and solve linear equations and inequalities (with rational coefficients) and plot inequality solutions on a number line.",
-                    "Solve quadratic equations in factorised form or $x^{2}+c=0$, connecting solutions directly to graph x-intercepts.",
-                    "Substitute into, rearrange, and simplify formulas involving squares or square roots (e.g., $A=\\pi r^{2}$).",
-                    "Interpret and graph linear equations ($y=mx+c$), finding the gradient and y-intercept from lines.",
+                    r"Solve quadratic equations in factorised form or $x^{2}+c=0$, connecting solutions directly to graph x-intercepts.",
+                    r"Substitute into, rearrange, and simplify formulas involving squares or square roots (e.g., $A=\pi r^{2}$).",
+                    r"Interpret and graph linear equations ($y=mx+c$), finding the gradient and y-intercept from lines.",
                     "Determine line equations using two points or one point and a gradient.",
                     "Compare gradients of linear graphs using steepness.",
-                    "Determine how changing the $x^{2}$ coefficient or the fixed value c affects quadratic graphs."
+                    r"Determine how changing the $x^{2}$ coefficient or the fixed value c affects quadratic graphs."
                 ]
             },
             "Measurement": {
@@ -499,7 +502,7 @@ CURRICULUM_DATA = {
                     "Derive formulas for, and calculate, the surface area of cubes, prisms, cylinders, and composite figures.",
                     "Calculate the volume of cylinders, pyramids, and irregular prisms with consistent cross-sections.",
                     "Scale shapes by a factor and determine the resulting scale factors for area and volume.",
-                    "Use Pythagoras' theorem to check for right angles, find unknown triangle sides, and calculate coordinate distances using $d=\\sqrt{(x_{2}-x_{1})^{2}+(y_{2}-y_{1})^{2}}$.",
+                    r"Use Pythagoras' theorem to check for right angles, find unknown triangle sides, and calculate coordinate distances using $d=\sqrt{(x_{2}-x_{1})^{2}+(y_{2}-y_{1})^{2}}$.",
                     "Solve for speed, distance, or time given any two of the measurements, and reason about time durations."
                 ]
             },
@@ -538,89 +541,73 @@ CURRICULUM_DATA = {
 
 STRAND_KEYWORDS = {
     "Number": [
-        "Counting",
-        "Sequencing",
-        "Place Value",
-        "Rounding",
-        "Odd and Even Numbers",
-        "Grouping",
-        "Partitioning",
-        "Factors and Multiples",
-        "Prime and Composite",
-        "Addition",
-        "Subtraction",
-        "Multiplication",
-        "Division",
-        "BEDMAS / Order of Operations",
-        "Integers",
-        "Fractions",
-        "Proportions",
-        "Estimation",
-        "Money and Finance",
-        "Rates and Ratios",
-        "Indices and Roots",
-        "Scientific Notation"
+        "Counting", "Sequencing", "Place Value", "Rounding", "Odd and Even Numbers", 
+        "Grouping", "Partitioning", "Factors and Multiples", "Prime and Composite", 
+        "Addition", "Subtraction", "Multiplication", "Division", "BEDMAS / Order of Operations", 
+        "Integers", "Fractions", "Proportions", "Estimation", "Money and Finance", 
+        "Rates and Ratios", "Indices and Roots", "Scientific Notation"
     ],
     "Algebra": [
-        "Patterns",
-        "Variables",
-        "Expressions",
-        "Substitution",
-        "Expanding",
-        "Factorising",
-        "Equations",
-        "Inequalities",
-        "Linear Relationships",
-        "Gradient and Intercept",
-        "Quadratics"
+        "Patterns", "Variables", "Expressions", "Substitution", "Expanding", 
+        "Factorising", "Equations", "Inequalities", "Linear Relationships", 
+        "Gradient and Intercept", "Quadratics"
     ],
     "Measurement": [
-        "Time",
-        "Calendars",
-        "Length and Distance",
-        "Weight and Mass",
-        "Capacity and Volume",
-        "Area",
-        "Perimeter",
-        "Surface Area",
-        "Metric System",
-        "Pythagoras' Theorem",
-        "Speed, Distance, Time",
-        "Scale Factors"
+        "Time", "Calendars", "Length and Distance", "Weight and Mass", 
+        "Capacity and Volume", "Area", "Perimeter", "Surface Area", 
+        "Metric System", "Pythagoras' Theorem", "Speed, Distance, Time", "Scale Factors"
     ],
     "Geometry": [
-        "2D Shapes",
-        "3D Shapes",
-        "Nets",
-        "Position and Mapping",
-        "Coordinates",
-        "Symmetry",
-        "Transformations",
-        "Angles",
-        "Parallel Line Rules",
-        "Lines",
-        "Circle Properties",
-        "Congruence and Similarity"
+        "2D Shapes", "3D Shapes", "Nets", "Position and Mapping", "Coordinates", 
+        "Symmetry", "Transformations", "Angles", "Parallel Line Rules", "Lines", 
+        "Circle Properties", "Congruence and Similarity"
     ],
     "Statistics": [
-        "Data Collection",
-        "Graphing",
-        "Data Analysis",
-        "Measures of Central Tendency",
-        "Measures of Spread",
-        "Five-Point Summary",
-        "Scatter Plots",
-        "Misleading Graphs",
+        "Data Collection", "Graphing", "Data Analysis", "Measures of Central Tendency", 
+        "Measures of Spread", "Five-Point Summary", "Scatter Plots", "Misleading Graphs", 
         "Statistical Inference"
     ],
     "Probability": [
-        "Chance",
-        "Probability",
-        "Sample Space",
-        "Theoretical Probability",
-        "Experimental Probability",
-        "Tree Diagrams",
-        "Simulations",
-        "Law of Large Numbers"
+        "Chance", "Probability", "Sample Space", "Theoretical Probability", 
+        "Experimental Probability", "Tree Diagrams", "Simulations", "Law of Large Numbers"
     ]
 }
+
+
+def GET_PROMPT(phase, strand, theme, num_tasks=1):
+    """
+    Constructs the structured JSON prompt for Gemini API call.
+    """
+    prompt = f"""
+    {CURRICULUM_CONTEXT}
+    
+    Target Curriculum Parameters:
+    - Phase: {phase}
+    - Strand: {strand}
+    - Context Theme: {theme}
+    - Number of Tasks: {num_tasks}
+    
+    Please generate {num_tasks} mathematical task(s) tailored to these parameters.
+
+    Return your output strictly as a JSON object matching this structure:
+    {{
+        "tasks": [
+            {{
+                "title": "Short Task Title",
+                "scenario": "Rich contextual description based on the theme...",
+                "questions": [
+                    "Question 1 (Main introductory question)",
+                    "Question 2 (Deeper calculation or reasoning question)"
+                ],
+                "extension": "An optional extension/challenge question for fast finishers.",
+                "teacher_notes": "Pedagogical hints, suggestions for implementation, and curriculum alignments.",
+                "misconceptions": "Common student misconceptions to watch out for.",
+                "answers": [
+                    "Solution for Question 1",
+                    "Solution for Question 2"
+                ]
+            }}
+        ]
+    }}
+    """
+    return prompt
