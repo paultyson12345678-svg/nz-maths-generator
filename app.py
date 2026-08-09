@@ -3,6 +3,14 @@ import json
 import google.generativeai as genai
 from curriculum import NZ_THEMES, CURRICULUM_DATA, STRAND_KEYWORDS, GET_PROMPT
 
+# Import export functions - ensure these match the names in your exporters.py file
+try:
+    from exporters import generate_ppt, generate_worksheet
+except ImportError:
+    # Fallback to prevent crashes if not found
+    def generate_ppt(task): return b""
+    def generate_worksheet(task): return b""
+
 # Streamlit Page Setup
 st.set_page_config(
     page_title="Rich Maths Task Generator",
@@ -48,7 +56,7 @@ else:
 # Fixed quantity of generated tasks
 NUM_TASKS = 3
 
-# API Key Configuration (Uses Streamlit Secrets or Environment Variable)
+# API Key Configuration
 API_KEY = st.secrets.get("GEMINI_API_KEY", "")
 
 # --- GENERATION LOGIC ---
@@ -57,6 +65,8 @@ if st.sidebar.button("✨ Generate Tasks", type="primary"):
         st.error("Gemini API key is missing. Please add `GEMINI_API_KEY` to your Streamlit secrets.")
     else:
         genai.configure(api_key=API_KEY)
+        
+        # Using gemini-3.5-flash as requested
         model = genai.GenerativeModel("gemini-3.5-flash")
 
         with st.spinner("Generating 3 rich learning tasks..."):
@@ -69,6 +79,13 @@ if st.sidebar.button("✨ Generate Tasks", type="primary"):
                 prompt += f"\nAligned Objectives: {', '.join(objectives)}"
                 if selected_keywords:
                     prompt += f"\nFocus Keywords: {', '.join(selected_keywords)}"
+                
+                # Force the 3 specific cultural contexts
+                prompt += f"\n\nCRITICAL INSTRUCTION FOR THE 3 TASKS:"
+                prompt += f"\n- Task 1 MUST use a Te Ao Māori context."
+                prompt += f"\n- Task 2 MUST use a Pasifika context."
+                prompt += f"\n- Task 3 MUST use a general NZ/Kiwi context."
+                prompt += f"\nBlend these specific cultural contexts smoothly with the chosen theme: {active_theme}."
 
                 response = model.generate_content(
                     prompt,
@@ -86,21 +103,48 @@ if st.sidebar.button("✨ Generate Tasks", type="primary"):
 if "generated_tasks" in st.session_state and st.session_state["generated_tasks"]:
     st.subheader(f"Generated Tasks ({active_theme})")
     
-    for idx, task in enumerate(st.session_state["generated_tasks"], start=1):
-        with st.expander(f"Task {idx}: {task.get('title', 'Maths Task')}", expanded=True):
+    # Create the 3 specific tabs
+    tab1, tab2, tab3 = st.tabs(["Option 1 (Te Ao Māori)", "Option 2 (Pasifika)", "Option 3 (NZ/Kiwi)"])
+    tabs = [tab1, tab2, tab3]
+    
+    for idx, (tab, task) in enumerate(zip(tabs, st.session_state["generated_tasks"])):
+        with tab:
+            st.markdown(f"### {task.get('title', f'Maths Task {idx+1}')}")
+            
+            # Display ONLY Scenario, Teacher Notes, and Misconceptions on screen
             st.markdown(f"**Scenario:**\n{task.get('scenario')}")
-            
-            st.markdown("**Questions:**")
-            for q in task.get("questions", []):
-                st.markdown(f"- {q}")
-            
-            if task.get("extension"):
-                st.markdown(f"**Extension Challenge:**\n{task.get('extension')}")
-            
             st.divider()
-            st.markdown(f"**Teacher Notes:** {task.get('teacher_notes')}")
-            st.markdown(f"**Common Misconceptions:** {task.get('misconceptions')}")
+            st.markdown(f"**Teacher Notes:**\n{task.get('teacher_notes')}")
+            st.markdown(f"**Common Misconceptions:**\n{task.get('misconceptions')}")
+            st.divider()
             
-            st.markdown("**Solutions:**")
-            for ans in task.get("answers", []):
-                st.markdown(f"- {ans}")
+            # Export Buttons
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                # Generate PPT data
+                ppt_data = generate_ppt(task)
+                if ppt_data:
+                    st.download_button(
+                        label="📥 Download PowerPoint",
+                        data=ppt_data,
+                        file_name=f"Task_{idx+1}_Presentation.pptx",
+                        mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                        key=f"ppt_{idx}"
+                    )
+                else:
+                    st.info("PowerPoint exporter not found/configured.")
+                    
+            with col2:
+                # Generate Worksheet data
+                ws_data = generate_worksheet(task)
+                if ws_data:
+                    st.download_button(
+                        label="📥 Download Worksheet",
+                        data=ws_data,
+                        file_name=f"Task_{idx+1}_Worksheet.docx",
+                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        key=f"ws_{idx}"
+                    )
+                else:
+                    st.info("Worksheet exporter not found/configured.")
