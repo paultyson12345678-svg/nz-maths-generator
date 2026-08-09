@@ -277,6 +277,19 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
                     ('VALIGN', (0, 0), (-1, -1), 'TOP'),
                 ]))
                 story.append(ans_table)
+                # Significantly larger gap between solution boxes on Page 2
+                story.append(Spacer(1, 28))
+        else:
+            formatted_ans = format_text_with_macrons(str(answers))
+            ans_p = Paragraph(formatted_ans, answer_style)
+            ans_table = Table([[ans_p]], colWidths=[523])
+            ans_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F8FAFC')),
+                ('BOX', (0, 0), (-1, -1), 0.75, colors.HexColor('#CBD5E1')),
+                ('PADDING', (0, 0), (-1, -1), 10),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ]))
+            story.append(ans_table)
                 # 2-3x larger gap between solution boxes (18pt instead of 6pt)
                 story.append(Spacer(1, 18))
         else:
