@@ -1,168 +1,106 @@
 import streamlit as st
 import json
-import io
 import google.generativeai as genai
-from curriculum import CURRICULUM_CONTEXT, GET_PROMPT
-from exporters import generate_powerpoint_slide, generate_pdf_worksheet
+from curriculum import NZ_THEMES, CURRICULUM_DATA, STRAND_KEYWORDS, GET_PROMPT
 
-# Streamlit Page Config
+# Streamlit Page Setup
 st.set_page_config(
-    page_title="NZ Maths Task Generator",
-    page_icon="🧮",
+    page_title="Rich Maths Task Generator",
+    page_icon="📐",
     layout="wide"
 )
 
-st.title("🧮 NZ Curriculum Maths Task Generator")
-st.markdown("Generate rich, contextualised mathematics tasks aligned with the NZ Curriculum.")
+st.title("📐 Rich Maths Task Generator")
+st.markdown("Generate contextualised, rich mathematics tasks aligned with Te Mātaiaho (NZ Curriculum).")
 
-# Sidebar Controls
+# --- SIDEBAR CONTROLS ---
 st.sidebar.header("Task Parameters")
 
-phase = st.sidebar.selectbox(
-    "Curriculum Phase",
-    ["Phase 1 (Years 1-3)", "Phase 2 (Years 4-6)", "Phase 3 (Years 7-8)", "Phase 4 (Years 9-10)"]
-)
+# 1. Select Phase
+phase_options = list(CURRICULUM_DATA.keys())
+selected_phase = st.sidebar.selectbox("Select Phase", phase_options)
 
-strand = st.sidebar.selectbox(
-    "Strand",
-    ["Number", "Algebra", "Measurement", "Geometry", "Statistics", "Probability"]
-)
+# 2. Select Year Level (Filtered by Phase)
+year_options = list(CURRICULUM_DATA[selected_phase].keys())
+selected_year = st.sidebar.selectbox("Select Year Level", year_options)
 
-theme = st.sidebar.text_input("Context / Theme", value="Sports Day / Whānau Event")
+# 3. Select Strand
+strand_options = list(CURRICULUM_DATA[selected_phase][selected_year].keys())
+selected_strand = st.sidebar.selectbox("Select Strand", strand_options)
 
-num_tasks = st.sidebar.slider("Number of Tasks to Generate", min_value=1, max_value=5, value=1)
+# 4. Select Substrand / Learning Objectives (Optional Filtering)
+substrand_options = list(CURRICULUM_DATA[selected_phase][selected_year][selected_strand].keys())
+selected_substrand = st.sidebar.selectbox("Select Substrand", substrand_options)
 
-api_key = st.sidebar.text_input("Gemini API Key", type="password")
+# 5. Select Keywords (Mapped to Strand)
+available_keywords = STRAND_KEYWORDS.get(selected_strand, [])
+selected_keywords = st.sidebar.multiselect("Select Focus Keywords", available_keywords)
 
-if not api_key:
-    if "GEMINI_API_KEY" in st.secrets:
-        api_key = st.secrets["GEMINI_API_KEY"]
+# 6. Select Context Theme
+selected_theme = st.sidebar.selectbox("Select Context / Theme", NZ_THEMES)
 
-generate_btn = st.sidebar.button("Generate Tasks", type="primary")
+if selected_theme == "Custom Context (Enter your own below)":
+    custom_theme = st.sidebar.text_input("Enter Custom Context", "Local Community Garden")
+    active_theme = custom_theme
+else:
+    active_theme = selected_theme
 
+# Fixed quantity of generated tasks
+NUM_TASKS = 3
 
-def call_gemini_api(api_key, prompt):
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-1.5-flash')
-    response = model.generate_content(
-        prompt,
-        generation_config={"response_mime_type": "application/json"}
-    )
-    return response.text
+# API Key Configuration (Uses Streamlit Secrets or Environment Variable)
+API_KEY = st.secrets.get("GEMINI_API_KEY", "")
 
-
-if generate_btn:
-    if not api_key:
-        st.error("Please enter your Gemini API Key in the sidebar or set it in Streamlit secrets.")
+# --- GENERATION LOGIC ---
+if st.sidebar.button("✨ Generate Tasks", type="primary"):
+    if not API_KEY:
+        st.error("Gemini API key is missing. Please add `GEMINI_API_KEY` to your Streamlit secrets.")
     else:
-        with st.spinner("Generating NZ Curriculum aligned maths tasks..."):
+        genai.configure(api_key=API_KEY)
+        model = genai.GenerativeModel("gemini-1.5-pro")
+
+        with st.spinner("Generating 3 rich learning tasks..."):
             try:
-                prompt = GET_PROMPT(phase, strand, theme, num_tasks)
-                response_text = call_gemini_api(api_key, prompt)
-                tasks_data = json.loads(response_text)
-                st.session_state['tasks_data'] = tasks_data
-                st.session_state['params'] = {
-                    'phase': phase,
-                    'strand': strand,
-                    'theme': theme
-                }
+                # Construct prompt including Year Level, Substrand, and Keywords
+                objectives = CURRICULUM_DATA[selected_phase][selected_year][selected_strand][selected_substrand]
+                
+                prompt = GET_PROMPT(selected_phase, selected_strand, active_theme, NUM_TASKS)
+                prompt += f"\nSpecific Target: {selected_year}, Substrand: {selected_substrand}"
+                prompt += f"\nAligned Objectives: {', '.join(objectives)}"
+                if selected_keywords:
+                    prompt += f"\nFocus Keywords: {', '.join(selected_keywords)}"
+
+                response = model.generate_content(
+                    prompt,
+                    generation_config={"response_mime_type": "application/json"}
+                )
+
+                data = json.loads(response.text)
+                st.session_state["generated_tasks"] = data.get("tasks", [])
                 st.success("Tasks generated successfully!")
+
             except Exception as e:
-                st.error(f"Error generating tasks: {str(e)}")
+                st.error(f"Error generating tasks: {e}")
 
-if 'tasks_data' in st.session_state and st.session_state['tasks_data']:
-    tasks_data = st.session_state['tasks_data']
-    params = st.session_state.get('params', {})
-
-    tasks = tasks_data.get('tasks', [])
-
-    tabs = st.tabs([f"Task {i+1}: {t.get('title', 'Untitled')}" for i, t in enumerate(tasks)])
-
-    for i, (tab, task) in enumerate(zip(tabs, tasks)):
-        with tab:
-            st.header(task.get('title', f'Task {i+1}'))
-            st.markdown(f"**Scenario:**\n{task.get('scenario', '')}")
-
-            st.subheader("Questions")
-            questions = task.get('questions', [])
-            for q_idx, q in enumerate(questions, 1):
-                st.markdown(f"**{q_idx}.** {q}")
-
-            if task.get('extension'):
-                st.subheader("Extension Challenge")
-                st.info(task.get('extension'))
-
-            with st.expander("💡 Teacher Notes & Misconceptions"):
-                if task.get('teacher_notes'):
-                    st.markdown(f"**Teacher Notes:** {task.get('teacher_notes')}")
-                if task.get('misconceptions'):
-                    st.markdown(
-                        f"""
-                        <div style="background-color: #2c3e50; padding: 15px; border-radius: 8px;">
-                            <p style="color: white; margin: 0;"><b>🚨 Common Misconceptions:</b><br>{task.get('misconceptions')}</p>
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-                if not task.get('teacher_notes') and not task.get('misconceptions'):
-                    st.write("No specific notes or misconceptions identified for this task.")
-
-            with st.expander("🔑 Answer Key & Solutions"):
-                answers = task.get('answers', [])
-                if isinstance(answers, list):
-                    for a_idx, ans in enumerate(answers, 1):
-                        st.markdown(f"**Q{a_idx}:** {ans}")
-                else:
-                    st.write(answers)
-
+# --- DISPLAY OUTPUT ---
+if "generated_tasks" in st.session_state and st.session_state["generated_tasks"]:
+    st.subheader(f"Generated Tasks ({active_theme})")
+    
+    for idx, task in enumerate(st.session_state["generated_tasks"], start=1):
+        with st.expander(f"Task {idx}: {task.get('title', 'Maths Task')}", expanded=True):
+            st.markdown(f"**Scenario:**\n{task.get('scenario')}")
+            
+            st.markdown("**Questions:**")
+            for q in task.get("questions", []):
+                st.markdown(f"- {q}")
+            
+            if task.get("extension"):
+                st.markdown(f"**Extension Challenge:**\n{task.get('extension')}")
+            
             st.divider()
-
-            # Export Buttons side-by-side inside the tab
-            col1, col2 = st.columns(2)
-
-            with col1:
-                spaced_answers = [ans + "\n\n" for ans in task.get('answers', [])]
-                pptx_data = generate_powerpoint_slide(
-                    title=task.get('title', ''),
-                    scenario=task.get('scenario', ''),
-                    questions=task.get('questions', []),
-                    extension=task.get('extension', ''),
-                    phase=params.get('phase', ''),
-                    theme=params.get('theme', ''),
-                    answers=spaced_answers,
-                    teacher_notes=task.get('teacher_notes', ''),
-                    misconceptions=task.get('misconceptions', '')
-                )
-
-                st.download_button(
-                    label="📊 Download for Google Slides / PPTX",
-                    help="Download this file and drag it into your Google Drive or PowerPoint.",
-                    data=pptx_data,
-                    file_name=f"{task.get('title', 'Task').replace(' ', '_')}_Presentation.pptx",
-                    mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                    key=f"pptx_{i}",
-                    use_container_width=True
-                )
-
-            with col2:
-                pdf_data = generate_pdf_worksheet(
-                    title=task.get('title', ''),
-                    scenario=task.get('scenario', ''),
-                    questions=task.get('questions', []),
-                    extension=task.get('extension', ''),
-                    phase=params.get('phase', ''),
-                    theme=params.get('theme', ''),
-                    answers=task.get('answers', []),
-                    teacher_notes=task.get('teacher_notes', ''),
-                    misconceptions=task.get('misconceptions', '')
-                )
-
-                st.download_button(
-                    label="📄 Download PDF Worksheet",
-                    help="Download printable 2-page PDF worksheet with teacher key.",
-                    data=pdf_data,
-                    file_name=f"{task.get('title', 'Task').replace(' ', '_')}_Worksheet.pdf",
-                    mime="application/pdf",
-                    key=f"pdf_{i}",
-                    use_container_width=True
-                )
+            st.markdown(f"**Teacher Notes:** {task.get('teacher_notes')}")
+            st.markdown(f"**Common Misconceptions:** {task.get('misconceptions')}")
+            
+            st.markdown("**Solutions:**")
+            for ans in task.get("answers", []):
+                st.markdown(f"- {ans}")
