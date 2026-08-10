@@ -1,137 +1,135 @@
 import io
 import os
-import re
+from pptx import Presentation
+from pptx.util import Inches, Pt
+from pptx.dml.color import RGBColor
+
 from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
-from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
-# Optional pptx import for slide export
-try:
-    from pptx import Presentation
-    from pptx.util import Inches, Pt
-    from pptx.dml.color import RGBColor
-    PPTX_AVAILABLE = True
-except ImportError:
-    PPTX_AVAILABLE = False
 
-
-# Register Font for Macrons in PDF
-_font_registered = False
-_registered_font_name = 'Helvetica'
-_registered_bold_font_name = 'Helvetica-Bold'
-
-def register_macron_font():
-    global _font_registered, _registered_font_name, _registered_bold_font_name
-    if _font_registered:
-        return _registered_font_name, _registered_bold_font_name
-
-    local_font_path = os.path.join(os.path.dirname(__file__), 'DejaVuSans.ttf')
-
-    font_paths = [
-        local_font_path,
-        '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
-        '/usr/share/fonts/TTF/DejaVuSans.ttf',
-        '/Library/Fonts/DejaVuSans.ttf'
-    ]
-
-    for path in font_paths:
-        if os.path.exists(path):
-            try:
-                pdfmetrics.registerFont(TTFont('DejaVuSans', path))
-                _registered_font_name = 'DejaVuSans'
-                _registered_bold_font_name = 'DejaVuSans'
-                _font_registered = True
-                break
-            except Exception:
-                pass
-
-    return _registered_font_name, _registered_bold_font_name
-
-
-def generate_powerpoint_slide(title, scenario, questions, extension, phase, theme, answers=None, teacher_notes=None, misconceptions=None):
+def get_macron_font():
     """
-    Generates a 3-slide PowerPoint presentation (.pptx):
-      - Slide 1: Title, scenario (18pt), Question 1 (20pt).
-      - Slide 2: Question 2+ (20pt) and Extension Challenge (20pt) with generous spacing.
-      - Slide 3: Title, Teacher Notes & Misconceptions, and Answer Key & Solutions.
+    Registers the DejaVuSans TTF font uploaded to the repository
+    to ensure proper rendering of Māori macrons (ā, ē, ī, ō, ū).
     """
-    if not PPTX_AVAILABLE:
-        raise ImportError("python-pptx is required for PowerPoint export.")
+    font_name = 'DejaVuSans'
+    font_path = "DejaVuSans.ttf"  # Local file in repository root
 
+    if 'DejaVuSans' in pdfmetrics.getRegisteredFontNames():
+        return font_name, font_name
+
+    if os.path.exists(font_path):
+        try:
+            pdfmetrics.registerFont(TTFont('DejaVuSans', font_path))
+            return font_name, font_name
+        except Exception as e:
+            print(f"Error registering local font: {e}")
+
+    return 'Helvetica', 'Helvetica-Bold'
+
+
+def generate_powerpoint_slide(title, scenario, questions, extension, phase, theme, answers):
+    """
+    Generates a 3-slide widescreen PowerPoint presentation with larger typography:
+    - Slide 1: Title, Meta, Scenario (just 'Scenario:'), and Question 1 only.
+    - Slide 2: Question 2 & Extension Challenge with extra vertical spacing.
+    - Slide 3: Detailed Solutions & Open-Ended Teacher Guidance.
+    """
     prs = Presentation()
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
-    blank_layout = prs.slide_layouts[6]
 
-    # --- SLIDE 1: Scenario & Question 1 ---
-    slide1 = prs.slides.add_slide(blank_layout)
+    blank_slide_layout = prs.slide_layouts[6]
+
+    # --- SLIDE 1: Title, Scenario, & Question 1 ---
+    slide_1 = prs.slides.add_slide(blank_slide_layout)
 
     # Title Box
-    title_box1 = slide1.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.7))
-    tf1 = title_box1.text_frame
-    tf1.word_wrap = True
-    p1 = tf1.paragraphs[0]
-    p1.text = title
-    p1.font.size = Pt(24)
-    p1.font.bold = True
-    p1.font.color.rgb = RGBColor(30, 58, 138)
+    title_box = slide_1.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.733), Inches(1.1))
+    tf_title = title_box.text_frame
+    tf_title.word_wrap = True
+    p_title = tf_title.paragraphs[0]
+    p_title.text = title
+    p_title.font.size = Pt(28)  # Larger Title Font
+    p_title.font.bold = True
+    p_title.font.color.rgb = RGBColor(27, 54, 93)  # Dark navy blue
 
-    # Scenario Box (18pt font)
-    scen_box = slide1.shapes.add_textbox(Inches(0.8), Inches(1.2), Inches(11.7), Inches(2.0))
-    tf_scen = scen_box.text_frame
-    tf_scen.word_wrap = True
-    p_scen = tf_scen.paragraphs[0]
-    p_scen.text = f"Scenario: {scenario}"
-    p_scen.font.size = Pt(18)
-    p_scen.font.color.rgb = RGBColor(31, 41, 55)
+    # Meta Info
+    p_meta = tf_title.add_paragraph()
+    p_meta.text = f"Phase: {phase}  |  Context: {theme}"
+    p_meta.font.size = Pt(14)
+    p_meta.font.italic = True
+    p_meta.font.color.rgb = RGBColor(100, 100, 100)
 
-    # Question 1 Box (20pt font)
-    q1_box = slide1.shapes.add_textbox(Inches(0.8), Inches(3.6), Inches(11.7), Inches(3.2))
+    # Scenario Box (Header changed to 'Scenario:', font size 22pt)
+    scenario_box = slide_1.shapes.add_textbox(Inches(0.8), Inches(1.6), Inches(11.733), Inches(2.2))
+    tf_scenario = scenario_box.text_frame
+    tf_scenario.word_wrap = True
+    p_scen_header = tf_scenario.paragraphs[0]
+    p_scen_header.text = "Scenario:"
+    p_scen_header.font.bold = True
+    p_scen_header.font.size = Pt(22)
+    p_scen_header.font.color.rgb = RGBColor(45, 55, 72)
+
+    p_scen_body = tf_scenario.add_paragraph()
+    p_scen_body.text = scenario
+    p_scen_body.font.size = Pt(22)  # Increased scenario text size
+    p_scen_body.space_before = Pt(6)
+
+    # Question 1 Box
+    q1_box = slide_1.shapes.add_textbox(Inches(0.8), Inches(4.2), Inches(11.733), Inches(2.8))
     tf_q1 = q1_box.text_frame
     tf_q1.word_wrap = True
-    if questions:
+
+    if len(questions) > 0:
         p_q1 = tf_q1.paragraphs[0]
-        p_q1.text = f"1. {questions[0]}"
-        p_q1.font.size = Pt(20)
-        p_q1.font.color.rgb = RGBColor(30, 41, 59)
+        p_q1.text = f"Question 1: {questions[0]}"
+        p_q1.font.size = Pt(20)  # Larger Question Font
+        p_q1.font.bold = True
 
-    # --- SLIDE 2: Question 2+ & Extension Challenge ---
-    slide2 = prs.slides.add_slide(blank_layout)
+    # --- SLIDE 2: Question 2 & Extension Challenge ---
+    slide_2 = prs.slides.add_slide(blank_slide_layout)
 
-    title_box2 = slide2.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.7))
-    tf2 = title_box2.text_frame
-    tf2.word_wrap = True
-    p2 = tf2.paragraphs[0]
-    p2.text = f"{title} (Continued)"
-    p2.font.size = Pt(24)
-    p2.font.bold = True
-    p2.font.color.rgb = RGBColor(30, 58, 138)
+    # Header Box for Slide 2
+    head_box_2 = slide_2.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.733), Inches(0.8))
+    tf_head2 = head_box_2.text_frame
+    tf_head2.word_wrap = True
+    p_head2 = tf_head2.paragraphs[0]
+    p_head2.text = f"{title} (Continued)"
+    p_head2.font.size = Pt(26)
+    p_head2.font.bold = True
+    p_head2.font.color.rgb = RGBColor(27, 54, 93)
 
-    q2_box = slide2.shapes.add_textbox(Inches(0.8), Inches(1.4), Inches(11.7), Inches(5.5))
+    # Tasks Box (Questions 2+ and Extension)
+    q2_box = slide_2.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(11.733), Inches(5.5))
     tf_q2 = q2_box.text_frame
     tf_q2.word_wrap = True
 
-    remaining_qs = questions[1:] if len(questions) > 1 else []
-    first_item = True
+    # Render Question 2+ directly without header
+    first_q2_item = True
+    if len(questions) > 1:
+        for idx, q_text in enumerate(questions[1:], start=2):
+            p = tf_q2.paragraphs[0] if first_q2_item else tf_q2.add_paragraph()
+            first_q2_item = False
+            p.text = f"Question {idx}: {q_text}"
+            p.font.size = Pt(20)  # Larger Question Font
+            p.font.bold = True
+            p.space_after = Pt(16)
 
-    for idx, q in enumerate(remaining_qs, 2):
-        p_q = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
-        first_item = False
-        p_q.text = f"{idx}. {q}"
-        p_q.font.size = Pt(20)
-        p_q.space_after = Pt(40)  # Generous gap after Question 2
-
+    # Extension Challenge with increased space before
     if extension:
-        p_ext = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
-        p_ext.text = f"Extension Challenge:\n{extension}"
-        p_ext.font.size = Pt(20)
+        p_ext = tf_q2.paragraphs[0] if first_q2_item else tf_q2.add_paragraph()
+        p_ext.text = f"Extension Challenge: {extension}"
+        p_ext.font.size = Pt(20)  # Larger Extension Font
         p_ext.font.bold = True
-        p_ext.font.color.rgb = RGBColor(180, 83, 9)
-        p_ext.space_before = Pt(30)  # Generous gap above Extension Challenge
+        p_ext.font.color.rgb = RGBColor(180, 83, 9)  # Warm accent color
+        if not first_q2_item:
+            p_ext.space_before = Pt(36)  # Increased space between Q2 and Extension
 
     # --- SLIDE 3: Teacher Solutions & Guidance ---
     slide_3 = prs.slides.add_slide(blank_slide_layout)
@@ -160,174 +158,140 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_ans.font.size = Pt(13)
         p_ans.space_after = Pt(10)
 
-    # Teacher Notes & Misconceptions Box (under title)
-    if teacher_notes or misconceptions:
-        notes_box = slide3.shapes.add_textbox(Inches(0.8), Inches(current_top), Inches(11.7), Inches(1.8))
-        tf_notes = notes_box.text_frame
-        tf_notes.word_wrap = True
-        p_notes_first = True
-
-        if teacher_notes:
-            p_tn = tf_notes.paragraphs[0] if p_notes_first else tf_notes.add_paragraph()
-            p_notes_first = False
-            p_tn.text = f"Teacher Notes: {teacher_notes}"
-            p_tn.font.size = Pt(14)
-            p_tn.font.italic = True
-            p_tn.font.color.rgb = RGBColor(75, 85, 99)
-            p_tn.space_after = Pt(10)
-
-        if misconceptions:
-            p_mc = tf_notes.paragraphs[0] if p_notes_first else tf_notes.add_paragraph()
-            p_mc.text = f"Common Misconceptions: {misconceptions}"
-            p_mc.font.size = Pt(14)
-            p_mc.font.italic = True
-            p_mc.font.color.rgb = RGBColor(185, 28, 28)
-            p_mc.space_after = Pt(15)
-
-        current_top += 1.8
-
-    # Solutions Box
-    if answers:
-        ans_box = slide3.shapes.add_textbox(Inches(0.8), Inches(current_top), Inches(11.7), Inches(7.0 - current_top))
-        tf_ans = ans_box.text_frame
-        tf_ans.word_wrap = True
-
-        p_hdr = tf_ans.paragraphs[0]
-        p_hdr.text = "Answer Key & Solutions:"
-        p_hdr.font.size = Pt(18)
-        p_hdr.font.bold = True
-        p_hdr.font.color.rgb = RGBColor(30, 58, 138)
-        p_hdr.space_after = Pt(10)
-
-        if isinstance(answers, list):
-            for idx, ans in enumerate(answers, 1):
-                p_a = tf_ans.add_paragraph()
-                p_a.text = f"Q{idx} Solution: {ans}"
-                p_a.font.size = Pt(16)
-                p_a.space_after = Pt(14)
-        else:
-            p_a = tf_ans.add_paragraph()
-            p_a.text = str(answers)
-            p_a.font.size = Pt(16)
-            p_a.space_after = Pt(14)
-
     buffer = io.BytesIO()
     prs.save(buffer)
     buffer.seek(0)
     return buffer.getvalue()
 
 
-def generate_pdf_worksheet(title, scenario, questions, extension, phase, theme, answers=None, teacher_notes=None, misconceptions=None):
+def generate_task_pdf(title, scenario, questions, extension, phase, theme, answers):
     """
-    Generates a 2-page PDF Worksheet using ReportLab:
-      - Page 1: Student Worksheet (Title, Scenario, Questions, Extension Challenge).
-      - Page 2: Teacher Guide (Title, Teacher Notes & Misconceptions, Answer Key & Solutions).
+    Generates a 1-page printable A4 PDF student worksheet.
+    Dynamically adjusts working box heights and font sizes while ensuring 
+    generous spacing below the scenario and boxes to avoid a crowded layout.
     """
-    font_name, bold_font_name = register_macron_font()
-
     buffer = io.BytesIO()
+
+    # Register/fetch macron font
+    font_normal, font_bold = get_macron_font()
+
+    # 1. Page dimensions & setup (A4: 595.27 x 841.89 pt)
+    # Margins: Top/Bottom 24pt, Left/Right 36pt -> Printable height ~793pt
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
         rightMargin=36,
         leftMargin=36,
-        topMargin=36,
-        bottomMargin=36
-    )
-
-    styles = getSampleStyleSheet()
-
-    title_style = ParagraphStyle(
-        'DocTitle',
-        parent=styles['Normal'],
-        fontName=bold_font_name,
-        fontSize=20,
-        leading=24,
-        textColor=colors.HexColor('#1E3A8A'),
-        spaceAfter=12
-    )
-
-    section_heading = ParagraphStyle(
-        'SectionHeading',
-        parent=styles['Normal'],
-        fontName=bold_font_name,
-        fontSize=14,
-        leading=18,
-        textColor=colors.HexColor('#1E3A8A'),
-        spaceBefore=10,
-        spaceAfter=6
-    )
-
-    body_style = ParagraphStyle(
-        'BodyTextCustom',
-        parent=styles['Normal'],
-        fontName=font_name,
-        fontSize=11,
-        leading=15,
-        textColor=colors.HexColor('#1F2937'),
-        spaceAfter=10
-    )
-
-    note_style = ParagraphStyle(
-        'TeacherNote',
-        parent=styles['Normal'],
-        fontName=font_name,
-        fontSize=10,
-        leading=14,
-        textColor=colors.HexColor('#374151'),
-        spaceAfter=8
-    )
-
-    misconception_style = ParagraphStyle(
-        'MisconceptionText',
-        parent=styles['Normal'],
-        fontName=font_name,
-        fontSize=10,
-        leading=14,
-        textColor=colors.HexColor('#991B1B'),
-        spaceAfter=12
+        topMargin=24,
+        bottomMargin=24
     )
 
     story = []
+    styles = getSampleStyleSheet()
 
-    # --- PAGE 1: Student Worksheet ---
+    # 2. Estimate text volume to dynamically tune font sizes
+    total_text_length = len(title) + len(scenario) + sum(len(q) for q in questions) + (len(extension) if extension else 0)
+    
+    # Adjust typography for breathing room
+    if total_text_length > 600:
+        title_size, title_lead = 16, 20
+        body_size, body_lead = 9.5, 12.5
+        q_size, q_lead = 10, 13.5
+        scen_padding = 6
+    else:
+        title_size, title_lead = 18, 22
+        body_size, body_lead = 10, 13.5
+        q_size, q_lead = 10.5, 14.5
+        scen_padding = 8
+
+    title_style = ParagraphStyle(
+        'DocTitle',
+        parent=styles['Heading1'],
+        fontName=font_bold,
+        fontSize=title_size,
+        leading=title_lead,
+        textColor=colors.HexColor('#1B365D'),
+        spaceAfter=2
+    )
+
+    meta_style = ParagraphStyle(
+        'DocMeta',
+        parent=styles['Normal'],
+        fontName=font_bold,
+        fontSize=9.5,
+        leading=12,
+        textColor=colors.HexColor('#4A5568')
+    )
+
+    scenario_style = ParagraphStyle(
+        'ScenarioText',
+        parent=styles['Normal'],
+        fontName=font_normal,
+        fontSize=body_size,
+        leading=body_lead,
+        textColor=colors.HexColor('#2D3748')
+    )
+
+    question_style = ParagraphStyle(
+        'QuestionText',
+        parent=styles['Normal'],
+        fontName=font_bold,
+        fontSize=q_size,
+        leading=q_lead,
+        textColor=colors.HexColor('#1A202C')
+    )
+
+    # 3. Add Header & Scenario Box
     story.append(Paragraph(title, title_style))
-    story.append(Paragraph(f"<b>Scenario:</b> {scenario}", body_style))
-    story.append(Spacer(1, 10))
+    story.append(Paragraph(f"<b>Phase:</b> {phase} &nbsp;&nbsp;|&nbsp;&nbsp; <b>Context:</b> {theme}", meta_style))
+    story.append(Spacer(1, 6))
 
-    story.append(Paragraph("<b>Questions:</b>", section_heading))
-    for idx, q in enumerate(questions, 1):
-        story.append(Paragraph(f"<b>{idx}.</b> {q}", body_style))
-        story.append(Spacer(1, 8))
+    scenario_p = Paragraph(f"<b>Scenario:</b><br/>{scenario}", scenario_style)
+    scenario_table = Table([[scenario_p]], colWidths=[523])
+    scenario_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F7FAFC')),
+        ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#CBD5E0')),
+        ('PADDING', (0, 0), (-1, -1), scen_padding),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    ]))
+    story.append(scenario_table)
+    
+    # Increased gap below scenario box (before Question 1)
+    story.append(Spacer(1, 12))
+
+    # 4. Calculate Dynamic Box Height incorporating larger inter-element gaps
+    num_boxes = len(questions) + (1 if extension else 0)
+    
+    # Vertical height budgeting with larger gaps:
+    estimated_text_lines = sum(max(1, len(q) // 80) for q in questions) + (max(1, len(extension) // 80) if extension else 0)
+    text_height = estimated_text_lines * q_lead
+    
+    # Budget height remaining for boxes (re-calculated to preserve 1-page fit with wider gaps)
+    available_box_space = 480 - text_height - (num_boxes * 18)
+    calculated_box_height = max(50, min(115, available_box_space / max(1, num_boxes)))
+
+    def create_working_box(box_height):
+        t = Table([['']], colWidths=[523], rowHeights=[box_height])
+        t.setStyle(TableStyle([
+            ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#A0AEC0')),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+        ]))
+        return t
+
+    # 5. Build Questions & Working Boxes with bigger gaps
+    for idx, q_text in enumerate(questions, 1):
+        story.append(Paragraph(f"<b>Question {idx}:</b> {q_text}", question_style))
+        story.append(Spacer(1, 4))
+        story.append(create_working_box(box_height=calculated_box_height))
+        story.append(Spacer(1, 14))  # Increased gap under each working box
 
     if extension:
-        story.append(Spacer(1, 10))
-        story.append(Paragraph("<b>Extension Challenge:</b>", section_heading))
-        story.append(Paragraph(extension, body_style))
+        story.append(Paragraph(f"<b>Extension Challenge:</b> {extension}", question_style))
+        story.append(Spacer(1, 4))
+        story.append(create_working_box(box_height=calculated_box_height))
+        story.append(Spacer(1, 14))  # Increased gap under extension working box
 
-    # --- PAGE 2: Teacher Guide & Solutions ---
-    story.append(PageBreak())
-
-    story.append(Paragraph(f"{title} — Teacher Notes & Solutions", title_style))
-
-    # Teacher Notes & Misconceptions directly under Page 2 Title
-    if teacher_notes:
-        story.append(Paragraph(f"<b>Teacher Notes:</b> {teacher_notes}", note_style))
-
-    if misconceptions:
-        story.append(Paragraph(f"<b>Common Misconceptions:</b> {misconceptions}", misconception_style))
-
-    if teacher_notes or misconceptions:
-        story.append(Spacer(1, 10))
-
-    if answers:
-        story.append(Paragraph("<b>Answer Key & Solutions:</b>", section_heading))
-        if isinstance(answers, list):
-            for idx, ans in enumerate(answers, 1):
-                story.append(Paragraph(f"<b>Q{idx}:</b> {ans}", body_style))
-        else:
-            story.append(Paragraph(str(answers), body_style))
-
+    # Build PDF document
     doc.build(story)
     buffer.seek(0)
     return buffer.getvalue()
