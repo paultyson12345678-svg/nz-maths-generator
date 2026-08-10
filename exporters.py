@@ -9,6 +9,7 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
+# Optional pptx import for slide export
 try:
     from pptx import Presentation
     from pptx.util import Inches, Pt
@@ -16,7 +17,42 @@ try:
     PPTX_AVAILABLE = True
 except ImportError:
     PPTX_AVAILABLE = False
-    
+
+
+# --- FONT REGISTRATION ---
+_font_registered = False
+_registered_font_name = 'Helvetica'
+_registered_bold_font_name = 'Helvetica-Bold'
+
+def get_macron_font():
+    global _font_registered, _registered_font_name, _registered_bold_font_name
+    if _font_registered:
+        return _registered_font_name, _registered_bold_font_name
+
+    local_font_path = os.path.join(os.path.dirname(__file__), 'DejaVuSans.ttf')
+
+    font_paths = [
+        local_font_path,
+        '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+        '/usr/share/fonts/TTF/DejaVuSans.ttf',
+        '/Library/Fonts/DejaVuSans.ttf'
+    ]
+
+    for path in font_paths:
+        if os.path.exists(path):
+            try:
+                pdfmetrics.registerFont(TTFont('DejaVuSans', path))
+                _registered_font_name = 'DejaVuSans'
+                _registered_bold_font_name = 'DejaVuSans'
+                _font_registered = True
+                break
+            except Exception:
+                pass
+
+    return _registered_font_name, _registered_bold_font_name
+
+
+# --- PDF GENERATOR ---
 def generate_task_pdf(title, scenario, questions, extension, phase, theme, answers):
     """
     Generates a 1-page printable A4 PDF student worksheet.
