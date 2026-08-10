@@ -267,21 +267,25 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
                         use_container_width=True 
                     )
 
-                with col2:
-                    pdf_data = generate_task_pdf(
-                        title=task['title'],
-                        scenario=task['scenario'],
-                        questions=task['questions'],
-                        extension=task.get('extension', ''),
-                        phase=params['phase'],
-                        theme=params['theme'],
-                        answers=task.get('answers', [])
-                    )
+               with col2:
+                # Generate PDF data using your specific function arguments
+                pdf_data = generate_task_pdf(
+                    title=task.get('title', f'Maths Task {idx+1}'),
+                    scenario=task.get('scenario', ''),
+                    questions=task.get('questions', []),
+                    extension=task.get('extension', ''),
+                    phase=selected_phase,
+                    theme=active_theme,
+                    answers=task.get('answers', [])
+                )
+                
+                if pdf_data:
                     st.download_button(
-                        label="📄 Download Worksheet (.pdf)",
+                        label="📥 Download Worksheet (PDF)",
                         data=pdf_data,
-                        file_name=f"{task['title'].replace(' ', '_')}_Worksheet.pdf",
+                        file_name=f"Task_{idx+1}_Worksheet.pdf",
                         mime="application/pdf",
-                        key=f"pdf_{i}",
-                        use_container_width=True 
+                        key=f"ws_{idx}"
                     )
+                else:
+                    st.info("Worksheet exporter not found/configured.")
