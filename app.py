@@ -244,29 +244,35 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
 
                 st.divider()
 
-                # Export Buttons side-by-side inside the tab
-                col1, col2 = st.columns(2)
-                with col1:
-                    spaced_answers = [ans + "\n\n" for ans in task.get('answers', [])]
-                    pptx_data = generate_powerpoint_slide(
-                        title=task['title'],
-                        scenario=task['scenario'],
-                        questions=task['questions'],
-                        extension=task.get('extension', ''),
-                        phase=params['phase'],
-                        theme=params['theme'],
-                        answers=spaced_answers
-                    )
+                # Export Buttons
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                # Generate PPT data using your specific function arguments
+                ppt_data = generate_powerpoint_slide(
+                    title=task.get('title', f'Maths Task {idx+1}'),
+                    scenario=task.get('scenario', ''),
+                    questions=task.get('questions', []),
+                    extension=task.get('extension', ''),
+                    phase=selected_phase,
+                    theme=active_theme,
+                    answers=task.get('answers', []),
+                    teacher_notes=task.get('teacher_notes', ''),
+                    misconceptions=task.get('misconceptions', '')
+                )
+                
+                if ppt_data:
                     st.download_button(
-                        label="📊 Download for Google Slides",
-                        help="Download this file and drag it into your Google Drive. It will open perfectly in Google Slides!",
-                        data=pptx_data,
-                        file_name=f"{task['title'].replace(' ', '_')}_Presentation.pptx",
+                        label="📥 Download PowerPoint",
+                        data=ppt_data,
+                        file_name=f"Task_{idx+1}_Presentation.pptx",
                         mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                        key=f"pptx_{i}",
-                        use_container_width=True 
-                    ) 
-                  with col2:
+                        key=f"ppt_{idx}"
+                    )
+                else:
+                    st.info("PowerPoint exporter not found/configured.")
+                    
+            with col2:
                 # Generate PDF data using your specific function arguments
                 pdf_data = generate_task_pdf(
                     title=task.get('title', f'Maths Task {idx+1}'),
