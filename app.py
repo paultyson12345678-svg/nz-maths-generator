@@ -104,7 +104,7 @@ if "generated_tasks" in st.session_state and st.session_state["generated_tasks"]
     st.subheader(f"Generated Tasks ({active_theme})")
     
     # Create the 3 specific tabs
-    tab1, tab2, tab3 = st.tabs(["Option 1 (Te Ao Māori)", "Option 2 (Pasifika)", "Option 3 (NZ/Kiwi)"])
+    tab1, tab2, tab3 = st.tabs(["Option 1 (Te Ao Māori)", "Option 2 (Pasifika)", "Option 3 (NZ)"])
     tabs = [tab1, tab2, tab3]
     
     for idx, (tab, task) in enumerate(zip(tabs, st.session_state["generated_tasks"])):
