@@ -145,19 +145,53 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         body_shape_answers = slide_answers.placeholders[1]
         tf_answers = body_shape_answers.text_frame
         tf_answers.word_wrap = True
-        tf_answers.clear() # Clear default formatting
+        tf_answers.clear() 
         
         if isinstance(answers, list):
             for i, ans in enumerate(answers):
                 p = tf_answers.add_paragraph()
                 p.text = f"{i+1}. {ans}"
-                p.space_after = Pt(18)  # Nice spacing between answers
-                p.font.size = Pt(22)    # Larger font
+                p.space_after = Pt(18)
+                p.font.size = Pt(22)
         else:
             p = tf_answers.add_paragraph()
             p.text = str(answers)
             p.space_after = Pt(18)
             p.font.size = Pt(22)
+
+    # --- SLIDE 4: TEACHER NOTES & MISCONCEPTIONS ---
+    if teacher_notes or misconceptions:
+        slide_layout_notes = prs.slide_layouts[1]
+        slide_notes = prs.slides.add_slide(slide_layout_notes)
+        
+        title_shape_notes = slide_notes.shapes.title
+        title_shape_notes.text = "Teacher Notes & Misconceptions"
+        
+        body_shape_notes = slide_notes.placeholders[1]
+        tf_notes = body_shape_notes.text_frame
+        tf_notes.word_wrap = True
+        tf_notes.clear()
+        
+        if teacher_notes:
+            p_tn_title = tf_notes.add_paragraph()
+            p_tn_title.text = "Teacher Notes:"
+            p_tn_title.font.bold = True
+            p_tn_title.font.size = Pt(20)
+            
+            p_tn = tf_notes.add_paragraph()
+            p_tn.text = str(teacher_notes)
+            p_tn.font.size = Pt(18)
+            p_tn.space_after = Pt(20)
+            
+        if misconceptions:
+            p_mc_title = tf_notes.add_paragraph()
+            p_mc_title.text = "Common Misconceptions:"
+            p_mc_title.font.bold = True
+            p_mc_title.font.size = Pt(20)
+            
+            p_mc = tf_notes.add_paragraph()
+            p_mc.text = str(misconceptions)
+            p_mc.font.size = Pt(18)
 
     ppt_buffer = io.BytesIO()
     prs.save(ppt_buffer)
@@ -166,16 +200,13 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
 
 
 # --- PDF GENERATOR ---
-def generate_task_pdf(title, scenario, questions, extension, phase, theme, answers=None):
+def generate_task_pdf(title, scenario, questions, extension, phase, theme, answers=None, teacher_notes=None, misconceptions=None):
     """
-    Generates a printable A4 PDF student worksheet with a solutions page.
+    Generates a printable A4 PDF student worksheet with a solutions & notes page.
     """
     buffer = io.BytesIO()
-
-    # Register/fetch macron font
     font_normal, font_bold = get_macron_font()
 
-    # 1. Page dimensions & setup (A4: 595.27 x 841.89 pt)
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
@@ -188,10 +219,8 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     story = []
     styles = getSampleStyleSheet()
 
-    # 2. Estimate text volume to dynamically tune font sizes
     total_text_length = len(title) + len(scenario) + sum(len(q) for q in questions) + (len(extension) if extension else 0)
     
-    # Adjust typography and spacing for breathing room
     if total_text_length > 600:
         title_size, title_lead = 15, 19
         body_size, body_lead = 9, 12
@@ -242,7 +271,6 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         textColor=colors.HexColor('#1A202C')
     )
 
-    # 3. Add Header & Scenario Box
     story.append(Paragraph(title, title_style))
     story.append(Paragraph(f"<b>Phase:</b> {phase} &nbsp;&nbsp;|&nbsp;&nbsp; <b>Context:</b> {theme}", meta_style))
     story.append(Spacer(1, 4))
@@ -256,10 +284,8 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
     ]))
     story.append(scenario_table)
-    
     story.append(Spacer(1, 10))
 
-    # 4. Calculate Dynamic Box Heights
     num_questions = len(questions)
     total_units = num_questions + (2 if extension else 0)
     
@@ -270,7 +296,6 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     available_box_space = 460 - text_height - gaps_space
     
     unit_height = max(35, min(75, available_box_space / max(1, total_units)))
-    
     standard_box_height = unit_height
     extension_box_height = unit_height * 2 
 
@@ -282,7 +307,6 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         ]))
         return t
 
-    # 5. Build Questions & Working Boxes
     for idx, q_text in enumerate(questions, 1):
         story.append(Paragraph(f"<b>Question {idx}:</b> {q_text}", question_style))
         story.append(Spacer(1, 3))
@@ -295,12 +319,12 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         story.append(create_working_box(box_height=extension_box_height))
         story.append(Spacer(1, space_after_box))
 
-    # --- PAGE 2: SOLUTIONS / ANSWERS ---
-    if answers:
-        story.append(PageBreak()) # Forces a new page
+    # --- PAGE 2: SOLUTIONS, TEACHER NOTES & MISCONCEPTIONS ---
+    if answers or teacher_notes or misconceptions:
+        story.append(PageBreak()) 
         
-        sol_title_style = ParagraphStyle(
-            'SolutionTitle',
+        section_title_style = ParagraphStyle(
+            'SectionTitle',
             parent=styles['Heading1'],
             fontName=font_bold,
             fontSize=18,
@@ -308,10 +332,9 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
             textColor=colors.HexColor('#1B365D'),
             spaceAfter=15
         )
-        story.append(Paragraph("Solutions", sol_title_style))
         
-        sol_body_style = ParagraphStyle(
-            'SolutionBody',
+        body_style = ParagraphStyle(
+            'SectionBody',
             parent=styles['Normal'],
             fontName=font_normal,
             fontSize=14,
@@ -320,13 +343,24 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
             spaceAfter=14
         )
         
-        if isinstance(answers, list):
-            for i, ans in enumerate(answers):
-                story.append(Paragraph(f"<b>{i+1}.</b> {ans}", sol_body_style))
-        else:
-            story.append(Paragraph(str(answers), sol_body_style))
+        if answers:
+            story.append(Paragraph("Solutions", section_title_style))
+            if isinstance(answers, list):
+                for i, ans in enumerate(answers):
+                    story.append(Paragraph(f"<b>{i+1}.</b> {ans}", body_style))
+            else:
+                story.append(Paragraph(str(answers), body_style))
+            story.append(Spacer(1, 15))
+            
+        if teacher_notes:
+            story.append(Paragraph("Teacher Notes", section_title_style))
+            story.append(Paragraph(str(teacher_notes), body_style))
+            story.append(Spacer(1, 15))
+            
+        if misconceptions:
+            story.append(Paragraph("Common Misconceptions", section_title_style))
+            story.append(Paragraph(str(misconceptions), body_style))
 
-    # Build PDF document
     doc.build(story)
     buffer.seek(0)
     return buffer.getvalue()
