@@ -316,7 +316,52 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         story.append(Spacer(1, 3))
         story.append(create_working_box(box_height=extension_box_height))
         story.append(Spacer(1, space_after_box))
+if extension:
+        story.append(Paragraph(f"<b>Extension Challenge:</b> {extension}", question_style))
+        story.append(Spacer(1, 3))
+        story.append(create_working_box(box_height=extension_box_height))
+        story.append(Spacer(1, space_after_box))
 
+    # -----------------------------------------
+    # INSERT THIS: PAGE 2: SOLUTIONS / ANSWERS
+    # -----------------------------------------
+    if answers:
+        story.append(PageBreak()) # Forces a new page
+        
+        # Solutions Title Style
+        sol_title_style = ParagraphStyle(
+            'SolutionTitle',
+            parent=styles['Heading1'],
+            fontName=font_bold,
+            fontSize=18,
+            leading=22,
+            textColor=colors.HexColor('#1B365D'),
+            spaceAfter=15
+        )
+        story.append(Paragraph("Solutions", sol_title_style))
+        
+        # Solutions Content Style (Larger text, nicely spaced)
+        sol_body_style = ParagraphStyle(
+            'SolutionBody',
+            parent=styles['Normal'],
+            fontName=font_normal,
+            fontSize=14,  # Larger font for readability
+            leading=20,   # Line height for breathing room
+            textColor=colors.HexColor('#2D3748'),
+            spaceAfter=14 # Space between questions
+        )
+        
+        if isinstance(answers, list):
+            for i, ans in enumerate(answers):
+                story.append(Paragraph(f"<b>{i+1}.</b> {ans}", sol_body_style))
+        else:
+            story.append(Paragraph(str(answers), sol_body_style))
+    # -----------------------------------------
+
+    # Build PDF document
+    doc.build(story)
+    buffer.seek(0)
+    return buffer.getvalue()
     # Build PDF document
     doc.build(story)
     buffer.seek(0)
