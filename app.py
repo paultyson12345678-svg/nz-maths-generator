@@ -282,6 +282,8 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
                     phase=task.get('phase', 'N/A'),
                     theme=task.get('theme', 'General'),
                     answers=task.get('answers', [])
+                    teacher_notes=task.get('teacher_notes', ''),
+                    misconceptions=task.get('misconceptions', '')
                 )
                 
                 if pdf_data:
