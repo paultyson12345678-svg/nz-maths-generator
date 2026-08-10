@@ -52,6 +52,94 @@ def get_macron_font():
     return _registered_font_name, _registered_bold_font_name
 
 
+# --- POWERPOINT GENERATOR ---
+def generate_powerpoint_slide(title, scenario, questions, extension, phase, theme, answers=None, teacher_notes=None, misconceptions=None):
+    """
+    Generates a PowerPoint presentation (.pptx) with the math task.
+    """
+    if not PPTX_AVAILABLE:
+        return None
+
+    prs = Presentation()
+    
+    # Use widescreen (16:9) aspect ratio
+    prs.slide_width = Inches(13.333)
+    prs.slide_height = Inches(7.5)
+    
+    blank_layout = prs.slide_layouts[6]
+
+    # --- SLIDE 1: Scenario & Question 1 ---
+    slide1 = prs.slides.add_slide(blank_layout)
+
+    # Title Box
+    title_box1 = slide1.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.7))
+    tf1 = title_box1.text_frame
+    tf1.word_wrap = True
+    p1 = tf1.paragraphs[0]
+    p1.text = title
+    p1.font.size = Pt(24)
+    p1.font.bold = True
+    p1.font.color.rgb = RGBColor(30, 58, 138)
+
+    # Scenario Box
+    scen_box = slide1.shapes.add_textbox(Inches(0.8), Inches(1.2), Inches(11.7), Inches(2.0))
+    tf_scen = scen_box.text_frame
+    tf_scen.word_wrap = True
+    p_scen = tf_scen.paragraphs[0]
+    p_scen.text = f"Scenario: {scenario}"
+    p_scen.font.size = Pt(18)
+    p_scen.font.color.rgb = RGBColor(31, 41, 55)
+
+    # Question 1 Box
+    q1_box = slide1.shapes.add_textbox(Inches(0.8), Inches(3.6), Inches(11.7), Inches(3.2))
+    tf_q1 = q1_box.text_frame
+    tf_q1.word_wrap = True
+    if questions:
+        p_q1 = tf_q1.paragraphs[0]
+        p_q1.text = f"1. {questions[0]}"
+        p_q1.font.size = Pt(20)
+        p_q1.font.color.rgb = RGBColor(30, 41, 59)
+
+    # --- SLIDE 2: Question 2+ & Extension Challenge ---
+    slide2 = prs.slides.add_slide(blank_layout)
+
+    title_box2 = slide2.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.7))
+    tf2 = title_box2.text_frame
+    tf2.word_wrap = True
+    p2 = tf2.paragraphs[0]
+    p2.text = f"{title} (Continued)"
+    p2.font.size = Pt(24)
+    p2.font.bold = True
+    p2.font.color.rgb = RGBColor(30, 58, 138)
+
+    q2_box = slide2.shapes.add_textbox(Inches(0.8), Inches(1.4), Inches(11.7), Inches(5.5))
+    tf_q2 = q2_box.text_frame
+    tf_q2.word_wrap = True
+
+    remaining_qs = questions[1:] if len(questions) > 1 else []
+    first_item = True
+
+    for idx, q in enumerate(remaining_qs, 2):
+        p_q = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
+        first_item = False
+        p_q.text = f"{idx}. {q}"
+        p_q.font.size = Pt(20)
+        p_q.space_after = Pt(30) 
+
+    if extension:
+        p_ext = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
+        p_ext.text = f"Extension Challenge:\n{extension}"
+        p_ext.font.size = Pt(20)
+        p_ext.font.bold = True
+        p_ext.font.color.rgb = RGBColor(180, 83, 9)
+        p_ext.space_before = Pt(20) 
+
+    ppt_buffer = io.BytesIO()
+    prs.save(ppt_buffer)
+    ppt_buffer.seek(0)
+    return ppt_buffer.getvalue()
+
+
 # --- PDF GENERATOR ---
 def generate_task_pdf(title, scenario, questions, extension, phase, theme, answers):
     """
