@@ -248,14 +248,14 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
             col1, col2 = st.columns(2)
             
             with col1:
-                # Generate PPT data using your specific function arguments
+                # Generate PPT data safely fetching phase/theme from the task
                 ppt_data = generate_powerpoint_slide(
                     title=task.get('title', 'Maths Task'),
                     scenario=task.get('scenario', ''),
                     questions=task.get('questions', []),
                     extension=task.get('extension', ''),
-                    phase=selected_phase,
-                    theme=active_theme,
+                    phase=task.get('phase', 'N/A'), 
+                    theme=task.get('theme', 'General'), 
                     answers=task.get('answers', []),
                     teacher_notes=task.get('teacher_notes', ''),
                     misconceptions=task.get('misconceptions', '')
@@ -273,14 +273,14 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
                     st.info("PowerPoint exporter not found/configured.")
                     
             with col2:
-                # Generate PDF data using your specific function arguments
+                # Generate PDF data safely fetching phase/theme from the task
                 pdf_data = generate_task_pdf(
                     title=task.get('title', 'Maths Task'),
                     scenario=task.get('scenario', ''),
                     questions=task.get('questions', []),
                     extension=task.get('extension', ''),
-                    phase=selected_phase,
-                    theme=active_theme,
+                    phase=task.get('phase', 'N/A'),
+                    theme=task.get('theme', 'General'),
                     answers=task.get('answers', [])
                 )
                 
