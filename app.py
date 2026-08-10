@@ -245,52 +245,50 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
                 st.divider()
 
                 # Export Buttons
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                # Generate PPT data safely fetching phase/theme from the task
-                ppt_data = generate_powerpoint_slide(
-                    title=task.get('title', 'Maths Task'),
-                    scenario=task.get('scenario', ''),
-                    questions=task.get('questions', []),
-                    extension=task.get('extension', ''),
-                    phase=task.get('phase', 'N/A'), 
-                    theme=task.get('theme', 'General'), 
-                    answers=task.get('answers', []),
-                    teacher_notes=task.get('teacher_notes', ''),
-                    misconceptions=task.get('misconceptions', '')
-                )
-                
-                if ppt_data:
-                    st.download_button(
-                        label="📥 Download PowerPoint",
-                        data=ppt_data,
-                        file_name="Maths_Task_Presentation.pptx",
-                        mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                        key="download_ppt"
-                    )
-                else:
-                    st.info("PowerPoint exporter not found/configured.")
-                    
-            with col2:
-                # Generate PDF data safely fetching phase/theme from the task
-                pdf_data = generate_task_pdf(
-                    title=task.get('title', 'Maths Task'),
-                    scenario=task.get('scenario', ''),
-                    questions=task.get('questions', []),
-                    extension=task.get('extension', ''),
-                    phase=task.get('phase', 'N/A'),
-                    theme=task.get('theme', 'General'),
-                    answers=task.get('answers', [])
-                )
-                
-                if pdf_data:
-                    st.download_button(
-                        label="📥 Download Worksheet (PDF)",
-                        data=pdf_data,
-                        file_name="Maths_Task_Worksheet.pdf",
-                        mime="application/pdf",
-                        key="download_pdf"
-                    )
-                else:
-                    st.info("Worksheet exporter not found/configured.")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Generate PPT data safely fetching phase/theme from the task
+        ppt_data = generate_powerpoint_slide(
+            title=task.get('title', 'Maths Task'),
+            scenario=task.get('scenario', ''),
+            questions=task.get('questions', []),
+            extension=task.get('extension', ''),
+            phase=task.get('phase', 'N/A'),
+            theme=task.get('theme', 'General'),
+            answers=task.get('answers', []),
+            teacher_notes=task.get('teacher_notes', ''),
+            misconceptions=task.get('misconceptions', '')
+        )
+        if ppt_data:
+            st.download_button(
+                label="📥 Download PowerPoint",
+                data=ppt_data,
+                file_name=f"Maths_Task_Presentation_Option_{i+1}.pptx",
+                mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                key=f"download_ppt_{i}" # <--- UNIQUE KEY HERE
+            )
+        else:
+            st.info("PowerPoint exporter not found/configured.")
+
+    with col2:
+        # Generate PDF data safely fetching phase/theme from the task
+        pdf_data = generate_task_pdf(
+            title=task.get('title', 'Maths Task'),
+            scenario=task.get('scenario', ''),
+            questions=task.get('questions', []),
+            extension=task.get('extension', ''),
+            phase=task.get('phase', 'N/A'),
+            theme=task.get('theme', 'General'),
+            answers=task.get('answers', [])
+        )
+        if pdf_data:
+            st.download_button(
+                label="📥 Download Worksheet (PDF)",
+                data=pdf_data,
+                file_name=f"Maths_Task_Worksheet_Option_{i+1}.pdf",
+                mime="application/pdf",
+                key=f"download_pdf_{i}" # <--- UNIQUE KEY HERE
+            )
+        else:
+            st.info("Worksheet exporter not found/configured.")
