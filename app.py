@@ -250,7 +250,7 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
             with col1:
                 # Generate PPT data using your specific function arguments
                 ppt_data = generate_powerpoint_slide(
-                    title=task.get('title', f'Maths Task {idx+1}'),
+                    title=task.get('title', 'Maths Task'),
                     scenario=task.get('scenario', ''),
                     questions=task.get('questions', []),
                     extension=task.get('extension', ''),
@@ -265,9 +265,9 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
                     st.download_button(
                         label="📥 Download PowerPoint",
                         data=ppt_data,
-                        file_name=f"Task_{idx+1}_Presentation.pptx",
+                        file_name="Maths_Task_Presentation.pptx",
                         mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                        key=f"ppt_{idx}"
+                        key="download_ppt"
                     )
                 else:
                     st.info("PowerPoint exporter not found/configured.")
@@ -275,7 +275,7 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
             with col2:
                 # Generate PDF data using your specific function arguments
                 pdf_data = generate_task_pdf(
-                    title=task.get('title', f'Maths Task {idx+1}'),
+                    title=task.get('title', 'Maths Task'),
                     scenario=task.get('scenario', ''),
                     questions=task.get('questions', []),
                     extension=task.get('extension', ''),
@@ -288,9 +288,9 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
                     st.download_button(
                         label="📥 Download Worksheet (PDF)",
                         data=pdf_data,
-                        file_name=f"Task_{idx+1}_Worksheet.pdf",
+                        file_name="Maths_Task_Worksheet.pdf",
                         mime="application/pdf",
-                        key=f"ws_{idx}"
+                        key="download_pdf"
                     )
                 else:
                     st.info("Worksheet exporter not found/configured.")
