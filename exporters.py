@@ -133,7 +133,46 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_ext.font.bold = True
         p_ext.font.color.rgb = RGBColor(180, 83, 9)
         p_ext.space_before = Pt(20) 
+if extension:
+        p_ext = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
+        p_ext.text = f"Extension Challenge:\n{extension}"
+        p_ext.font.size = Pt(20)
+        p_ext.font.bold = True
+        p_ext.font.color.rgb = RGBColor(180, 83, 9)
+        p_ext.space_before = Pt(20) 
 
+    # -----------------------------------------
+    # INSERT THIS: SLIDE 3: SOLUTIONS / ANSWERS
+    # -----------------------------------------
+    if answers:
+        slide_layout_answers = prs.slide_layouts[1]  # Title and Content layout
+        slide_answers = prs.slides.add_slide(slide_layout_answers)
+        
+        title_shape_answers = slide_answers.shapes.title
+        title_shape_answers.text = f"Solutions: {title}"
+        
+        body_shape_answers = slide_answers.placeholders[1]
+        tf_answers = body_shape_answers.text_frame
+        tf_answers.word_wrap = True
+        tf_answers.clear() # Clear default formatting
+        
+        if isinstance(answers, list):
+            for i, ans in enumerate(answers):
+                p = tf_answers.add_paragraph()
+                p.text = f"{i+1}. {ans}"
+                p.space_after = Pt(18)  # Nice spacing between answers
+                p.font.size = Pt(22)    # Larger font
+        else:
+            p = tf_answers.add_paragraph()
+            p.text = str(answers)
+            p.space_after = Pt(18)
+            p.font.size = Pt(22)
+    # -----------------------------------------
+
+    ppt_buffer = io.BytesIO()
+    prs.save(ppt_buffer)
+    ppt_buffer.seek(0)
+    return ppt_buffer.getvalue()
     ppt_buffer = io.BytesIO()
     prs.save(ppt_buffer)
     ppt_buffer.seek(0)
