@@ -265,9 +265,8 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
                         mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
                         key=f"pptx_{i}",
                         use_container_width=True 
-                    )
-
-               with col2:
+                    ) 
+                 with col2:
                 # Generate PDF data using your specific function arguments
                 pdf_data = generate_task_pdf(
                     title=task.get('title', f'Maths Task {idx+1}'),
