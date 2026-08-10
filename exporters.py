@@ -133,17 +133,8 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_ext.font.bold = True
         p_ext.font.color.rgb = RGBColor(180, 83, 9)
         p_ext.space_before = Pt(20) 
-if extension:
-        p_ext = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
-        p_ext.text = f"Extension Challenge:\n{extension}"
-        p_ext.font.size = Pt(20)
-        p_ext.font.bold = True
-        p_ext.font.color.rgb = RGBColor(180, 83, 9)
-        p_ext.space_before = Pt(20) 
 
-    # -----------------------------------------
-    # INSERT THIS: SLIDE 3: SOLUTIONS / ANSWERS
-    # -----------------------------------------
+    # --- SLIDE 3: SOLUTIONS / ANSWERS ---
     if answers:
         slide_layout_answers = prs.slide_layouts[1]  # Title and Content layout
         slide_answers = prs.slides.add_slide(slide_layout_answers)
@@ -167,12 +158,7 @@ if extension:
             p.text = str(answers)
             p.space_after = Pt(18)
             p.font.size = Pt(22)
-    # -----------------------------------------
 
-    ppt_buffer = io.BytesIO()
-    prs.save(ppt_buffer)
-    ppt_buffer.seek(0)
-    return ppt_buffer.getvalue()
     ppt_buffer = io.BytesIO()
     prs.save(ppt_buffer)
     ppt_buffer.seek(0)
@@ -180,12 +166,9 @@ if extension:
 
 
 # --- PDF GENERATOR ---
-def generate_task_pdf(title, scenario, questions, extension, phase, theme, answers):
+def generate_task_pdf(title, scenario, questions, extension, phase, theme, answers=None):
     """
-    Generates a 1-page printable A4 PDF student worksheet.
-    Dynamically adjusts working box heights and font sizes while making the 
-    Extension Challenge working box double the height of standard question boxes,
-    ensuring all content remains cleanly formatted on a single page.
+    Generates a printable A4 PDF student worksheet with a solutions page.
     """
     buffer = io.BytesIO()
 
@@ -193,7 +176,6 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     font_normal, font_bold = get_macron_font()
 
     # 1. Page dimensions & setup (A4: 595.27 x 841.89 pt)
-    # Margins: Top/Bottom 24pt, Left/Right 36pt -> Printable height ~793pt
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
@@ -277,24 +259,20 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     
     story.append(Spacer(1, 10))
 
-    # 4. Calculate Dynamic Box Heights (Double height for Extension Box)
-    # Unit allocation: each regular question = 1 unit, extension box = 2 units
+    # 4. Calculate Dynamic Box Heights
     num_questions = len(questions)
     total_units = num_questions + (2 if extension else 0)
     
-    # Estimate vertical space taken by question/extension headers
     estimated_text_lines = sum(max(1, len(q) // 80) for q in questions) + (max(1, len(extension) // 80) if extension else 0)
     text_height = estimated_text_lines * q_lead
     
-    # Available vertical space calculation
     gaps_space = (num_questions + (1 if extension else 0)) * (space_after_box + 4)
     available_box_space = 460 - text_height - gaps_space
     
-    # Calculate height per 1 unit
     unit_height = max(35, min(75, available_box_space / max(1, total_units)))
     
     standard_box_height = unit_height
-    extension_box_height = unit_height * 2  # Double the size for extension answer box
+    extension_box_height = unit_height * 2 
 
     def create_working_box(box_height):
         t = Table([['']], colWidths=[523], rowHeights=[box_height])
@@ -316,19 +294,11 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         story.append(Spacer(1, 3))
         story.append(create_working_box(box_height=extension_box_height))
         story.append(Spacer(1, space_after_box))
-if extension:
-        story.append(Paragraph(f"<b>Extension Challenge:</b> {extension}", question_style))
-        story.append(Spacer(1, 3))
-        story.append(create_working_box(box_height=extension_box_height))
-        story.append(Spacer(1, space_after_box))
 
-    # -----------------------------------------
-    # INSERT THIS: PAGE 2: SOLUTIONS / ANSWERS
-    # -----------------------------------------
+    # --- PAGE 2: SOLUTIONS / ANSWERS ---
     if answers:
         story.append(PageBreak()) # Forces a new page
         
-        # Solutions Title Style
         sol_title_style = ParagraphStyle(
             'SolutionTitle',
             parent=styles['Heading1'],
@@ -340,15 +310,14 @@ if extension:
         )
         story.append(Paragraph("Solutions", sol_title_style))
         
-        # Solutions Content Style (Larger text, nicely spaced)
         sol_body_style = ParagraphStyle(
             'SolutionBody',
             parent=styles['Normal'],
             fontName=font_normal,
-            fontSize=14,  # Larger font for readability
-            leading=20,   # Line height for breathing room
+            fontSize=14,
+            leading=20,
             textColor=colors.HexColor('#2D3748'),
-            spaceAfter=14 # Space between questions
+            spaceAfter=14
         )
         
         if isinstance(answers, list):
@@ -356,12 +325,7 @@ if extension:
                 story.append(Paragraph(f"<b>{i+1}.</b> {ans}", sol_body_style))
         else:
             story.append(Paragraph(str(answers), sol_body_style))
-    # -----------------------------------------
 
-    # Build PDF document
-    doc.build(story)
-    buffer.seek(0)
-    return buffer.getvalue()
     # Build PDF document
     doc.build(story)
     buffer.seek(0)
