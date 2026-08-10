@@ -1,3 +1,22 @@
+import io
+import os
+import re
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+
+try:
+    from pptx import Presentation
+    from pptx.util import Inches, Pt
+    from pptx.dml.color import RGBColor
+    PPTX_AVAILABLE = True
+except ImportError:
+    PPTX_AVAILABLE = False
+    
 def generate_task_pdf(title, scenario, questions, extension, phase, theme, answers):
     """
     Generates a 1-page printable A4 PDF student worksheet.
