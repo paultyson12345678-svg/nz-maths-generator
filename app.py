@@ -84,7 +84,7 @@ if st.sidebar.button("✨ Generate Tasks", type="primary"):
                 prompt += f"\n\nCRITICAL INSTRUCTION FOR THE 3 TASKS:"
                 prompt += f"\n- Task 1 MUST use a Te Ao Māori context."
                 prompt += f"\n- Task 2 MUST use a Pasifika context."
-                prompt += f"\n- Task 3 MUST use a general NZ/Kiwi context."
+                prompt += f"\n- Task 3 MUST use a general NZ context."
                 prompt += f"\nBlend these specific cultural contexts smoothly with the chosen theme: {active_theme}."
 
                 response = model.generate_content(
