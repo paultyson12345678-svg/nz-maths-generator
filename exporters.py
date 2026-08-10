@@ -133,19 +133,32 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_ext.font.color.rgb = RGBColor(180, 83, 9)
         p_ext.space_before = Pt(30)  # Generous gap above Extension Challenge
 
-    # --- SLIDE 3: Teacher Notes, Misconceptions & Solutions ---
-    slide3 = prs.slides.add_slide(blank_layout)
+    # --- SLIDE 3: Teacher Solutions & Guidance ---
+    slide_3 = prs.slides.add_slide(blank_slide_layout)
 
-    sol_title_box = slide3.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.7))
-    tf_sol = sol_title_box.text_frame
-    tf_sol.word_wrap = True
-    p_sol_title = tf_sol.paragraphs[0]
-    p_sol_title.text = f"{title} — Teacher Notes & Solutions"
-    p_sol_title.font.size = Pt(24)
-    p_sol_title.font.bold = True
-    p_sol_title.font.color.rgb = RGBColor(30, 58, 138)
+    title_box_3 = slide_3.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.733), Inches(1.0))
+    tf_title_3 = title_box_3.text_frame
+    tf_title_3.word_wrap = True
+    p_title_3 = tf_title_3.paragraphs[0]
+    p_title_3.text = f"Solutions & Teacher Guidance: {title}"
+    p_title_3.font.size = Pt(24)
+    p_title_3.font.bold = True
+    p_title_3.font.color.rgb = RGBColor(27, 54, 93)
 
-    current_top = 1.2
+    ans_box = slide_3.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(11.733), Inches(5.4))
+    tf_ans = ans_box.text_frame
+    tf_ans.word_wrap = True
+
+    for idx, ans_text in enumerate(answers, 1):
+        p_ans = tf_ans.add_paragraph() if idx > 1 else tf_ans.paragraphs[0]
+        if idx <= len(questions):
+            label = f"Question {idx} Solution:"
+        else:
+            label = "Extension Challenge Guidance & Sample Solutions (Open-Ended):"
+            
+        p_ans.text = f"• {label}\n  {ans_text}"
+        p_ans.font.size = Pt(13)
+        p_ans.space_after = Pt(10)
 
     # Teacher Notes & Misconceptions Box (under title)
     if teacher_notes or misconceptions:
