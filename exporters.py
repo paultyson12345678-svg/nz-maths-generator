@@ -132,13 +132,13 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_ext.font.size = Pt(20)
         p_ext.font.bold = True
         p_ext.font.color.rgb = RGBColor(180, 83, 9)
-        p_ext.space_before = Pt(40) # Doubled gap before the extension challenge
+        p_ext.space_before = Pt(40)
 
     # --- SLIDE 3: TEACHER NOTES, MISCONCEPTIONS & SOLUTIONS ---
     if answers or misconceptions or teacher_notes:
         slide_answers = prs.slides.add_slide(blank_layout)
         
-        # Style Title to match Slide 1 & 2 exactly
+        # Style Title 
         title_box3 = slide_answers.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.7))
         tf3 = title_box3.text_frame
         tf3.word_wrap = True
@@ -148,76 +148,66 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         title_p.font.bold = True
         title_p.font.color.rgb = RGBColor(30, 58, 138)
         
-        # Start vertical position right below the title box
-        current_top = 1.25
+        # Single Content Box to enforce natural spacing and prevent overlap
+        content_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(1.25), Inches(11.7), Inches(5.8))
+        tf_content = content_box.text_frame
+        tf_content.word_wrap = True
+        
+        is_first = True
 
-        # 1. Teacher Guidance in its OWN SEPARATE TEXT BOX (Top of slide 3)
+        # 1. Teacher Guidance (Immediately under title)
         if teacher_notes:
-            tg_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(current_top), Inches(11.7), Inches(1.2))
-            tf_tg = tg_box.text_frame
-            tf_tg.word_wrap = True
-            
-            p_tn_title = tf_tg.paragraphs[0]
+            p_tn_title = tf_content.paragraphs[0]
+            is_first = False
             p_tn_title.text = "Teacher Guidance:"
             p_tn_title.font.bold = True
             p_tn_title.font.size = Pt(14)
             
-            p_tn = tf_tg.add_paragraph()
+            p_tn = tf_content.add_paragraph()
             p_tn.text = str(teacher_notes)
             p_tn.font.size = Pt(14)
-            
-            # Push the next text box further down the slide to create physical separation
-            current_top += 1.6
+            p_tn.space_after = Pt(24) # Big gap to separate it from the solutions
         
-        # 2. Misconceptions and 3. Solutions in a SECOND SEPARATE TEXT BOX
-        rest_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(current_top), Inches(11.7), Inches(7.2 - current_top))
-        tf_rest = rest_box.text_frame
-        tf_rest.word_wrap = True
-        
-        is_first = True
-        
-        # Misconceptions
+        # 2. Misconceptions
         if misconceptions:
-            p_mc_title = tf_rest.paragraphs[0] if is_first else tf_rest.add_paragraph()
+            p_mc_title = tf_content.paragraphs[0] if is_first else tf_content.add_paragraph()
             is_first = False
             p_mc_title.text = "Common Misconceptions:"
             p_mc_title.font.bold = True
             p_mc_title.font.size = Pt(14)
             
-            p_mc = tf_rest.add_paragraph()
+            p_mc = tf_content.add_paragraph()
             p_mc.text = str(misconceptions)
             p_mc.font.size = Pt(14)
-            p_mc.space_after = Pt(12)
+            p_mc.space_after = Pt(24)
             
-        # Solutions & Extension
+        # 3. Solutions & Extension
         if answers:
             if isinstance(answers, list):
                 for i, ans in enumerate(answers):
-                    p_head = tf_rest.paragraphs[0] if is_first else tf_rest.add_paragraph()
+                    p_head = tf_content.paragraphs[0] if is_first else tf_content.add_paragraph()
                     is_first = False
                     
                     if i == len(answers) - 1:
-                        # Ensures the extension solution is distinct from teacher guidance
                         p_head.text = "Extension Solution:"
                     else:
                         p_head.text = f"Question {i+1}:"
                     
-                    # Bold the individual question/extension headings
                     p_head.font.bold = True
                     p_head.font.size = Pt(14)
                     
-                    p_ans = tf_rest.add_paragraph()
+                    p_ans = tf_content.add_paragraph()
                     p_ans.text = str(ans)
                     p_ans.font.size = Pt(14)
                     p_ans.space_after = Pt(12)
             else:
-                p_head = tf_rest.paragraphs[0] if is_first else tf_rest.add_paragraph()
+                p_head = tf_content.paragraphs[0] if is_first else tf_content.add_paragraph()
                 is_first = False
                 p_head.text = "Solutions:"
                 p_head.font.bold = True
                 p_head.font.size = Pt(14)
                 
-                p_ans = tf_rest.add_paragraph()
+                p_ans = tf_content.add_paragraph()
                 p_ans.text = str(answers)
                 p_ans.font.size = Pt(14)
                 p_ans.space_after = Pt(12)
