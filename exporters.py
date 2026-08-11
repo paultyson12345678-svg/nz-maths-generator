@@ -436,12 +436,12 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         if teacher_notes:
             story.append(Paragraph("<b>Teacher Guidance:</b>", body_style))
             story.append(Paragraph(str(teacher_notes), body_style))
-            story.append(Spacer(1, 15)) 
+            story.append(Spacer(1, 10)) # Reduced to keep it grouped with Misconceptions
             
         if misconceptions:
             story.append(Paragraph("<b>Common Misconceptions:</b>", body_style))
             story.append(Paragraph(str(misconceptions), body_style))
-            story.append(Spacer(1, 4))
+            story.append(Spacer(1, 15)) # Increased to create a clear break before Question 1
             
         if answers:
             if isinstance(answers, list):
