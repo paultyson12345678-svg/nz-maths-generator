@@ -283,9 +283,12 @@ for i, (tab, task) in enumerate(zip(tab_list, tasks)):
                         scenario=task.get('scenario', ''),
                         questions=task.get('questions', []),
                         extension=task.get('extension', ''),
-                        phase=params.get('phase', 'N/A'),     # <--- CHANGED TO params
-                        theme=params.get('theme', 'General'), # <--- CHANGED TO params
-                        answers=task.get('answers', [])
+                        phase=params.get('phase', 'N/A'),     
+                        theme=params.get('theme', 'General'), 
+                        answers=task.get('answers', []),
+                        # --- ADD THESE TWO LINES SO THE PDF GETS THE DATA! ---
+                        teacher_notes=task.get('teacher_notes', ''),
+                        misconceptions=task.get('misconceptions', '')
                     )
                     if pdf_data:
                         st.download_button(
