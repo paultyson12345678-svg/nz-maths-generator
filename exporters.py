@@ -186,7 +186,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         first_item = False
         p_q.text = f"{idx}. {q}"
         p_q.font.size = Pt(20)
-        p_q.space_after = Pt(30) 
+        p_q.space_after = Pt(60) 
 
     if extension:
         p_ext = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
