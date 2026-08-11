@@ -249,18 +249,18 @@ for i, (tab, task) in enumerate(zip(tab_list, tasks)):
                 # We replace spaces with underscores so the file name is clean
                 safe_title = task.get('title', f'Maths_Task_Option_{i+1}').replace(' ', '_')
                 
-                # Export Buttons (Now properly indented inside the tab container!)
+               # Export Buttons (Now properly indented inside the tab container!)
                 col1, col2 = st.columns(2)
                 
                 with col1:
-                    # Generate PPT data safely fetching phase/theme from the task
+                    # Generate PPT data safely fetching phase/theme from PARAMS
                     ppt_data = generate_powerpoint_slide(
                         title=task.get('title', 'Maths Task'),
                         scenario=task.get('scenario', ''),
                         questions=task.get('questions', []),
                         extension=task.get('extension', ''),
-                        phase=task.get('phase', 'N/A'),
-                        theme=task.get('theme', 'General'),
+                        phase=params.get('phase', 'N/A'),     # <--- CHANGED TO params
+                        theme=params.get('theme', 'General'), # <--- CHANGED TO params
                         answers=task.get('answers', []),
                         teacher_notes=task.get('teacher_notes', ''),
                         misconceptions=task.get('misconceptions', '')
@@ -269,7 +269,7 @@ for i, (tab, task) in enumerate(zip(tab_list, tasks)):
                         st.download_button(
                             label="📥 Download PowerPoint",
                             data=ppt_data,
-                            file_name=f"{safe_title}.pptx", # <--- UPDATED PPT FILE NAME
+                            file_name=f"{safe_title}.pptx", 
                             mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
                             key=f"download_ppt_{i}"
                         )
@@ -277,21 +277,21 @@ for i, (tab, task) in enumerate(zip(tab_list, tasks)):
                         st.info("PowerPoint exporter not found/configured.")
 
                 with col2:
-                    # Generate PDF data safely fetching phase/theme from the task
+                    # Generate PDF data safely fetching phase/theme from PARAMS
                     pdf_data = generate_task_pdf(
                         title=task.get('title', 'Maths Task'),
                         scenario=task.get('scenario', ''),
                         questions=task.get('questions', []),
                         extension=task.get('extension', ''),
-                        phase=task.get('phase', 'N/A'),
-                        theme=task.get('theme', 'General'),
+                        phase=params.get('phase', 'N/A'),     # <--- CHANGED TO params
+                        theme=params.get('theme', 'General'), # <--- CHANGED TO params
                         answers=task.get('answers', [])
                     )
                     if pdf_data:
                         st.download_button(
                             label="📥 Download Worksheet (PDF)",
                             data=pdf_data,
-                            file_name=f"{safe_title}.pdf", # <--- UPDATED PDF FILE NAME
+                            file_name=f"{safe_title}.pdf", 
                             mime="application/pdf",
                             key=f"download_pdf_{i}"
                         )
