@@ -124,13 +124,13 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_q = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
         first_item = False
         p_q.text = f"{idx}. {q}"
-        p_q.font.size = Pt(18)
-        p_q.space_after = Pt(60) 
+        p_q.font.size = Pt(20)
+        p_q.space_after = Pt(80) 
 
     if extension:
         p_ext = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
         p_ext.text = f"Extension Challenge:\n{extension}"
-        p_ext.font.size = Pt(18)
+        p_ext.font.size = Pt(20)
         p_ext.font.bold = True
         p_ext.font.color.rgb = RGBColor(180, 83, 9)
         p_ext.space_before = Pt(40) # Doubled gap before the extension challenge
