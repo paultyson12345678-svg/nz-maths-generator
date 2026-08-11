@@ -98,7 +98,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     if questions:
         p_q1 = tf_q1.paragraphs[0]
         p_q1.text = f"1. {questions[0]}"
-        p_q1.font.size = Pt(18)
+        p_q1.font.size = Pt(20)
         p_q1.font.color.rgb = RGBColor(30, 41, 59)
 
     # --- SLIDE 2: Question 2+ & Extension Challenge ---
