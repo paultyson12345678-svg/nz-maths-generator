@@ -162,20 +162,6 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_q1.font.size = Pt(20)
         p_q1.font.color.rgb = RGBColor(30, 41, 59)
 
-    # Run 1: The bold label
-    run_label = p_scen.add_run()
-    run_label.text = "Scenario: "
-    run_label.font.bold = True
-    run_label.font.size = Pt(20)
-    run_label.font.color.rgb = RGBColor(31, 41, 55)
-
-    # Run 2: The actual scenario text (normal weight)
-    run_text = p_scen.add_run()
-    run_text.text = str(scenario)
-    run_text.font.bold = False # Set to True if you want the whole paragraph bold
-    run_text.font.size = Pt(20)
-    run_text.font.color.rgb = RGBColor(31, 41, 55)
-
     # --- SLIDE 2: Question 2+ & Extension Challenge ---
     slide2 = prs.slides.add_slide(blank_layout)
 
