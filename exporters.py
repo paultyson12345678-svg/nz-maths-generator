@@ -132,66 +132,63 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_ext.font.size = Pt(20)
         p_ext.font.bold = True
         p_ext.font.color.rgb = RGBColor(180, 83, 9)
-        p_ext.space_before = Pt(20) 
+        p_ext.space_before = Pt(40) # Doubled gap before the extension challenge
 
-    # --- SLIDE 3: SOLUTIONS / ANSWERS ---
-    if answers:
+    # --- SLIDE 3: MISCONCEPTIONS, SOLUTIONS & TEACHER NOTES ---
+    if answers or misconceptions or teacher_notes:
         slide_layout_answers = prs.slide_layouts[1]  # Title and Content layout
         slide_answers = prs.slides.add_slide(slide_layout_answers)
         
+        # Style Title to match Slide 1 & 2
         title_shape_answers = slide_answers.shapes.title
-        title_shape_answers.text = f"Solutions: {title}"
+        title_shape_answers.text = f"Solutions & Notes: {title}"
+        title_p = title_shape_answers.text_frame.paragraphs[0]
+        title_p.font.size = Pt(24)
+        title_p.font.bold = True
+        title_p.font.color.rgb = RGBColor(30, 58, 138)
         
         body_shape_answers = slide_answers.placeholders[1]
         tf_answers = body_shape_answers.text_frame
         tf_answers.word_wrap = True
         tf_answers.clear() 
         
-        if isinstance(answers, list):
-            for i, ans in enumerate(answers):
-                p = tf_answers.add_paragraph()
-                p.text = f"{i+1}. {ans}"
-                p.space_after = Pt(18)
-                p.font.size = Pt(22)
-        else:
-            p = tf_answers.add_paragraph()
-            p.text = str(answers)
-            p.space_after = Pt(18)
-            p.font.size = Pt(22)
-
-    # --- SLIDE 4: TEACHER NOTES & MISCONCEPTIONS ---
-    if teacher_notes or misconceptions:
-        slide_layout_notes = prs.slide_layouts[1]
-        slide_notes = prs.slides.add_slide(slide_layout_notes)
-        
-        title_shape_notes = slide_notes.shapes.title
-        title_shape_notes.text = "Teacher Notes & Misconceptions"
-        
-        body_shape_notes = slide_notes.placeholders[1]
-        tf_notes = body_shape_notes.text_frame
-        tf_notes.word_wrap = True
-        tf_notes.clear()
-        
-        if teacher_notes:
-            p_tn_title = tf_notes.add_paragraph()
-            p_tn_title.text = "Teacher Notes:"
-            p_tn_title.font.bold = True
-            p_tn_title.font.size = Pt(20)
-            
-            p_tn = tf_notes.add_paragraph()
-            p_tn.text = str(teacher_notes)
-            p_tn.font.size = Pt(18)
-            p_tn.space_after = Pt(20)
-            
+        # 1. Misconceptions first
         if misconceptions:
-            p_mc_title = tf_notes.add_paragraph()
+            p_mc_title = tf_answers.add_paragraph()
             p_mc_title.text = "Common Misconceptions:"
             p_mc_title.font.bold = True
-            p_mc_title.font.size = Pt(20)
+            p_mc_title.font.size = Pt(16)
             
-            p_mc = tf_notes.add_paragraph()
+            p_mc = tf_answers.add_paragraph()
             p_mc.text = str(misconceptions)
-            p_mc.font.size = Pt(18)
+            p_mc.font.size = Pt(14)
+            p_mc.space_after = Pt(16)
+            
+        # 2. Solutions & Teacher Notes next
+        if answers:
+            if isinstance(answers, list):
+                for i, ans in enumerate(answers):
+                    p = tf_answers.add_paragraph()
+                    
+                    # If this is the final answer, label it as Extension & attach teacher notes
+                    if i == len(answers) - 1:
+                        combo_text = f"Extension Solution & Teacher guidance:\n{ans}"
+                        if teacher_notes:
+                            combo_text += f"\n{teacher_notes}"
+                        p.text = combo_text
+                    else:
+                        p.text = f"Question {i+1}: {ans}"
+                        
+                    p.space_after = Pt(12)
+                    p.font.size = Pt(14)
+            else:
+                p = tf_answers.add_paragraph()
+                combo_text = f"Solutions:\n{answers}"
+                if teacher_notes:
+                    combo_text += f"\n\nTeacher guidance:\n{teacher_notes}"
+                p.text = combo_text
+                p.space_after = Pt(12)
+                p.font.size = Pt(14)
 
     ppt_buffer = io.BytesIO()
     prs.save(ppt_buffer)
@@ -337,29 +334,34 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
             'SectionBody',
             parent=styles['Normal'],
             fontName=font_normal,
-            fontSize=14,
-            leading=20,
+            fontSize=12,
+            leading=16,
             textColor=colors.HexColor('#2D3748'),
-            spaceAfter=14
+            spaceAfter=12
         )
         
+        story.append(Paragraph("Solutions & Notes", section_title_style))
+
+        if misconceptions:
+            story.append(Paragraph("<b>Common Misconceptions:</b>", body_style))
+            story.append(Paragraph(str(misconceptions), body_style))
+            story.append(Spacer(1, 10))
+            
         if answers:
-            story.append(Paragraph("Solutions", section_title_style))
             if isinstance(answers, list):
                 for i, ans in enumerate(answers):
-                    story.append(Paragraph(f"<b>{i+1}.</b> {ans}", body_style))
+                    if i == len(answers) - 1:
+                        combo_text = f"<b>Extension Solution & Teacher guidance:</b><br/>{ans}"
+                        if teacher_notes:
+                            combo_text += f"<br/><i>Notes:</i> {teacher_notes}"
+                        story.append(Paragraph(combo_text, body_style))
+                    else:
+                        story.append(Paragraph(f"<b>Question {i+1}:</b> {ans}", body_style))
             else:
-                story.append(Paragraph(str(answers), body_style))
-            story.append(Spacer(1, 15))
-            
-        if teacher_notes:
-            story.append(Paragraph("Teacher Notes", section_title_style))
-            story.append(Paragraph(str(teacher_notes), body_style))
-            story.append(Spacer(1, 15))
-            
-        if misconceptions:
-            story.append(Paragraph("Common Misconceptions", section_title_style))
-            story.append(Paragraph(str(misconceptions), body_style))
+                ans_text = f"<b>Solutions:</b><br/>{answers}"
+                if teacher_notes:
+                    ans_text += f"<br/><br/><b>Teacher guidance:</b><br/>{teacher_notes}"
+                story.append(Paragraph(ans_text, body_style))
 
     doc.build(story)
     buffer.seek(0)
