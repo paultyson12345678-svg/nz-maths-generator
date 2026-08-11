@@ -87,9 +87,8 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     tf_scen.word_wrap = True
     p_scen = tf_scen.paragraphs[0]
     p_scen.text = f"Scenario: {scenario}"
-    p_scen.font.size = Pt(20)
-    p_scen.font.bold = True
-    p_scen.font.color.rgb = RGBColor(0, 100, 0)
+    p_scen.font.size = Pt(18)
+    p_scen.font.color.rgb = RGBColor(31, 41, 55)
 
     # Question 1 Box
     q1_box = slide1.shapes.add_textbox(Inches(0.8), Inches(3.6), Inches(11.7), Inches(3.2))
@@ -125,7 +124,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         first_item = False
         p_q.text = f"{idx}. {q}"
         p_q.font.size = Pt(20)
-        p_q.space_after = Pt(70) 
+        p_q.space_after = Pt(30) 
 
     if extension:
         p_ext = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
@@ -133,13 +132,13 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_ext.font.size = Pt(20)
         p_ext.font.bold = True
         p_ext.font.color.rgb = RGBColor(180, 83, 9)
-        p_ext.space_before = Pt(30) # Doubled gap before the extension challenge
+        p_ext.space_before = Pt(40)
 
     # --- SLIDE 3: TEACHER NOTES, MISCONCEPTIONS & SOLUTIONS ---
     if answers or misconceptions or teacher_notes:
         slide_answers = prs.slides.add_slide(blank_layout)
         
-        # Style Title to match Slide 1 & 2 exactly
+        # Style Title 
         title_box3 = slide_answers.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.7))
         tf3 = title_box3.text_frame
         tf3.word_wrap = True
@@ -149,10 +148,10 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         title_p.font.bold = True
         title_p.font.color.rgb = RGBColor(30, 58, 138)
         
-        # Track vertical position so we can physically separate the text boxes
-        current_top = 1.25  # Small gap immediately beneath the title
+        # Track vertical position to perfectly stack 3 separate boxes
+        current_top = 1.25
 
-        # 1. Teacher Guidance in its OWN SEPARATE TEXT BOX
+        # 1. Teacher Guidance - Top Box
         if teacher_notes:
             tg_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(current_top), Inches(11.7), Inches(1.2))
             tf_tg = tg_box.text_frame
@@ -167,34 +166,37 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
             p_tn.text = str(teacher_notes)
             p_tn.font.size = Pt(14)
             
-            # Push the next text box further down the slide to create physical separation
-            current_top += 1.3
-        
-        # 2. Misconceptions and 3. Solutions in a SECOND SEPARATE TEXT BOX
-        rest_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(current_top), Inches(11.7), Inches(7.2 - current_top))
-        tf_rest = rest_box.text_frame
-        tf_rest.word_wrap = True
-        
-        is_first = True
-        
-        # Misconceptions
+            # Move cursor down for the next box
+            current_top += 1.4
+
+        # 2. Common Misconceptions - Middle Box
         if misconceptions:
-            p_mc_title = tf_rest.paragraphs[0] if is_first else tf_rest.add_paragraph()
-            is_first = False
+            mc_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(current_top), Inches(11.7), Inches(1.2))
+            tf_mc = mc_box.text_frame
+            tf_mc.word_wrap = True
+            
+            p_mc_title = tf_mc.paragraphs[0]
             p_mc_title.text = "Common Misconceptions:"
             p_mc_title.font.bold = True
             p_mc_title.font.size = Pt(14)
             
-            p_mc = tf_rest.add_paragraph()
+            p_mc = tf_mc.add_paragraph()
             p_mc.text = str(misconceptions)
             p_mc.font.size = Pt(14)
-            p_mc.space_after = Pt(12)
             
-        # Solutions & Extension
+            # Move cursor down for the next box
+            current_top += 1.4
+            
+        # 3. Solutions & Extension - Bottom Box
         if answers:
+            ans_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(current_top), Inches(11.7), Inches(7.2 - current_top))
+            tf_ans = ans_box.text_frame
+            tf_ans.word_wrap = True
+            
+            is_first = True
             if isinstance(answers, list):
                 for i, ans in enumerate(answers):
-                    p_head = tf_rest.paragraphs[0] if is_first else tf_rest.add_paragraph()
+                    p_head = tf_ans.paragraphs[0] if is_first else tf_ans.add_paragraph()
                     is_first = False
                     
                     if i == len(answers) - 1:
@@ -202,22 +204,21 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
                     else:
                         p_head.text = f"Question {i+1}:"
                     
-                    # Bold the individual question/extension headings
                     p_head.font.bold = True
                     p_head.font.size = Pt(14)
                     
-                    p_ans = tf_rest.add_paragraph()
+                    p_ans = tf_ans.add_paragraph()
                     p_ans.text = str(ans)
                     p_ans.font.size = Pt(14)
                     p_ans.space_after = Pt(12)
             else:
-                p_head = tf_rest.paragraphs[0] if is_first else tf_rest.add_paragraph()
+                p_head = tf_ans.paragraphs[0] if is_first else tf_ans.add_paragraph()
                 is_first = False
                 p_head.text = "Solutions:"
                 p_head.font.bold = True
                 p_head.font.size = Pt(14)
                 
-                p_ans = tf_rest.add_paragraph()
+                p_ans = tf_ans.add_paragraph()
                 p_ans.text = str(answers)
                 p_ans.font.size = Pt(14)
                 p_ans.space_after = Pt(12)
@@ -378,7 +379,7 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
         if teacher_notes:
             story.append(Paragraph("<b>Teacher Guidance:</b>", body_style))
             story.append(Paragraph(str(teacher_notes), body_style))
-            story.append(Spacer(1, 15)) # Larger spacer for explicit separation
+            story.append(Spacer(1, 15)) 
             
         # 2. Misconceptions
         if misconceptions:
@@ -400,4 +401,3 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     doc.build(story)
     buffer.seek(0)
     return buffer.getvalue()
-
