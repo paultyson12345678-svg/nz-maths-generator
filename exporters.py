@@ -148,14 +148,14 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         title_p.font.bold = True
         title_p.font.color.rgb = RGBColor(30, 58, 138)
         
-        # Custom body box positioned closely to the title to save space
-        body_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(1.1), Inches(11.7), Inches(6.0))
+        # Custom body box positioned with a small gap (Inches(1.25) instead of 1.1) under the title
+        body_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(1.25), Inches(11.7), Inches(5.85))
         tf_answers = body_box.text_frame
         tf_answers.word_wrap = True
         
         is_first = True
         
-        # 1. Teacher Guidance First
+        # 1. Teacher Guidance First (Right below the title gap)
         if teacher_notes:
             p_tn_title = tf_answers.paragraphs[0] if is_first else tf_answers.add_paragraph()
             is_first = False
@@ -189,7 +189,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
                     is_first = False
                     
                     if i == len(answers) - 1:
-                        p_head.text = "Extension Solution & Teacher guidance:"
+                        p_head.text = "Extension Solution:"
                     else:
                         p_head.text = f"Question {i+1}:"
                     
@@ -382,7 +382,7 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
             if isinstance(answers, list):
                 for i, ans in enumerate(answers):
                     if i == len(answers) - 1:
-                        story.append(Paragraph(f"<b>Extension Solution & Teacher guidance:</b><br/>{ans}", body_style))
+                        story.append(Paragraph(f"<b>Extension Solution:</b><br/>{ans}", body_style))
                     else:
                         story.append(Paragraph(f"<b>Question {i+1}:</b><br/>{ans}", body_style))
             else:
