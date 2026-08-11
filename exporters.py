@@ -88,6 +88,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     p_scen = tf_scen.paragraphs[0]
     p_scen.text = f"Scenario: {scenario}"
     p_scen.font.size = Pt(20)
+    p_scen.font.bold
     p_scen.font.color.rgb = RGBColor(31, 41, 55)
 
     # Question 1 Box
@@ -97,7 +98,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     if questions:
         p_q1 = tf_q1.paragraphs[0]
         p_q1.text = f"1. {questions[0]}"
-        p_q1.font.size = Pt(20)
+        p_q1.font.size = Pt(18)
         p_q1.font.color.rgb = RGBColor(30, 41, 59)
 
     # --- SLIDE 2: Question 2+ & Extension Challenge ---
@@ -108,7 +109,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     tf2.word_wrap = True
     p2 = tf2.paragraphs[0]
     p2.text = f"{title} (Continued)"
-    p2.font.size = Pt(24)
+    p2.font.size = Pt(20)
     p2.font.bold = True
     p2.font.color.rgb = RGBColor(30, 58, 138)
 
@@ -123,13 +124,13 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_q = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
         first_item = False
         p_q.text = f"{idx}. {q}"
-        p_q.font.size = Pt(20)
-        p_q.space_after = Pt(30) 
+        p_q.font.size = Pt(18)
+        p_q.space_after = Pt(60) 
 
     if extension:
         p_ext = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
         p_ext.text = f"Extension Challenge:\n{extension}"
-        p_ext.font.size = Pt(20)
+        p_ext.font.size = Pt(18)
         p_ext.font.bold = True
         p_ext.font.color.rgb = RGBColor(180, 83, 9)
         p_ext.space_before = Pt(40) # Doubled gap before the extension challenge
