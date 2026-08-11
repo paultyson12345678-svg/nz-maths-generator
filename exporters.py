@@ -120,6 +120,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     # --- SLIDE 1: Scenario & Question 1 ---
     slide1 = prs.slides.add_slide(blank_layout)
 
+    # Title Box
     title_box1 = slide1.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.7))
     tf1 = title_box1.text_frame
     tf1.word_wrap = True
@@ -129,11 +130,37 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     p1.font.bold = True
     p1.font.color.rgb = RGBColor(30, 58, 138)
 
+    # Scenario Box
     scen_box = slide1.shapes.add_textbox(Inches(0.8), Inches(1.2), Inches(11.7), Inches(2.0))
     tf_scen = scen_box.text_frame
     tf_scen.word_wrap = True
+    
     p_scen = tf_scen.paragraphs[0]
     p_scen.text = "" # Clear default text to prevent duplicates
+
+    # Run 1: The bold label
+    run_label = p_scen.add_run()
+    run_label.text = "Scenario: "
+    run_label.font.bold = True
+    run_label.font.size = Pt(18)
+    run_label.font.color.rgb = RGBColor(31, 41, 55)
+
+    # Run 2: The actual scenario text (normal weight)
+    run_text = p_scen.add_run()
+    run_text.text = str(scenario)
+    run_text.font.bold = False 
+    run_text.font.size = Pt(18)
+    run_text.font.color.rgb = RGBColor(31, 41, 55)
+
+    # Question 1 Box
+    q1_box = slide1.shapes.add_textbox(Inches(0.8), Inches(3.6), Inches(11.7), Inches(3.2))
+    tf_q1 = q1_box.text_frame
+    tf_q1.word_wrap = True
+    if questions:
+        p_q1 = tf_q1.paragraphs[0]
+        p_q1.text = f"1. {questions[0]}"
+        p_q1.font.size = Pt(20)
+        p_q1.font.color.rgb = RGBColor(30, 41, 59)
 
     # Run 1: The bold label
     run_label = p_scen.add_run()
