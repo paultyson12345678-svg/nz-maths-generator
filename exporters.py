@@ -89,7 +89,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     p_scen.text = f"Scenario: {scenario}"
     p_scen.font.size = Pt(20)
     p_scen.font.bold = True
-    p_scen.font.color.rgb = RGBColor(31, 41, 55)
+    p_scen.font.color.rgb = RGBColor(255, 140, 0)
 
     # Question 1 Box
     q1_box = slide1.shapes.add_textbox(Inches(0.8), Inches(3.6), Inches(11.7), Inches(3.2))
