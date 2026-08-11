@@ -133,19 +133,21 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     tf_scen = scen_box.text_frame
     tf_scen.word_wrap = True
     p_scen = tf_scen.paragraphs[0]
-    p_scen.text = f"Scenario: {scenario}"
-    p_scen.font.size = Pt(20)
-    p_scen.font.bold = True
-    p_scen.font.color.rgb = RGBColor(31, 41, 55)
+    p_scen.text = "" # Clear default text to prevent duplicates
 
-    q1_box = slide1.shapes.add_textbox(Inches(0.8), Inches(3.6), Inches(11.7), Inches(3.2))
-    tf_q1 = q1_box.text_frame
-    tf_q1.word_wrap = True
-    if questions:
-        p_q1 = tf_q1.paragraphs[0]
-        p_q1.text = f"1. {questions[0]}"
-        p_q1.font.size = Pt(20)
-        p_q1.font.color.rgb = RGBColor(30, 41, 59)
+    # Run 1: The bold label
+    run_label = p_scen.add_run()
+    run_label.text = "Scenario: "
+    run_label.font.bold = True
+    run_label.font.size = Pt(20)
+    run_label.font.color.rgb = RGBColor(31, 41, 55)
+
+    # Run 2: The actual scenario text (normal weight)
+    run_text = p_scen.add_run()
+    run_text.text = str(scenario)
+    run_text.font.bold = False # Set to True if you want the whole paragraph bold
+    run_text.font.size = Pt(20)
+    run_text.font.color.rgb = RGBColor(31, 41, 55)
 
     # --- SLIDE 2: Question 2+ & Extension Challenge ---
     slide2 = prs.slides.add_slide(blank_layout)
