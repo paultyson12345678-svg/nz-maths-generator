@@ -142,14 +142,14 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     run_label = p_scen.add_run()
     run_label.text = "Scenario: "
     run_label.font.bold = True
-    run_label.font.size = Pt(18)
+    run_label.font.size = Pt(20)
     run_label.font.color.rgb = RGBColor(31, 41, 55)
 
     # Run 2: The actual scenario text (normal weight)
     run_text = p_scen.add_run()
     run_text.text = str(scenario)
     run_text.font.bold = False 
-    run_text.font.size = Pt(18)
+    run_text.font.size = Pt(20)
     run_text.font.color.rgb = RGBColor(31, 41, 55)
 
     # Question 1 Box
@@ -186,7 +186,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         first_item = False
         p_q.text = f"{idx}. {q}"
         p_q.font.size = Pt(20)
-        p_q.space_after = Pt(60) 
+        p_q.space_after = Pt(40) 
 
     if extension:
         p_ext = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
@@ -194,7 +194,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_ext.font.size = Pt(20)
         p_ext.font.bold = True
         p_ext.font.color.rgb = RGBColor(180, 83, 9)
-        p_ext.space_before = Pt(40)
+        p_ext.space_before = Pt(60)
 
     # --- SLIDE 3: TEACHER NOTES, MISCONCEPTIONS & SOLUTIONS ---
     if answers or misconceptions or teacher_notes:
