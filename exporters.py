@@ -91,6 +91,15 @@ def _clean_and_extract_data(answers, teacher_notes, misconceptions):
             else:
                 extracted_mc = parts[1].strip() if not extracted_mc else extracted_mc
                 
+        # --- NEW FIX: Clean up stray AI headers left in the answer text ---
+        # This removes hallucinated headers like "Sample Solutions & Notes" or "Sample Solutions &" 
+        # that get left behind when the text is split.
+        text = re.sub(r'(?i)\b(Sample\s+)?Solutions\s*&?\s*(Notes)?\s*$', '', text).strip()
+        
+        # Catch a completely stray ampersand if it's the only thing left
+        if text == "&":
+            text = ""
+                
         return text
 
     if isinstance(answers, list):
