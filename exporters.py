@@ -14,7 +14,7 @@ try:
     from pptx import Presentation
     from pptx.util import Inches, Pt
     from pptx.dml.color import RGBColor
-    from pptx.enum.text import MSO_ANCHOR
+    from pptx.enum.text import MSO_ANCHOR, MSO_AUTO_SIZE # <-- Added MSO_AUTO_SIZE here
     PPTX_AVAILABLE = True
 except ImportError:
     PPTX_AVAILABLE = False
@@ -196,87 +196,102 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         p_ext.font.color.rgb = RGBColor(180, 83, 9)
         p_ext.space_before = Pt(60)
 
-    # --- SLIDE 3: TEACHER NOTES, MISCONCEPTIONS & SOLUTIONS ---
-    if answers or misconceptions or teacher_notes:
-        slide_answers = prs.slides.add_slide(blank_layout)
+   # --- SLIDE 3: TEACHER NOTES & MISCONCEPTIONS ---
+    if teacher_notes or misconceptions:
+        slide_notes = prs.slides.add_slide(blank_layout)
         
-        title_box3 = slide_answers.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.7))
-        tf3 = title_box3.text_frame
-        tf3.word_wrap = True
-        title_p = tf3.paragraphs[0]
-        title_p.text = f"Solutions & Notes: {title}"
+        title_box_notes = slide_notes.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.7))
+        tf_notes = title_box_notes.text_frame
+        tf_notes.word_wrap = True
+        title_p = tf_notes.paragraphs[0]
+        title_p.text = f"Teacher Notes: {title}"
         title_p.font.size = Pt(24)
         title_p.font.bold = True
         title_p.font.color.rgb = RGBColor(30, 58, 138)
         
-        content_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(1.3), Inches(11.7), Inches(5.8))
+        content_box = slide_notes.shapes.add_textbox(Inches(0.8), Inches(1.3), Inches(11.7), Inches(5.8))
         tf_content = content_box.text_frame
         tf_content.word_wrap = True
         tf_content.vertical_anchor = MSO_ANCHOR.TOP 
+        tf_content.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE # Auto-shrinks text if it overflows!
         
         is_first = True
 
-        # 1. Teacher Guidance FIRST
         if teacher_notes:
             p_tn_title = tf_content.paragraphs[0] if is_first else tf_content.add_paragraph()
             is_first = False
             p_tn_title.text = "Teacher Guidance:"
             p_tn_title.font.bold = True
-            p_tn_title.font.size = Pt(14)
+            p_tn_title.font.size = Pt(16)
             
             p_tn = tf_content.add_paragraph()
             p_tn.text = str(teacher_notes)
-            p_tn.font.size = Pt(14)
-            p_tn.space_after = Pt(18)
+            p_tn.font.size = Pt(16)
+            p_tn.space_after = Pt(20)
         
-        # 2. Common Misconceptions SECOND
         if misconceptions:
             p_mc_title = tf_content.paragraphs[0] if is_first else tf_content.add_paragraph()
             is_first = False
             p_mc_title.text = "Common Misconceptions:"
             p_mc_title.font.bold = True
-            p_mc_title.font.size = Pt(14)
+            p_mc_title.font.size = Pt(16)
             
             p_mc = tf_content.add_paragraph()
             p_mc.text = str(misconceptions)
-            p_mc.font.size = Pt(14)
-            p_mc.space_after = Pt(18)
-            
-        # 3. Solutions & Extension THIRD
-        if answers:
-            if isinstance(answers, list):
-                for i, ans in enumerate(answers):
-                    # Skip empty answers that might have resulted from cleanup
-                    if not str(ans).strip(): 
-                        continue
-                        
-                    p_head = tf_content.paragraphs[0] if is_first else tf_content.add_paragraph()
-                    is_first = False
+            p_mc.font.size = Pt(16)
+
+    # --- SLIDE 4: SOLUTIONS ---
+    if answers:
+        slide_ans = prs.slides.add_slide(blank_layout)
+        
+        title_box_ans = slide_ans.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.7))
+        tf_ans_title = title_box_ans.text_frame
+        tf_ans_title.word_wrap = True
+        title_p = tf_ans_title.paragraphs[0]
+        title_p.text = f"Solutions: {title}"
+        title_p.font.size = Pt(24)
+        title_p.font.bold = True
+        title_p.font.color.rgb = RGBColor(30, 58, 138)
+        
+        content_box_ans = slide_ans.shapes.add_textbox(Inches(0.8), Inches(1.3), Inches(11.7), Inches(5.8))
+        tf_content_ans = content_box_ans.text_frame
+        tf_content_ans.word_wrap = True
+        tf_content_ans.vertical_anchor = MSO_ANCHOR.TOP 
+        tf_content_ans.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE # Auto-shrinks text if it overflows!
+        
+        is_first = True
+
+        if isinstance(answers, list):
+            for i, ans in enumerate(answers):
+                # Skip empty answers
+                if not str(ans).strip(): 
+                    continue
                     
-                    if i == len(answers) - 1:
-                        p_head.text = "Extension Solution:"
-                    else:
-                        p_head.text = f"Question {i+1}:"
-                    
-                    p_head.font.bold = True
-                    p_head.font.size = Pt(14)
-                    
-                    p_ans = tf_content.add_paragraph()
-                    p_ans.text = str(ans)
-                    p_ans.font.size = Pt(14)
-                    p_ans.space_after = Pt(12)
-            else:
-                if str(answers).strip():
-                    p_head = tf_content.paragraphs[0] if is_first else tf_content.add_paragraph()
-                    is_first = False
-                    p_head.text = "Solutions:"
-                    p_head.font.bold = True
-                    p_head.font.size = Pt(14)
-                    
-                    p_ans = tf_content.add_paragraph()
-                    p_ans.text = str(answers)
-                    p_ans.font.size = Pt(14)
-                    p_ans.space_after = Pt(12)
+                p_head = tf_content_ans.paragraphs[0] if is_first else tf_content_ans.add_paragraph()
+                is_first = False
+                
+                if i == len(answers) - 1:
+                    p_head.text = "Extension Solution:"
+                else:
+                    p_head.text = f"Question {i+1}:"
+                
+                p_head.font.bold = True
+                p_head.font.size = Pt(16)
+                
+                p_ans = tf_content_ans.add_paragraph()
+                p_ans.text = str(ans)
+                p_ans.font.size = Pt(16)
+                p_ans.space_after = Pt(16)
+        else:
+            if str(answers).strip():
+                p_head = tf_content_ans.paragraphs[0] if is_first else tf_content_ans.add_paragraph()
+                p_head.text = "Solutions:"
+                p_head.font.bold = True
+                p_head.font.size = Pt(16)
+                
+                p_ans = tf_content_ans.add_paragraph()
+                p_ans.text = str(answers)
+                p_ans.font.size = Pt(16)
 
     ppt_buffer = io.BytesIO()
     prs.save(ppt_buffer)
