@@ -63,7 +63,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     prs = Presentation()
     
     # Use widescreen (16:9) aspect ratio
-    prs.slide_width = Inches(14.333)
+    prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
     
     blank_layout = prs.slide_layouts[6]
@@ -87,9 +87,8 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     tf_scen.word_wrap = True
     p_scen = tf_scen.paragraphs[0]
     p_scen.text = f"Scenario: {scenario}"
-    p_scen.font.size = Pt(20)
-    p_scen.font.bold = True
-    p_scen.font.color.rgb = RGBColor(0, 100, 0)
+    p_scen.font.size = Pt(18)
+    p_scen.font.color.rgb = RGBColor(31, 41, 55)
 
     # Question 1 Box
     q1_box = slide1.shapes.add_textbox(Inches(0.8), Inches(3.6), Inches(11.7), Inches(3.2))
@@ -125,7 +124,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         first_item = False
         p_q.text = f"{idx}. {q}"
         p_q.font.size = Pt(20)
-        p_q.space_after = Pt(80) 
+        p_q.space_after = Pt(30) 
 
     if extension:
         p_ext = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
@@ -137,25 +136,29 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
 
     # --- SLIDE 3: MISCONCEPTIONS, SOLUTIONS & TEACHER NOTES ---
     if answers or misconceptions or teacher_notes:
-        slide_layout_answers = prs.slide_layouts[1]  # Title and Content layout
-        slide_answers = prs.slides.add_slide(slide_layout_answers)
+        slide_answers = prs.slides.add_slide(blank_layout)
         
-        # Style Title to match Slide 1 & 2
-        title_shape_answers = slide_answers.shapes.title
-        title_shape_answers.text = f"Solutions & Notes: {title}"
-        title_p = title_shape_answers.text_frame.paragraphs[0]
+        # Style Title to match Slide 1 & 2 exactly
+        title_box3 = slide_answers.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.7))
+        tf3 = title_box3.text_frame
+        tf3.word_wrap = True
+        title_p = tf3.paragraphs[0]
+        title_p.text = f"Solutions & Notes: {title}"
         title_p.font.size = Pt(24)
         title_p.font.bold = True
         title_p.font.color.rgb = RGBColor(30, 58, 138)
         
-        body_shape_answers = slide_answers.placeholders[1]
-        tf_answers = body_shape_answers.text_frame
+        # Custom body box positioned closely to the title to save space
+        body_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(1.1), Inches(11.7), Inches(6.0))
+        tf_answers = body_box.text_frame
         tf_answers.word_wrap = True
-        tf_answers.clear() 
+        
+        is_first = True
         
         # 1. Misconceptions first
         if misconceptions:
-            p_mc_title = tf_answers.add_paragraph()
+            p_mc_title = tf_answers.paragraphs[0] if is_first else tf_answers.add_paragraph()
+            is_first = False
             p_mc_title.text = "Common Misconceptions:"
             p_mc_title.font.bold = True
             p_mc_title.font.size = Pt(16)
@@ -169,7 +172,8 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         if answers:
             if isinstance(answers, list):
                 for i, ans in enumerate(answers):
-                    p = tf_answers.add_paragraph()
+                    p = tf_answers.paragraphs[0] if is_first else tf_answers.add_paragraph()
+                    is_first = False
                     
                     # If this is the final answer, label it as Extension & attach teacher notes
                     if i == len(answers) - 1:
@@ -183,7 +187,9 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
                     p.space_after = Pt(12)
                     p.font.size = Pt(14)
             else:
-                p = tf_answers.add_paragraph()
+                p = tf_answers.paragraphs[0] if is_first else tf_answers.add_paragraph()
+                is_first = False
+                
                 combo_text = f"Solutions:\n{answers}"
                 if teacher_notes:
                     combo_text += f"\n\nTeacher guidance:\n{teacher_notes}"
