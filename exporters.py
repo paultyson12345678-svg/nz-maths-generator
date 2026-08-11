@@ -148,44 +148,55 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         title_p.font.bold = True
         title_p.font.color.rgb = RGBColor(30, 58, 138)
         
-        # Single Content Box to enforce natural spacing and prevent overlap
-        content_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(1.25), Inches(11.7), Inches(5.8))
-        tf_content = content_box.text_frame
-        tf_content.word_wrap = True
-        
-        is_first = True
+        # Track vertical position to perfectly stack 3 separate boxes
+        current_top = 1.25
 
-        # 1. Teacher Guidance (Immediately under title)
+        # 1. Teacher Guidance - Top Box
         if teacher_notes:
-            p_tn_title = tf_content.paragraphs[0]
-            is_first = False
+            tg_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(current_top), Inches(11.7), Inches(1.2))
+            tf_tg = tg_box.text_frame
+            tf_tg.word_wrap = True
+            
+            p_tn_title = tf_tg.paragraphs[0]
             p_tn_title.text = "Teacher Guidance:"
             p_tn_title.font.bold = True
             p_tn_title.font.size = Pt(14)
             
-            p_tn = tf_content.add_paragraph()
+            p_tn = tf_tg.add_paragraph()
             p_tn.text = str(teacher_notes)
             p_tn.font.size = Pt(14)
-            p_tn.space_after = Pt(24) # Big gap to separate it from the solutions
-        
-        # 2. Misconceptions
+            
+            # Move cursor down for the next box
+            current_top += 1.4
+
+        # 2. Common Misconceptions - Middle Box
         if misconceptions:
-            p_mc_title = tf_content.paragraphs[0] if is_first else tf_content.add_paragraph()
-            is_first = False
+            mc_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(current_top), Inches(11.7), Inches(1.2))
+            tf_mc = mc_box.text_frame
+            tf_mc.word_wrap = True
+            
+            p_mc_title = tf_mc.paragraphs[0]
             p_mc_title.text = "Common Misconceptions:"
             p_mc_title.font.bold = True
             p_mc_title.font.size = Pt(14)
             
-            p_mc = tf_content.add_paragraph()
+            p_mc = tf_mc.add_paragraph()
             p_mc.text = str(misconceptions)
             p_mc.font.size = Pt(14)
-            p_mc.space_after = Pt(24)
             
-        # 3. Solutions & Extension
+            # Move cursor down for the next box
+            current_top += 1.4
+            
+        # 3. Solutions & Extension - Bottom Box
         if answers:
+            ans_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(current_top), Inches(11.7), Inches(7.2 - current_top))
+            tf_ans = ans_box.text_frame
+            tf_ans.word_wrap = True
+            
+            is_first = True
             if isinstance(answers, list):
                 for i, ans in enumerate(answers):
-                    p_head = tf_content.paragraphs[0] if is_first else tf_content.add_paragraph()
+                    p_head = tf_ans.paragraphs[0] if is_first else tf_ans.add_paragraph()
                     is_first = False
                     
                     if i == len(answers) - 1:
@@ -196,18 +207,18 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
                     p_head.font.bold = True
                     p_head.font.size = Pt(14)
                     
-                    p_ans = tf_content.add_paragraph()
+                    p_ans = tf_ans.add_paragraph()
                     p_ans.text = str(ans)
                     p_ans.font.size = Pt(14)
                     p_ans.space_after = Pt(12)
             else:
-                p_head = tf_content.paragraphs[0] if is_first else tf_content.add_paragraph()
+                p_head = tf_ans.paragraphs[0] if is_first else tf_ans.add_paragraph()
                 is_first = False
                 p_head.text = "Solutions:"
                 p_head.font.bold = True
                 p_head.font.size = Pt(14)
                 
-                p_ans = tf_content.add_paragraph()
+                p_ans = tf_ans.add_paragraph()
                 p_ans.text = str(answers)
                 p_ans.font.size = Pt(14)
                 p_ans.space_after = Pt(12)
