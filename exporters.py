@@ -63,7 +63,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     prs = Presentation()
     
     # Use widescreen (16:9) aspect ratio
-    prs.slide_width = Inches(13.333)
+    prs.slide_width = Inches(14.333)
     prs.slide_height = Inches(7.5)
     
     blank_layout = prs.slide_layouts[6]
