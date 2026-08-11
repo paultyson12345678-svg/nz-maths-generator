@@ -14,6 +14,7 @@ try:
     from pptx import Presentation
     from pptx.util import Inches, Pt
     from pptx.dml.color import RGBColor
+    from pptx.enum.text import MSO_ANCHOR  # <-- Required to stop overlapping
     PPTX_AVAILABLE = True
 except ImportError:
     PPTX_AVAILABLE = False
@@ -87,8 +88,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
     tf_scen.word_wrap = True
     p_scen = tf_scen.paragraphs[0]
     p_scen.text = f"Scenario: {scenario}"
-    p_scen.font.size = Pt(20)
-    p_scen.font.bold = True
+    p_scen.font.size = Pt(18)
     p_scen.font.color.rgb = RGBColor(31, 41, 55)
 
     # Question 1 Box
@@ -125,7 +125,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
         first_item = False
         p_q.text = f"{idx}. {q}"
         p_q.font.size = Pt(20)
-        p_q.space_after = Pt(70) 
+        p_q.space_after = Pt(30) 
 
     if extension:
         p_ext = tf_q2.paragraphs[0] if first_item else tf_q2.add_paragraph()
@@ -157,6 +157,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
             tg_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(current_top), Inches(11.7), Inches(1.2))
             tf_tg = tg_box.text_frame
             tf_tg.word_wrap = True
+            tf_tg.vertical_anchor = MSO_ANCHOR.TOP  # <--- Forces text to stay at the top and not bleed over
             
             p_tn_title = tf_tg.paragraphs[0]
             p_tn_title.text = "Teacher Guidance:"
@@ -175,6 +176,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
             mc_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(current_top), Inches(11.7), Inches(1.2))
             tf_mc = mc_box.text_frame
             tf_mc.word_wrap = True
+            tf_mc.vertical_anchor = MSO_ANCHOR.TOP  # <--- Forces text to stay at the top
             
             p_mc_title = tf_mc.paragraphs[0]
             p_mc_title.text = "Common Misconceptions:"
@@ -193,6 +195,7 @@ def generate_powerpoint_slide(title, scenario, questions, extension, phase, them
             ans_box = slide_answers.shapes.add_textbox(Inches(0.8), Inches(current_top), Inches(11.7), Inches(7.2 - current_top))
             tf_ans = ans_box.text_frame
             tf_ans.word_wrap = True
+            tf_ans.vertical_anchor = MSO_ANCHOR.TOP  # <--- Prevents solutions from expanding upwards
             
             is_first = True
             if isinstance(answers, list):
