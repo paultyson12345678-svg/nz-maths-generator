@@ -222,20 +222,26 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
     # Create Tabs instead of columns
     tab_list = st.tabs([f"Option {i+1}" for i in range(len(tasks))])
 
-    # ✅ NOW INDENTED 4 SPACES SO IT ONLY RUNS WHEN TASKS EXIST!
+   # ✅ NOW INDENTED 4 SPACES SO IT ONLY RUNS WHEN TASKS EXIST!
     for i, (tab, task) in enumerate(zip(tab_list, tasks)):
         with tab:
             with st.container(border=True): 
                 st.subheader(task['title'])
                 
-                st.markdown(f"**Scenario:**\n{task['scenario']}")
+                # --- FIX: Escape dollar signs so Streamlit doesn't turn them into math equations ---
+                safe_scenario = task.get('scenario', '').replace('$', r'\$')
+                
+                st.markdown(f"**Scenario:**\n{safe_scenario}")
                 
                 with st.expander("👩‍🏫 Teacher Notes & Misconceptions"):
                     if task.get('misconceptions'):
+                        # --- FIX: Escape dollar signs here too! ---
+                        safe_misconceptions = task.get('misconceptions', '').replace('$', r'\$')
+                        
                         st.markdown(
                             f"""
                             <div style="background-color: #2c3e50; padding: 15px; border-radius: 8px;">
-                                <p style="color: white; margin: 0;"><b>💡 Common Misconceptions:</b><br>{task['misconceptions']}</p>
+                                <p style="color: white; margin: 0;"><b>💡 Common Misconceptions:</b><br>{safe_misconceptions}</p>
                             </div>
                             """, 
                             unsafe_allow_html=True
@@ -244,6 +250,9 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
                         st.write("No specific misconceptions identified for this task.")
 
                 st.divider()
+
+                # --- EXPORT BUTTONS CONTINUE BELOW... ---
+                # (Leave your col1, col2 and generate_powerpoint/pdf code exactly as it is!)
 
                 # --- CORRECTED INDENTATION & FILE NAMES START HERE ---
                 
