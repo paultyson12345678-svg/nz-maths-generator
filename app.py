@@ -222,7 +222,8 @@ if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']
     # Create Tabs instead of columns
     tab_list = st.tabs([f"Option {i+1}" for i in range(len(tasks))])
 
-for i, (tab, task) in enumerate(zip(tab_list, tasks)):
+    # ✅ NOW INDENTED 4 SPACES SO IT ONLY RUNS WHEN TASKS EXIST!
+    for i, (tab, task) in enumerate(zip(tab_list, tasks)):
         with tab:
             with st.container(border=True): 
                 st.subheader(task['title'])
@@ -249,7 +250,7 @@ for i, (tab, task) in enumerate(zip(tab_list, tasks)):
                 # We replace spaces with underscores so the file name is clean
                 safe_title = task.get('title', f'Maths_Task_Option_{i+1}').replace(' ', '_')
                 
-               # Export Buttons (Now properly indented inside the tab container!)
+               # Export Buttons
                 col1, col2 = st.columns(2)
                 
                 with col1:
@@ -259,8 +260,8 @@ for i, (tab, task) in enumerate(zip(tab_list, tasks)):
                         scenario=task.get('scenario', ''),
                         questions=task.get('questions', []),
                         extension=task.get('extension', ''),
-                        phase=params.get('phase', 'N/A'),     # <--- CHANGED TO params
-                        theme=params.get('theme', 'General'), # <--- CHANGED TO params
+                        phase=params.get('phase', 'N/A'),     
+                        theme=params.get('theme', 'General'), 
                         answers=task.get('answers', []),
                         teacher_notes=task.get('teacher_notes', ''),
                         misconceptions=task.get('misconceptions', '')
@@ -286,7 +287,6 @@ for i, (tab, task) in enumerate(zip(tab_list, tasks)):
                         phase=params.get('phase', 'N/A'),     
                         theme=params.get('theme', 'General'), 
                         answers=task.get('answers', []),
-                        # --- ADD THESE TWO LINES SO THE PDF GETS THE DATA! ---
                         teacher_notes=task.get('teacher_notes', ''),
                         misconceptions=task.get('misconceptions', '')
                     )
