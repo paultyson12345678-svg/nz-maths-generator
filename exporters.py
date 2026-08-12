@@ -391,7 +391,7 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     scenario_table = Table([[scenario_p]], colWidths=[523])
     scenario_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F7FAFC')),
-        ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#CBD5E0')),
+        ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#7FA2C9')),
         ('PADDING', (0, 0), (-1, -1), scen_padding),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
     ]))
@@ -404,7 +404,7 @@ def generate_task_pdf(title, scenario, questions, extension, phase, theme, answe
     estimated_text_lines = sum(max(1, len(q) // 80) for q in questions) + (max(1, len(extension) // 80) if extension else 0)
     text_height = estimated_text_lines * q_lead
     
-    gaps_space = (num_questions + (1 if extension else 0)) * (space_after_box + 4)
+    gaps_space = (num_questions + (1 if extension else 0)) * (space_after_box + 5)
     available_box_space = 460 - text_height - gaps_space
     
     unit_height = max(35, min(75, available_box_space / max(1, total_units)))
