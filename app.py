@@ -107,29 +107,45 @@ if selected_theme == "Custom Context (Enter your own below)":
 else:
     theme_context = selected_theme
 
-# --- GENERATION LOGIC ---
-        response = None
-        max_retries = 3
-        base_delay = 2  # Delay in seconds
+# --- GENERATION TRIGGER ---
+if st.sidebar.button("Generate 3 Tasks", type="primary"):
+    # Format selected keywords for the prompt
+    keywords_str = ", ".join(selected_keywords) if selected_keywords else "None selected"
 
-        with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
-            for attempt in range(max_retries):
-                try:
-                    response = client.models.generate_content(
-                        model='gemini-3.5-flash',
-                        contents=prompt,
-                        config={'response_mime_type': 'application/json'}
-                    )
-                    break  # Success! Exit retry loop
-                except Exception as err:
-                    err_msg = str(err).lower()
-                    if ("503" in err_msg or "unavailable" in err_msg or "high demand" in err_msg) and attempt < max_retries - 1:
-                        sleep_time = base_delay * (2 ** attempt)
-                        st.warning(f"Model is busy (503). Retrying in {sleep_time}s... (Attempt {attempt + 1}/{max_retries})")
-                        time.sleep(sleep_time)
-                        continue
-                    st.error(f"Generation failed: {err}")
-                    break
+    prompt = f"""
+    You are an expert primary school mathematics specialist in Aotearoa New Zealand.
+    Generate 3 rich, authentic mathematical tasks for New Zealand classrooms using the updated NZ Curriculum parameters below:
+    - Curriculum Phase: {phase} ({year_level})
+    - Area / Strand: {strand}
+    - Targeted Strand Keywords / Concepts: {keywords_str}
+    - Learning Focus / Skill: {selected_skill}
+    - Theme / Context: {theme_context}
+    ...
+    """
+
+    # --- GENERATION LOGIC WITH RETRIES ---
+    response = None
+    max_retries = 3
+    base_delay = 2  # Delay in seconds
+
+    with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
+        for attempt in range(max_retries):
+            try:
+                response = client.models.generate_content(
+                    model='gemini-3.5-flash',
+                    contents=prompt,
+                    config={'response_mime_type': 'application/json'}
+                )
+                break  # Success! Exit retry loop
+            except Exception as err:
+                err_msg = str(err).lower()
+                if ("503" in err_msg or "unavailable" in err_msg or "high demand" in err_msg) and attempt < max_retries - 1:
+                    sleep_time = base_delay * (2 ** attempt)
+                    st.warning(f"Model is busy (503). Retrying in {sleep_time}s... (Attempt {attempt + 1}/{max_retries})")
+                    time.sleep(sleep_time)
+                    continue
+                st.error(f"Generation failed: {err}")
+                break
             
             # Format selected keywords for the prompt
             keywords_str = ", ".join(selected_keywords) if selected_keywords else "None selected"
