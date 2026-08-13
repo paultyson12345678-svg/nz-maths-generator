@@ -112,13 +112,35 @@ if st.sidebar.button("Generate 3 Tasks", type="primary"):
     # Format selected keywords for the prompt
     keywords_str = ", ".join(selected_keywords) if selected_keywords else "None selected"
 
+    # --- MAP READING LEVEL GUIDELINES BY PHASE ---
+    READING_GUIDELINES = {
+        "Phase 1": "Use simple decodable words, short sentences (5–8 words max), repetitive sentence structures, and basic sight words. Avoid dense narrative blocks.",
+        "Phase 2": "Use clear, concise sentences with simple compound structures. Vocabulary should be familiar to 7–9 year olds. Keep context paragraphs brief (2–3 sentences).",
+        "Phase 3": "Use clear contextual scenarios with age-appropriate vocabulary for 10–12 year olds. Sentence structures can include multi-clause explanations, but keep mathematical instructions direct.",
+        "Phase 4": "Use secondary-level real-world scenario prose. Introduce formal mathematical vocabulary alongside plain-language explanations where appropriate."
+    }
+
+    reading_level_instruction = READING_GUIDELINES.get(
+        phase, 
+        "Ensure reading difficulty, sentence length, and vocabulary precisely match the targeted age and year level so students can read independently."
+    )
+
     prompt = f"""
-    You are an expert primary school mathematics specialist in Aotearoa New Zealand.
-    Generate 3 rich, authentic mathematical tasks for New Zealand classrooms using the updated NZ Curriculum parameters below:
-    - Curriculum Phase: {phase} ({year_level})
-    - Area / Strand: {strand}
-    - Targeted Strand Keywords / Concepts: {keywords_str} - Learning Focus / Skill: {selected_skill}
-    - Theme / Context: {theme_context}
+You are an expert primary school mathematics specialist in Aotearoa New Zealand. Generate 3 rich, authentic mathematical tasks for New Zealand classrooms using the updated NZ Curriculum parameters below:
+- Curriculum Phase: {phase} ({year_level})
+- Area / Strand: {strand}
+- Targeted Strand Keywords / Concepts: {keywords_str}
+- Learning Focus / Skill: {selected_skill}
+- Theme / Context: {theme_context}
+
+CRITICAL READING LEVEL REQUIREMENT:
+- Target Reading Profile: {reading_level_instruction}
+- The scenario, questions, and extension MUST be written at an independent reading level for students in {year_level}.
+- Avoid unnecessarily complex clause structures or overly decorative adjectives that create barriers to comprehension for students reading independently.
+
+Guidelines for Tasks:
+1. Task 1 MUST feature a Māori bicultural context, integrating te reo Māori terms (e.g., tamariki, waka, kai, marae) appropriately with correct macrons.
+...
 
     Guidelines for Tasks:
     1. Task 1 MUST feature a Māori bicultural context, integrating te reo Māori terms (e.g., tamariki, waka, kai, marae) appropriately with correct macrons.
