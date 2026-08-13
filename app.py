@@ -117,8 +117,7 @@ if st.sidebar.button("Generate 3 Tasks", type="primary"):
     Generate 3 rich, authentic mathematical tasks for New Zealand classrooms using the updated NZ Curriculum parameters below:
     - Curriculum Phase: {phase} ({year_level})
     - Area / Strand: {strand}
-    - Targeted Strand Keywords / Concepts: {keywords_str}
-    - Learning Focus / Skill: {selected_skill}
+    - Targeted Strand Keywords / Concepts: {keywords_str} - Learning Focus / Skill: {selected_skill}
     - Theme / Context: {theme_context}
 
     Guidelines for Tasks:
@@ -166,56 +165,57 @@ if st.sidebar.button("Generate 3 Tasks", type="primary"):
     ]
     """
 
-    # Initialize Client & API Key
-    client = genai.Client(api_key=api_key)
+    try:
+        # Initialize Client & API Key
+        client = genai.Client(api_key=api_key)
 
-    # --- GENERATION LOGIC WITH RETRIES ---
-    response = None
-    max_retries = 3
-    base_delay = 2  # Delay in seconds
+        # --- GENERATION LOGIC WITH RETRIES ---
+        response = None
+        max_retries = 3
+        base_delay = 2  # Delay in seconds
 
-    with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
-        for attempt in range(max_retries):
+        with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
+            for attempt in range(max_retries):
+                try:
+                    response = client.models.generate_content(
+                        model='gemini-3.5-flash',
+                        contents=prompt,
+                        config={'response_mime_type': 'application/json'}
+                    )
+                    break  # Success! Exit retry loop
+                except Exception as err:
+                    err_msg = str(err).lower()
+                    if ("503" in err_msg or "unavailable" in err_msg or "high demand" in err_msg) and attempt < max_retries - 1:
+                        sleep_time = base_delay * (2 ** attempt)
+                        st.warning(f"Model is busy (503). Retrying in {sleep_time}s... (Attempt {attempt + 1}/{max_retries})")
+                        time.sleep(sleep_time)
+                        continue
+                    st.error(f"Generation failed: {err}")
+                    break
+
+        if response and response.text:
+            # Clean up the response text to remove any accidental markdown blocks
+            raw_text = response.text.strip()
+            if raw_text.startswith("```json"):
+                raw_text = raw_text[7:-3].strip()
+            elif raw_text.startswith("```"):
+                raw_text = raw_text[3:-3].strip()
+
             try:
-                response = client.models.generate_content(
-                    model='gemini-3.5-flash',
-                    contents=prompt,
-                    config={'response_mime_type': 'application/json'}
-                )
-                break  # Success! Exit retry loop
-            except Exception as err:
-                err_msg = str(err).lower()
-                if ("503" in err_msg or "unavailable" in err_msg or "high demand" in err_msg) and attempt < max_retries - 1:
-                    sleep_time = base_delay * (2 ** attempt)
-                    st.warning(f"Model is busy (503). Retrying in {sleep_time}s... (Attempt {attempt + 1}/{max_retries})")
-                    time.sleep(sleep_time)
-                    continue
-                st.error(f"Generation failed: {err}")
-                break
+                tasks = json.loads(raw_text)
+                st.session_state['generated_tasks'] = tasks
+                st.session_state['current_params'] = {
+                    'phase': phase,
+                    'year_level': year_level,
+                    'theme': theme_context
+                }
+            except json.JSONDecodeError as json_err:
+                st.error("The AI generated invalid text formatting. Please click 'Generate 3 Tasks' again to retry.")
+        elif not response:
+            st.error("Could not generate tasks. Please verify your API key in Google AI Studio.")
 
-    if response and response.text:
-        # Clean up the response text to remove any accidental markdown blocks
-        raw_text = response.text.strip()
-        if raw_text.startswith("```json"):
-            raw_text = raw_text[7:-3].strip()
-        elif raw_text.startswith("```"):
-            raw_text = raw_text[3:-3].strip()
-
-        try:
-            tasks = json.loads(raw_text)
-            st.session_state['generated_tasks'] = tasks
-            st.session_state['current_params'] = {
-                'phase': phase,
-                'year_level': year_level,
-                'theme': theme_context
-            }
-        except json.JSONDecodeError as json_err:
-            st.error("The AI generated invalid text formatting. Please click 'Generate 3 Tasks' again to retry.")
-    elif not response:
-        st.error("Could not generate tasks. Please verify your API key in Google AI Studio.")
-
-        except Exception as e:
-            st.error(f"Error initializing AI client: {str(e)}")
+    except Exception as e:
+        st.error(f"Error initializing AI client: {str(e)}")
 
 # --- DISPLAY GENERATED TASKS & EXPORTS ---
 if 'generated_tasks' in st.session_state and st.session_state['generated_tasks']:
