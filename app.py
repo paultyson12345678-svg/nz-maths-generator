@@ -120,8 +120,54 @@ if st.sidebar.button("Generate 3 Tasks", type="primary"):
     - Targeted Strand Keywords / Concepts: {keywords_str}
     - Learning Focus / Skill: {selected_skill}
     - Theme / Context: {theme_context}
-    ...
+
+    Guidelines for Tasks:
+    1. Task 1 MUST feature a Māori bicultural context, integrating te reo Māori terms (e.g., tamariki, waka, kai, marae) appropriately with correct macrons.
+    2. Task 2 MUST feature a Pasifika cultural context (e.g., Samoan, Tongan, Cook Island Māori, Fijian) reflecting Pacific communities in Aotearoa.
+    3. Task 3 MUST feature a general Kiwi/European New Zealand context (e.g., typical NZ school life, farming, local sports, or community events).
+    4. Explicitly integrate and focus on the selected targeted strand keywords ({keywords_str}) across the task scenarios, questions, and solutions where relevant.
+    5. Each task must have 2 main questions and 1 extension challenge that progress in depth/complexity.
+
+    CRITICAL EXTENSION TASK PROTOCOL (LOW FLOOR, HIGH CEILING):
+    - The extension challenge MUST follow a Low Floor, High Ceiling model.
+    - It MUST be open-ended with multiple valid approaches, strategies, or solutions (NOT a single fixed numerical answer).
+    - Low Floor: The entry point should be clear and accessible so all students can start immediately.
+    - High Ceiling: Offers depth, generalisation, or multiple solution paths for advanced students.
+    - Use prompts like: "Find at least three different ways...", "Design a scenario where...", "What happens if...", or "Create a general rule that...".
+
+    SOLUTION & TEACHER GUIDANCE FORMATTING:
+    - For Question 1 & Question 2: Provide a step-by-step worked solution and final answer.
+    - For Extension Challenge:
+      - Explicitly state that answers will vary due to the open-ended nature.
+      - Provide 2-3 sample valid solutions / exemplary student responses.
+      - Include brief Teacher Guidance on key mathematical strategies or generalisations to look out for during assessment.
+
+    6. Include a section identifying common student misconceptions for the task and how teachers can proactively address them.
+    7. Ensure tone is supportive, culturally responsive, and mathematically sound.
+    8. CRITICAL: Do NOT use any unescaped double quotes (") inside your text strings. Use single quotes (') instead to prevent JSON parsing errors.
+
+    Output strictly as a JSON array containing exactly 3 objects. Format structure:
+    [
+      {{
+        "title": "Task Title",
+        "scenario": "Rich context paragraph describing the situation...",
+        "questions": [
+          "Question 1 text...",
+          "Question 2 text..."
+        ],
+        "extension": "Extension challenge text...",
+        "misconceptions": "Common student misconceptions and how to guide them...",
+        "answers": [
+          "Detailed solution for Question 1...",
+          "Detailed solution for Question 2...",
+          "Sample solutions & teacher guidance for Extension..."
+        ]
+      }}
+    ]
     """
+
+    # Initialize Client & API Key
+    client = genai.Client(api_key=api_key)
 
     # --- GENERATION LOGIC WITH RETRIES ---
     response = None
@@ -146,98 +192,27 @@ if st.sidebar.button("Generate 3 Tasks", type="primary"):
                     continue
                 st.error(f"Generation failed: {err}")
                 break
-            
-            # Format selected keywords for the prompt
-            keywords_str = ", ".join(selected_keywords) if selected_keywords else "None selected"
-            
-            prompt = f"""
-            You are an expert primary school mathematics specialist in Aotearoa New Zealand.
-            Generate 3 rich, authentic mathematical tasks for New Zealand classrooms using the updated NZ Curriculum parameters below:
 
-            - Curriculum Phase: {phase} ({year_level})
-            - Area / Strand: {strand}
-            - Targeted Strand Keywords / Concepts: {keywords_str}
-            - Learning Focus / Skill: {selected_skill}
-            - Theme / Context: {theme_context}
+    if response and response.text:
+        # Clean up the response text to remove any accidental markdown blocks
+        raw_text = response.text.strip()
+        if raw_text.startswith("```json"):
+            raw_text = raw_text[7:-3].strip()
+        elif raw_text.startswith("```"):
+            raw_text = raw_text[3:-3].strip()
 
-            Guidelines for Tasks:
-            1. Task 1 MUST feature a Māori bicultural context, integrating te reo Māori terms (e.g., tamariki, waka, kai, marae) appropriately with correct macrons.
-            2. Task 2 MUST feature a Pasifika cultural context (e.g., Samoan, Tongan, Cook Island Māori, Fijian) reflecting Pacific communities in Aotearoa.
-            3. Task 3 MUST feature a general Kiwi/European New Zealand context (e.g., typical NZ school life, farming, local sports, or community events).
-            4. Explicitly integrate and focus on the selected targeted strand keywords ({keywords_str}) across the task scenarios, questions, and solutions where relevant.
-            5. Each task must have 2 main questions and 1 extension challenge that progress in depth/complexity.
-            
-            CRITICAL EXTENSION TASK PROTOCOL (LOW FLOOR, HIGH CEILING):
-            - The extension challenge MUST follow a Low Floor, High Ceiling model.
-            - It MUST be open-ended with multiple valid approaches, strategies, or solutions (NOT a single fixed numerical answer).
-            - Low Floor: The entry point should be clear and accessible so all students can start immediately.
-            - High Ceiling: Offers depth, generalisation, or multiple solution paths for advanced students.
-            - Use prompts like: "Find at least three different ways...", "Design a scenario where...", "What happens if...", or "Create a general rule that...".
-
-            SOLUTION & TEACHER GUIDANCE FORMATTING:
-            - For Question 1 & Question 2: Provide a step-by-step worked solution and final answer.
-            - For Extension Challenge:
-              - Explicitly state that answers will vary due to the open-ended nature.
-              - Provide 2-3 sample valid solutions / exemplary student responses.
-              - Include brief Teacher Guidance on key mathematical strategies or generalisations to look out for during assessment.
-
-            6. Include a section identifying common student misconceptions for the task and how teachers can proactively address them.
-            7. Ensure tone is supportive, culturally responsive, and mathematically sound.
-            8. CRITICAL: Do NOT use any unescaped double quotes (") inside your text strings. Use single quotes (') instead to prevent JSON parsing errors.
-
-            Output strictly as a JSON array containing exactly 3 objects.
-            Format structure:
-            [
-              {{
-                "title": "Task Title",
-                "scenario": "Rich context paragraph describing the situation...",
-                "questions": [
-                  "Question 1 text...",
-                  "Question 2 text..."
-                ],
-                "extension": "Extension challenge text...",
-                "misconceptions": "Common student misconceptions and how to guide them...",
-                "answers": [
-                  "Detailed solution for Question 1...",
-                  "Detailed solution for Question 2...",
-                  "Sample solutions & teacher guidance for Extension..."
-                ]
-              }}
-            ]
-            """
-
-            response = None
-            
-            with st.spinner("Crafting rich mathematical tasks with Gemini AI..."):
-                try:
-                    response = client.models.generate_content(
-                        model='gemini-3.5-flash',
-                        contents=prompt,
-                        config={'response_mime_type': 'application/json'}
-                    )
-                except Exception as err:
-                    st.error(f"Generation failed: {err}")
-
-            if response and response.text:
-                # Clean up the response text to remove any accidental markdown blocks
-                raw_text = response.text.strip()
-                if raw_text.startswith("```json"):
-                    raw_text = raw_text[7:-3].strip()
-                elif raw_text.startswith("```"):
-                    raw_text = raw_text[3:-3].strip()
-                
-                try:
-                    tasks = json.loads(raw_text)
-                    st.session_state['generated_tasks'] = tasks
-                    st.session_state['current_params'] = {
-                        'phase': phase,
-                        'year_level': year_level,
-                        'theme': theme_context
-                    }
-                except json.JSONDecodeError as json_err:
-                    st.error("The AI generated invalid text formatting. Please click 'Generate 3 Tasks' again to retry.")
-            elif not response:
-                st.error("Could not generate tasks. Please verify your API key in Google AI Studio.")
+        try:
+            tasks = json.loads(raw_text)
+            st.session_state['generated_tasks'] = tasks
+            st.session_state['current_params'] = {
+                'phase': phase,
+                'year_level': year_level,
+                'theme': theme_context
+            }
+        except json.JSONDecodeError as json_err:
+            st.error("The AI generated invalid text formatting. Please click 'Generate 3 Tasks' again to retry.")
+    elif not response:
+        st.error("Could not generate tasks. Please verify your API key in Google AI Studio.")
 
         except Exception as e:
             st.error(f"Error initializing AI client: {str(e)}")
