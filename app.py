@@ -112,17 +112,27 @@ if st.sidebar.button("Generate 3 Tasks", type="primary"):
     # Format selected keywords for the prompt
     keywords_str = ", ".join(selected_keywords) if selected_keywords else "None selected"
 
-    # --- MAP READING LEVEL GUIDELINES BY PHASE ---
-    READING_GUIDELINES = {
-        "Phase 1": "Use simple decodable words, short sentences (5–8 words max), repetitive sentence structures, and basic sight words. Avoid dense narrative blocks.",
-        "Phase 2": "Use clear, concise sentences with simple compound structures. Vocabulary should be familiar to 7–9 year olds. Keep context paragraphs brief (2–3 sentences).",
-        "Phase 3": "Use clear contextual scenarios with age-appropriate vocabulary for 10–12 year olds. Sentence structures can include multi-clause explanations, but keep mathematical instructions direct.",
-        "Phase 4": "Use secondary-level real-world scenario prose. Introduce formal mathematical vocabulary alongside plain-language explanations where appropriate."
+    # --- YEAR LEVEL LITERACY GUIDELINES (Te Mātaiaho Aligned: Y1–Y10) ---
+    YEAR_READING_GUIDELINES = {
+        "Y1": "Target Y1 early readers: Decodable CVC words, high-frequency sight words, maximum 1-2 syllable words. Short, simple sentences (4–6 words max) with predictable sentence structures.",
+        "Y2": "Target Y2 readers: Simple and basic compound sentences (using 'and', 'but'). Up to 2-3 syllable words. Basic affixes (-s, -ed, -ing). Brief 2-sentence context scenarios.",
+        "Y3": "Target Y3 transition readers: Simple compound and basic subordinating sentences (using 'because', 'when'). Up to 3 syllable words, prefixes/suffixes (re-, un-, -er, -est, -ly). Clear 2–3 sentence scenarios.",
+        "Y4": "Target Y4 readers: Compound-complex sentences using connectives. Up to 4 syllable words. Multi-sentence contexts with clear academic vocabulary.",
+        "Y5": "Target Y5 readers: Fluent readers. Compound-complex sentences, multi-syllabic decoding, and introductory discipline-specific math vocabulary with context.",
+        "Y6": "Target Y6 readers: Multi-paragraph reading capability. Clear transition connectives, Latin affixes, and explicit mathematical context.",
+        "Y7": "Target Y7 readers: Critical literacy stage. Embedded clauses, discipline-specific terminology, and cause/effect problem structures.",
+        "Y8": "Target Y8 readers: Technical reading stage. Complex sentence structures, passive voice where appropriate, and formal mathematical prose.",
+        "Y9": "Target Y9 secondary readers: Dense noun phrases, domain registers, and real-world analytical scenarios.",
+        "Y10": "Target Y10 secondary readers: High-level academic literacy, nominalization, formal mathematical language, and nuanced problem scenarios."
     }
 
-    reading_level_instruction = READING_GUIDELINES.get(
-        phase, 
-        "Ensure reading difficulty, sentence length, and vocabulary precisely match the targeted age and year level so students can read independently."
+    # Clean up the selected year_level format (e.g. "Year 1" or "Y1") to match dictionary keys
+    clean_year_key = year_level.replace("Year ", "Y") if "Year " in year_level else year_level
+    
+    # Get specific guideline for selected year level
+    reading_level_instruction = YEAR_READING_GUIDELINES.get(
+        clean_year_key, 
+        f"Ensure text complexity, sentence length, and vocabulary strictly match independent reading expectations for {year_level} under Te Mātaiaho literacy guidelines."
     )
 
     prompt = f"""
@@ -133,10 +143,10 @@ You are an expert primary school mathematics specialist in Aotearoa New Zealand.
 - Learning Focus / Skill: {selected_skill}
 - Theme / Context: {theme_context}
 
-CRITICAL READING LEVEL REQUIREMENT:
+CRITICAL LITERACY & READING LEVEL REQUIREMENT (Te Mātaiaho Alignment):
 - Target Reading Profile: {reading_level_instruction}
-- The scenario, questions, and extension MUST be written at an independent reading level for students in {year_level}.
-- Avoid unnecessarily complex clause structures or overly decorative adjectives that create barriers to comprehension for students reading independently.
+- Sentence structure, syllable count, and vocabulary in the scenario, questions, and extension MUST strictly reflect an independent reading level for {year_level}.
+- Avoid unnecessary decorative adjectives or dense narrative blocks that impede independent reading comprehension.
 
 Guidelines for Tasks:
 1. Task 1 MUST feature a Māori bicultural context, integrating te reo Māori terms (e.g., tamariki, waka, kai, marae) appropriately with correct macrons.
